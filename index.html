@@ -54,8 +54,8 @@
     margin: .25rem;
     width: 1ch;
     padding: 0;
-    font-size:14px;
-    font-weight: 100;
+    font-size:12px;
+    font-weight: bold;
     color: #ffffff88;
     background: none;
     border: none;
@@ -661,7 +661,7 @@
           }
           
           if (data.title) {
-            ctx.fillStyle = data.color ?? `rgba(255, 255, 255, ${Math.min(1, .25 + .75 / Math.max(1, (panv * 64)))})`;
+            ctx.fillStyle = data.color ?? `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (panv * 64)))})`;
             ctx.font = `bold ${scale / 14}px "Montserrat"`;
             ctx.textAlign = 'left';
             ctx.fillText(
@@ -672,7 +672,7 @@
           }
           
           if (data.subtitle) {
-            ctx.fillStyle = data.color ?? `rgba(255, 255, 255, ${Math.min(1, 1 / Math.max(1, (panv * 64)))})`;
+            ctx.fillStyle = data.color ?? `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (panv * 64)))})`;
             ctx.font = `${scale / 16}px "Open Sans"`;
             ctx.textAlign = 'left';
             ctx.fillText(
