@@ -116,12 +116,23 @@
     <div class="marker"></div>
     <div class="marker"></div>
   </div>
+  <!-- TODO:
+    this is not nice: specifically on phones the keyboard is uncomfortable.
+    - turn these into pure labels
+    - open a dialog upon click on the div
+    - have a nice custom keyboard, with proper keyboard support, on the dialog 
+  -->
   <div class="coord-inputs glass">
-    <input id="xInput" type="text" value="0" pattern="[0-9]*" inputmode="numeric"/>,
-    <input id="yInput" type="text" value="0" pattern="[0-9]*" inputmode="numeric"/>
+    <input id="xInput" type="text" value="0" pattern="-?[0-9]*"/>,
+    <input id="yInput" type="text" value="0" pattern="-?[0-9]*"/>
   </div>
+  <camera-control target="canvas"></camera-control>
+  <track-cursor></track-cursor>
 </footer>
-<script>
+<script type="module">
+  import './client/control/camera-control.js'
+  import './client/control/track-cursor.js'
+
   const data = new Map()
   data.set('0,0', 
     {
@@ -242,7 +253,7 @@
     }
   }
   
-  function getImage(url, scale) {    
+  function getImage(url, scale) {
     let hit = imageCache.get(url);
     if (hit) {
       hit.t = Date.now()
@@ -356,278 +367,44 @@
   let cameraX = .5;
   let cameraY = .5;
   let scale = SMALL_DEVICE ? Math.min(wmin / 2.5, MAX_SCALE) : Math.min(wmin / 3.5, MAX_SCALE);
-  let initialCameraScale = scale;
-  let scaleVelocity = 0;
-
-  let isDragging = false;
-  let startPanX = 0;
-  let startPanY = 0;
-  let initialCameraX = 0;
-  let initialCameraY = 0;
-
-  let panVelocityX = 0;
-  let panVelocityY = 0;
-
-  const friction = 0.95; 
+  const startScale = scale;
   
   let mouseX = -Infinity;
   let mouseY = -Infinity;
+  let panv = 0;
 
-  // Threshold for drag distance scaling
-  const dragThreshold = 10; // pixels
-  // For canPinch detection (from previous code):
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) && navigator.vendor && navigator.vendor.indexOf('Apple') >= 0;
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const canPinch = isSafari || isTouchDevice;
+  const cursor = document.querySelector('track-cursor')
+  cursor.addEventListener('move', ({ detail }) => {
+    mouseX = detail.x;
+    mouseY = detail.y;
+  })
 
-  // const schedule = f => isSafari ? setTimeout(f, 10) : requestAnimationFrame(f);
-  const schedule = requestAnimationFrame;
-  
-  canvas.addEventListener('mousedown', e => {
-    isDragging = true;
-    startPanX = e.clientX;
-    startPanY = e.clientY;
-    initialCameraX = cameraX;
-    initialCameraY = cameraY;
-    panVelocityX = 0;
-    panVelocityY = 0;
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
+  const camera = document.querySelector('camera-control')
+  camera.setAttribute('camx', cameraX)
+  camera.setAttribute('camy', cameraY)
+  camera.setAttribute('zoom', startScale)
+  camera.setAttribute('minzoom', MIN_SCALE)
+  camera.setAttribute('maxzoom', MAX_SCALE)
+  camera.addEventListener('pan', ({ detail }) => {
+    cameraX = detail.camera.x
+    cameraY = detail.camera.y
 
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  window.addEventListener('mousemove', e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    
-    if (isDragging) {
-      const dx = e.clientX - startPanX;
-      const dy = e.clientY - startPanY;
-
-      // Move camera inverse to mouse movement
-      cameraX = initialCameraX - (dx / scale);
-      cameraY = initialCameraY - (dy / scale);
-      scaleVelocity = 0;
-
-      // Velocity also scaled
-      const vx = -(e.movementX / scale);
-      const vy = -(e.movementY / scale);
-      panVelocityX = vx;
-      panVelocityY = vy;
-    }
-  });
-
-  let lastRecordedDScale = 0;
-  
-  canvas.addEventListener('wheel', e => {
-    e.preventDefault();
-    if (!e.ctrlKey && !e.metaKey) {
-      panVelocityX = e.deltaX / scale;
-      panVelocityY = e.deltaY / scale;
-      cameraX += panVelocityX;
-      cameraY += panVelocityY;
-      scaleVelocity = 0;
-    } else {
-      const zoomFactor = 1.01;
-      let oldScale = scale;
-      if (e.deltaY < 0) {
-        scale = Math.min(scale * zoomFactor, MAX_SCALE);
-      } else {
-        scale = Math.max(scale / zoomFactor, MIN_SCALE);
-      }
-      
-      scaleVelocity = scale - oldScale;
-      onZoom();
-    }
-  }, { passive: false });
-  
-  let isTouchPanning = false;
-  let isTouchPinching = false;
-  let isTapZooming = false;
-  if (isTouchDevice && canPinch) {
-    let lastPanX = 0;
-    let lastPanY = 0;
-    let initialPinchDistance = 0;
-    let initialCameraScale = scale;
-    let pinchCenterX = 0;
-    let pinchCenterY = 0;
-    let initialPinchCameraX = 0;
-    let initialPinchCameraY = 0;
-    let tapZoomTimer = undefined;
-    let tapZoomStart = -Infinity;
-
-    function getTouchesInfo(touches) {
-      const t = [];
-      for (let i = 0; i < touches.length; i++) {
-        t.push({x: touches[i].clientX, y: touches[i].clientY});
-      }
-      return t;
-    }
-
-    function distance(p1, p2) {
-      const dx = p1.x - p2.x;
-      const dy = p1.y - p2.y;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
-
-    let panlock = undefined;
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const touches = getTouchesInfo(e.touches);
-      mouseX = touches[0].x;
-      mouseY = touches[0].y;
-      if (touches.length === 1) {
-        if (tapZoomTimer !== undefined) {
-          isTapZooming = true;
-          isTouchPanning = false;
-          isTouchPinching = false;
-          initialCameraScale = scale;
-          startZoomX = touches[0].x;
-          startZoomY = touches[0].y;
-          scaleVelocity = 0;
-          panVelocityX = 0;
-          panVelocityY = 0;
-          tapZoomStart = Date.now();
-        } else {
-          isTouchPanning = true;
-          isTouchPinching = false;
-          isTapZooming = false;
-          lastPanX = touches[0].x;
-          lastPanY = touches[0].y;
-          initialCameraX = cameraX;
-          initialCameraY = cameraY;
-          panVelocityX = 0;
-          panVelocityY = 0; 
-        }
-      } else if (touches.length === 2) {
-        isTouchPinching = true;
-        isTouchPanning = false;
-        isTapZooming = false;
-        initialPinchDistance = distance(touches[0], touches[1]);
-        initialCameraScale = scale;
-
-        pinchCenterX = (touches[0].x + touches[1].x)/2;
-        pinchCenterY = (touches[0].y + touches[1].y)/2;
-
-        const mx = cameraX + ((pinchCenterX - width/2)/scale);
-        const my = cameraY + ((pinchCenterY - height/2)/scale);
-        initialPinchCameraX = mx;
-        initialPinchCameraY = my;
-      }
-    }, {passive: false});
-
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      const touches = getTouchesInfo(e.touches);
-      mouseX = touches[0].x;
-      mouseY = touches[0].y;
-      if (isTapZooming && touches.length === 1) {
-        const dy = touches[0].y - startZoomY;
-        let newTargetScale = initialCameraScale + dy;
-        newTargetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newTargetScale));
-        scale = newTargetScale;
-        lastRecordedDScale = dy;
-        onZoom();
-      } else if (isTouchPanning && touches.length === 1) {
-        const dx = touches[0].x - lastPanX;
-        const dy = touches[0].y - lastPanY;
-        lastPanX = touches[0].x;
-        lastPanY = touches[0].y;
-        
-        panVelocityX = -dx / scale;
-        panVelocityY = -dy / scale;
-        cameraX += panVelocityX;
-        cameraY += panVelocityY;
-        scaleVelocity = 0;
-      } else if (isTouchPinching && touches.length === 2) {
-        const newDistance = distance(touches[0], touches[1]);
-        const scaleRatio = newDistance / initialPinchDistance;
-        let newTargetScale = initialCameraScale * scaleRatio;
-        newTargetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newTargetScale));
-        
-        lastRecordedDScale = newTargetScale - scale;
-        scale = newTargetScale;
-        onZoom();
-
-        clearTimeout(panlock);
-        panlock = setTimeout(() => {
-          clearTimeout(panlock);
-          panlock = undefined;
-        }, 200);
-      }
-    }, {passive: false});
-
-    canvas.addEventListener('touchend', (e) => {
-      if (isTouchPanning && panlock === undefined) {
-        scaleVelocity = 0;
-      }
-      if (isTouchPinching || isTapZooming) {
-        scaleVelocity = lastRecordedDScale * (isTouchPinching ? 10 : .05);
-        lastRecordedDScale = 0;
-        panVelocityX = 0;
-        panVelocityY = 0;
-      }
-      if (!isTapZooming) {
-        tapZoomTimer = setTimeout(() => {
-          clearTimeout(tapZoomTimer);
-          tapZoomTimer = undefined;
-        }, 200);
-      } else {
-        if (Date.now() - tapZoomStart < 200) {
-          let counter = 0;
-          const step = () => {
-            scaleVelocity = 0;
-            scale += (wmin / 2.5 - scale) / 3;
-            onZoom();
-            if (++counter < 24) {
-              setTimeout(() => step(), 20);
-            }
-          }
-
-          step();
-        }
-      }
-      
-      isTouchPanning = false;
-      isTouchPinching = false;
-      isTapZooming = false;
-    }, {passive: false});
-  }
-
-  if (isSafari && canPinch) {
-    document.addEventListener('gesturestart', (e) => {
-      e.preventDefault();
-      initialCameraScale = scale;
-    });
-    document.addEventListener('gesturechange', (e) => {
-      e.preventDefault();
-      let newTargetScale = initialCameraScale * e.scale;
-      newTargetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newTargetScale));
-      lastRecordedDScale = newTargetScale - scale;
-      scale = newTargetScale;
-      onZoom();
-    });
-    document.addEventListener('gestureend', (e) => {
-      e.preventDefault();
-      panVelocityX = 0;
-      panVelocityY = 0;
-      scaleVelocity = lastRecordedDScale;
-    });
-  }
+    panv = Math.sqrt(
+      detail.velocity.x * detail.velocity.x
+      + detail.velocity.y * detail.velocity.y
+    ) / scale
+  })
+  camera.addEventListener('zoom', ({ detail }) => {
+    scale = detail.zoom
+    onZoom()
+  })
 
   function goToCoords() {
     const x = parseFloat(xInput.value);
     const y = parseFloat(yInput.value);
     if (!isNaN(x) && !isNaN(y)) {
-      cameraX = x + .5;
-      cameraY = y + .5;
-      panVelocityX = 0;
-      panVelocityY = 0;
+      camera.setAttribute('camx', x + .5);
+      camera.setAttribute('camy', y + .5);
     }
   }
 
@@ -635,21 +412,6 @@
   yInput.addEventListener('input', e => { goToCoords() });
 
   function draw() {
-    // Apply inertia for panning if no interaction
-    if (!isDragging && !(isTouchDevice && (document.activeElement && document.activeElement.tagName === 'CANVAS')) ) {
-      scale = Math.max(Math.min(scale + scaleVelocity, MAX_SCALE), MIN_SCALE);
-      if (!isTouchPanning) {
-        cameraX += panVelocityX;
-        cameraY += panVelocityY; 
-        panVelocityX *= friction;
-        panVelocityY *= friction; 
-      }
-      scaleVelocity *= friction;
-      if (Math.abs(panVelocityX) < 0.0001) panVelocityX = 0;
-      if (Math.abs(panVelocityY) < 0.0001) panVelocityY = 0;
-      if (Math.abs(scaleVelocity) < 0.0001) scaleVelocity = 0;
-    }
-
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
 
@@ -665,7 +427,6 @@
     const RADIUS = 0.05;
     
     const zoomedOut = scale <= wmin / 4;
-    const panv = Math.sqrt(panVelocityX * panVelocityX + panVelocityY * panVelocityY);
     
     for (let x = leftCell; x <= rightCell; x++) {
       for (let y = topCell; y <= bottomCell; y++) {
@@ -778,10 +539,10 @@
       * zoomIndicator.parentElement.getBoundingClientRect().width + 'px';
     zoomIndicator.parentElement.style.opacity = Math.max(zoomIndicator.parentElement.style.opacity * .995, 0);
 
-    schedule(draw);
+    requestAnimationFrame(draw);
   }
 
-  schedule(draw);
+  requestAnimationFrame(draw);
 </script>
 </body>
 </html>
