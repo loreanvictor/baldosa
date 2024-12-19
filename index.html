@@ -23,24 +23,26 @@
     cursor: pointer;
     touch-action: none; /* Prevent default gestures */
   }
+  .glass {
+    background: #42424288;
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    color: #ffffff88;
+  }
   footer {
     position: fixed;
     bottom: 0; left: 0; right: 0;
     color: #fff;
     font-size:14px;
-    display: flex; 
-    align-items: center; 
-    justify-content: flex-end;
-    gap:10px;
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-end;
+    align-items: flex-end;
   }
   footer .coord-inputs {
-    background: #42424288;
     padding-left: 1ch;
     padding-right: 2ch;
     border-top-left-radius: 16px;
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    color: #ffffff88;
   }
   footer input {
     &::-webkit-inner-spin-button,
@@ -62,14 +64,61 @@
     outline: none;
     white-space: nowrap;
   }
+
+  .zoom-level {
+    position: relative;
+    width: 64px;
+    height: 16px;
+    margin-right: 4px;
+    border-top-left-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .marker {
+      width: 1px;
+      height: 4px;
+      background: #ffffff88;
+
+      &:nth-of-type(4n+1) {
+        height: 8px;
+      }
+    }
+
+    #zoomIndicator {
+      width: 3px;
+      border-radius: 1px;
+      height: 8px;
+      background: #ffffff;
+      position: absolute;
+    }
+  }
 </style>
 </head>
 <body>
 <canvas id="gridCanvas"></canvas>
 <footer>
-  <div class="coord-inputs">
-    <input id="xInput" type="text" value="0"/>,
-    <input id="yInput" type="text" value="0"/>
+  <div class="zoom-level">
+    <div id="zoomIndicator"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+    <div class="marker"></div>
+  </div>
+  <div class="coord-inputs glass">
+    <input id="xInput" type="text" value="0" pattern="[0-9]*" inputmode="numeric"/>,
+    <input id="yInput" type="text" value="0" pattern="[0-9]*" inputmode="numeric"/>
   </div>
 </footer>
 <script>
@@ -241,23 +290,37 @@
   const wmin = Math.min(window.innerWidth, window.innerHeight);
   const wmax = Math.max(window.innerWidth, window.innerHeight);
   const SMALL_DEVICE = wmax <= 800;
-  const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 7;
+  const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5;
   const MAX_SCALE = 300;
 
-  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 5;
+  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 15;
   
   setInterval(() => {
     if (imageCache.size > IMG_CACHE_SIZE) {
       const entries = [...imageCache.entries()].sort((i, j) => i[1].t - j[1].t)
       const target = entries.slice(0, imageCache.size - IMG_CACHE_SIZE);
       target.forEach(entry => {
-        setTimeout(() => imageCache.delete(entry[0]), 1);
+        setTimeout(() => {
+          Object.keys(IMG_SIZES).forEach(size => {
+            if (entry[1][size] && entry[1][size] !== 'loading') {
+              entry[1][size].close();
+            }
+          });
+          imageCache.delete(entry[0]);
+        }, 1);
       });
     } else {
       const now = Date.now();
       [...imageCache.entries()]
         .filter(i => now - i[1].t > 10_000)
-        .forEach(e => imageCache.delete(e[0]))
+        .forEach(e => {
+          Object.keys(IMG_SIZES).forEach(size => {
+            if (e[1][size] && e[1][size] !== 'loading') {
+              e[1][size].close();
+            }
+          });
+          imageCache.delete(e[0]);
+        })
      ;
     }
   }, 200);
@@ -267,6 +330,11 @@
   
   const xInput = document.getElementById('xInput');
   const yInput = document.getElementById('yInput');
+  const zoomIndicator = document.getElementById('zoomIndicator');
+
+  const onZoom = () => {
+    zoomIndicator.parentElement.style.opacity = 1;
+  }
 
   let width, height;
   function resizeCanvas() {
@@ -365,7 +433,7 @@
       cameraY += panVelocityY;
       scaleVelocity = 0;
     } else {
-      const zoomFactor = 1.02;
+      const zoomFactor = 1.01;
       let oldScale = scale;
       if (e.deltaY < 0) {
         scale = Math.min(scale * zoomFactor, MAX_SCALE);
@@ -374,6 +442,7 @@
       }
       
       scaleVelocity = scale - oldScale;
+      onZoom();
     }
   }, { passive: false });
   
@@ -463,6 +532,7 @@
         newTargetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newTargetScale));
         scale = newTargetScale;
         lastRecordedDScale = dy;
+        onZoom();
       } else if (isTouchPanning && touches.length === 1) {
         const dx = touches[0].x - lastPanX;
         const dy = touches[0].y - lastPanY;
@@ -482,6 +552,7 @@
         
         lastRecordedDScale = newTargetScale - scale;
         scale = newTargetScale;
+        onZoom();
 
         clearTimeout(panlock);
         panlock = setTimeout(() => {
@@ -512,6 +583,7 @@
           const step = () => {
             scaleVelocity = 0;
             scale += (wmin / 2.5 - scale) / 3;
+            onZoom();
             if (++counter < 24) {
               setTimeout(() => step(), 20);
             }
@@ -538,6 +610,7 @@
       newTargetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newTargetScale));
       lastRecordedDScale = newTargetScale - scale;
       scale = newTargetScale;
+      onZoom();
     });
     document.addEventListener('gestureend', (e) => {
       e.preventDefault();
@@ -701,6 +774,9 @@
 
     xInput.style.width = `calc(${xInput.value.length + 1}ch)`;
     yInput.style.width = `calc(${yInput.value.length + 1}ch)`;
+    zoomIndicator.style.left = (scale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE)
+      * zoomIndicator.parentElement.getBoundingClientRect().width + 'px';
+    zoomIndicator.parentElement.style.opacity = Math.max(zoomIndicator.parentElement.style.opacity * .995, 0);
 
     schedule(draw);
   }
