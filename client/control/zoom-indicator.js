@@ -12,14 +12,20 @@ define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
   let zoom = initial
   let active = false
   let activetimeout
+  let firstzoom = true
 
   observe(control, 'zoom', ({ detail }) => {
     zoom = detail.zoom
     min = detail.min ?? min
     max = detail.max ?? max
-    active = true
-    clearTimeout(activetimeout)
-    activetimeout = setTimeout(() => (active = false), 1000)
+
+    if (!firstzoom) {
+      active = true
+      clearTimeout(activetimeout)
+      activetimeout = setTimeout(() => (active = false), 1000)
+    } else {
+      firstzoom = false
+    }
   })
 
   constantly(() => {

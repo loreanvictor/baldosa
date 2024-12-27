@@ -28,7 +28,7 @@ define('camera-control', ({ target,
   onAttribute('camy', value => (camera.y = parseFloat(value), onPan({ camera, velocity: { x: 0, y: 0 } })))
   onAttribute('zoom', value => (
     _zoom = zoom = (value ? boundZoom(parseFloat(value)) : _zoom),
-    onZoom({ zoom, velocity: 0 })
+    onZoom({ zoom, velocity: 0, min: minzoom, max: maxzoom })
   ))
   onAttribute('maxzoom', value => maxzoom = value ? parseFloat(value) : maxzoom)
   onAttribute('minzoom', value => minzoom = value ? parseFloat(value) : minzoom)
