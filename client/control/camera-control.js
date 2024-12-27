@@ -13,20 +13,25 @@ define('camera-control', ({ target,
     camx = 0, camy = 0,
     zoom = 200, maxzoom = 300, minzoom = 100,
   }) => {
+
   const onPan = useDispatch('pan')
   const onZoom = useDispatch('zoom')
 
   let camera = { x: parseFloat(camx), y: parseFloat(camy) }
   let _zoom = zoom
 
-  onAttribute('camx', value => {
-    camera.x = parseFloat(value)
-    onPan({ camera, velocity: { x: 0, y: 0 } })
-  })
+  const boundZoom = zoom => {
+    return Math.max(minzoom ?? 100, Math.min(maxzoom ?? 300, zoom ?? 200))
+  }
+
+  onAttribute('camx', value => (camera.x = parseFloat(value), onPan({ camera, velocity: { x: 0, y: 0 } })))
   onAttribute('camy', value => (camera.y = parseFloat(value), onPan({ camera, velocity: { x: 0, y: 0 } })))
-  onAttribute('zoom', value => (_zoom = zoom = parseFloat(value), onZoom({ zoom, velocity: 0 })))
-  onAttribute('maxzoom', value => maxzoom = parseFloat(value))
-  onAttribute('minzoom', value => minzoom = parseFloat(value))
+  onAttribute('zoom', value => (
+    _zoom = zoom = (value ? boundZoom(parseFloat(value)) : _zoom),
+    onZoom({ zoom, velocity: 0 })
+  ))
+  onAttribute('maxzoom', value => maxzoom = value ? parseFloat(value) : maxzoom)
+  onAttribute('minzoom', value => minzoom = value ? parseFloat(value) : minzoom)
 
   const drag = ref()
   const pinch = ref()
@@ -41,8 +46,8 @@ define('camera-control', ({ target,
       onPan({ camera, velocity: detail })
     },
     pinch: ({ detail }) => {
-      _zoom = Math.min(Math.max(_zoom + detail, minzoom), maxzoom)
-      onZoom({ zoom: _zoom, velocity: detail })
+      _zoom = boundZoom(_zoom + detail)
+      onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
     },
     wheelpan: ({ detail }) => {
       camera.x += detail.x / _zoom
@@ -50,8 +55,8 @@ define('camera-control', ({ target,
       onPan({ camera, velocity: detail })
     },
     wheelzoom: ({ detail }) => {
-      _zoom = Math.min(Math.max(_zoom + detail, minzoom), maxzoom)
-      onZoom({ zoom: _zoom, velocity: detail })
+      _zoom = boundZoom(_zoom + detail)
+      onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
     },
     touchpan: ({ detail }) => {
       camera.x += detail.x / _zoom
@@ -59,8 +64,8 @@ define('camera-control', ({ target,
       onPan({ camera, velocity :detail })
     },
     tapzoom: ({ detail }) => {
-      _zoom = Math.min(Math.max(_zoom + detail, minzoom), maxzoom)
-      onZoom({ zoom: _zoom, velocity: detail })
+      _zoom = boundZoom(_zoom + detail)
+      onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
     }, 
     tapreset: () => {
       let steps = 20
@@ -72,7 +77,7 @@ define('camera-control', ({ target,
         } else {
           _zoom = zoom
         }
-        onZoom({ zoom: _zoom, velocity: diff })
+        onZoom({ zoom: _zoom, velocity: diff, min: minzoom, max: maxzoom })
       }
       step()
     },
