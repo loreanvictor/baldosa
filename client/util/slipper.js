@@ -26,7 +26,7 @@ export const slipperyValue = (callback, options) => {
 
   const slip = () => {
     if (!locked) {
-      if (vel !== undefined && len(vel) > 0.001) {
+      if (vel !== undefined && len(vel) > 0.01) {
         vel = mul(vel, 1 / (1 + friction))
         value = add(value, vel)
         callback && callback(value, vel)

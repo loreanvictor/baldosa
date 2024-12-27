@@ -10,16 +10,20 @@ define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
   const holder = ref()
   const indicator = ref()
   let zoom = initial
+  let active = false
+  let activetimeout
 
   observe(control, 'zoom', ({ detail }) => {
     zoom = detail.zoom
     min = detail.min ?? min
     max = detail.max ?? max
-    host.style.opacity = 1
+    active = true
+    clearTimeout(activetimeout)
+    activetimeout = setTimeout(() => (active = false), 1000)
   })
 
   constantly(() => {
-    host.style.opacity = host.style.opacity > 0.01 ? host.style.opacity * .95 : 0
+    host.style.opacity = active ? 1 : (host.style.opacity > 0.01 ? host.style.opacity * .95 : 0)
     indicator.current.style.left =
       ((zoom - min) / (max - min)
         * holder.current.getBoundingClientRect().width + 16) + 'px'
@@ -33,7 +37,7 @@ define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
         -webkit-backdrop-filter: blur(8px);
         color: #ffffff88;
         position: fixed;
-        top: calc(90vh - 10px);
+        bottom: calc(5vh - 10px);
         left: calc(50vw - 40px);
         width: 64px;
         padding: 8px 16px;

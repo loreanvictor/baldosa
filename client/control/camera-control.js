@@ -46,8 +46,11 @@ define('camera-control', ({ target,
       onPan({ camera, velocity: detail })
     },
     pinch: ({ detail }) => {
-      _zoom = boundZoom(_zoom + detail)
-      onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
+      const zoom = boundZoom(_zoom + detail)
+      if (zoom !== _zoom) {
+        _zoom = zoom
+        onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
+      }
     },
     wheelpan: ({ detail }) => {
       camera.x += detail.x / _zoom
@@ -55,8 +58,11 @@ define('camera-control', ({ target,
       onPan({ camera, velocity: detail })
     },
     wheelzoom: ({ detail }) => {
-      _zoom = boundZoom(_zoom + detail)
-      onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
+      const zoom = boundZoom(_zoom + detail)
+      if (zoom !== _zoom) {
+        _zoom = zoom
+        onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
+      }
     },
     touchpan: ({ detail }) => {
       camera.x += detail.x / _zoom
@@ -64,8 +70,11 @@ define('camera-control', ({ target,
       onPan({ camera, velocity :detail })
     },
     tapzoom: ({ detail }) => {
-      _zoom = boundZoom(_zoom + detail)
-      onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
+      const zoom = boundZoom(_zoom + detail)
+      if (zoom !== _zoom) {
+        _zoom = zoom
+        onZoom({ zoom: _zoom, velocity: detail, min: minzoom, max: maxzoom })
+      }
     }, 
     tapreset: () => {
       let steps = 20
