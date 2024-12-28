@@ -40,13 +40,17 @@
   import './client/control/zoom-indicator.js'
 
   import { drawTile } from './client/render/tile.js'
+  import { PICSUM_IDS } from './client/util/picsum-ids.js'
+
+  const IMG_SIZES = {i: 1, xs: 48, s: 96, m: 156, l: 300};
+  const BLUR_MAP = {xs: 1, s: 1};
 
   const data = new Map()
-  data.set('0,0', 
+  data.set('0,0',
     {
       x: 0, y: 0,
       background: '#EFA73E',
-      image: './sign.png',
+      image: { i: './sign.png' },
     }
   );
   
@@ -94,8 +98,16 @@
         x: i, y: j,
         title: titles[Math.floor(Math.random() * titles.length)],
         subtitle: subtitles[Math.floor(Math.random() * subtitles.length)],
-        image: `https://picsum.photos/1?r=${i+500}-${j+500}`
+        image: { },
       }
+
+      const imgrand = `${i+500}-${j+500}`;
+      const idx = Math.floor(Math.random() * PICSUM_IDS.length);
+      const imgid = PICSUM_IDS[idx];
+      Object.keys(IMG_SIZES).forEach(size => {
+        post.image[size] = `https://picsum.photos/id/${imgid}/${IMG_SIZES[size]}?r=${i+500}-${j+500}-${idx}`
+          + (BLUR_MAP[size] ? `&blur=${BLUR_MAP[size]}` : '')
+      });
       
       if (Math.random() > 0.8) {
         delete post['title'];
@@ -119,6 +131,9 @@
   function getData(x, y) {
     return data.get(`${x},${y}`)
   }
+
+  window._d = getData
+  window._pid = PICSUM_IDS
   
   const imageCache = new Map();
   const loading = {};
@@ -135,11 +150,9 @@
     
     return [dx, dy, dw, dh];
   };
+
   
-  const IMG_SIZES = {i: 1, xs: 48, s: 96, m: 156, l: 300};
-  const BLUR_MAP = {xs: 1, s: 1};
-  
-  async function addImageSize(record, size) {
+  async function addImageSize(record, size, urls) {
     if (record[size] && record[size] !== 'loading') {
       return;
     }
@@ -147,39 +160,49 @@
     record[size] = 'loading';
 
     try {
-      const url = `https://picsum.photos/id/${record.id}/${IMG_SIZES[size]}` + (
-        BLUR_MAP[size] ? `?blur=${BLUR_MAP[size]}` : ''
-      );
-      const response = await fetch(url);
+      const response = await fetch(urls[size]);
       if (response.ok) {
         const blob = await response.blob();
         record[size] = await createImageBitmap(blob);
       }
     } catch (error) {
-      setTimeout(() => addSize(record, size), 100);
+      setTimeout(() => addImageSize(record, size, urls), 100);
     }
   }
   
-  function getImage(url, scale) {
-    let hit = imageCache.get(url);
+  function getImage(urls, scale) {
+    let hit = imageCache.get(urls.i);
     if (hit) {
       hit.t = Date.now()
-   
-      const target = Object.keys(IMG_SIZES).find(size => scale <= IMG_SIZES[size]);
-      
+
+      const sizes = Object.keys(IMG_SIZES).filter(size => size in urls);
+      const target = sizes.reduce(
+        (curr, candidate) =>
+           (IMG_SIZES[curr] < IMG_SIZES[candidate] && IMG_SIZES[curr] < scale)
+           ? candidate : curr
+      );
+
       if (!hit[target]) {
         hit[target] = 'loading';
-        setTimeout(() => addImageSize(hit, target), 10);
+        setTimeout(() => addImageSize(hit, target, urls), 10);
       }
       
-      const available = hit[target] !== 'loading' ? target : Object.keys(IMG_SIZES).reduce((curr, candidate) => (hit[candidate] && (hit[candidate] !== 'loading') && IMG_SIZES[candidate] >= (IMG_SIZES[curr] ?? 1)) ? candidate : curr);
+      const available = hit[target] !== 'loading' ? target :
+        sizes.reduce(
+          (curr, candidate) => (
+            hit[candidate] && (hit[candidate] !== 'loading') &&
+            IMG_SIZES[candidate] >= (IMG_SIZES[curr] ?? 1) &&
+            IMG_SIZES[curr] < scale
+          ) ? candidate : curr
+        );
       
-      return available ? hit[available] : hit.img;
-    } else if (!loading[url]) {
-      loading[url] = true;
+      return available ? hit[available] : hit.i;
+    } else if (!loading[urls.i]) {
+      loading[urls.i] = true;
       const load = async() => {
         try {
-          const response = await fetch(url);
+          // TODO: this is weird, why don't we attempt to get the requested size directly?
+          const response = await fetch(urls.i);
           if (!response.ok) {
             throw new Error(response.status);
           }
@@ -188,14 +211,14 @@
           
           const record = {
             i: img, t: Date.now(),
-            id: response.headers.get('Picsum-ID'),
+            // id: response.headers.get('Picsum-ID'),
           };
           
-          imageCache.set(url, record);          
+          imageCache.set(urls.i, record);
         } catch(err) {
           console.log(err.message);
         } finally {
-          delete loading[url];
+          delete loading[urls.i];
         }
       };
       
