@@ -23,69 +23,20 @@
     cursor: pointer;
     touch-action: none; /* Prevent default gestures */
   }
-  .glass {
-    background: #42424288;
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    color: #ffffff88;
-  }
-  footer {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    color: #fff;
-    font-size:14px;
-    display: flex;
-    flex-direction: column;
-    justify-items: flex-end;
-    align-items: flex-end;
-  }
-  footer .coord-inputs {
-    padding-left: 1ch;
-    padding-right: 2ch;
-    border-top-left-radius: 16px;
-  }
-  footer input {
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0; /* Remove default margin */
-    }
-
-
-    text-align: right;
-    margin: .25rem;
-    width: 1ch;
-    padding: 0;
-    font-size:12px;
-    font-weight: bold;
-    color: #ffffff88;
-    background: none;
-    border: none;
-    outline: none;
-    white-space: nowrap;
-  }
 </style>
 </head>
 <body>
 <canvas id="gridCanvas"></canvas>
 <footer>
-  <zoom-indicator control="camera-control"></zoom-indicator>
-  <!-- TODO:
-    this is not nice: specifically on phones the keyboard is uncomfortable.
-    - turn these into pure labels
-    - open a dialog upon click on the div
-    - have a nice custom keyboard, with proper keyboard support, on the dialog 
-  -->
-  <div class="coord-inputs glass">
-    <input id="xInput" type="text" value="0" pattern="-?[0-9]*"/>,
-    <input id="yInput" type="text" value="0" pattern="-?[0-9]*"/>
-  </div>
+  <pan-indicator camera="camera-control"></pan-indicator>
+  <zoom-indicator camera="camera-control"></zoom-indicator>
   <camera-control target="canvas"></camera-control>
   <track-cursor></track-cursor>
 </footer>
 <script type="module">
   import './client/control/camera-control.js'
   import './client/control/track-cursor.js'
+  import './client/control/pan-indicator.js'
   import './client/control/zoom-indicator.js'
 
   import { drawTile } from './client/render/tile.js'
@@ -98,7 +49,6 @@
       image: './sign.png',
     }
   );
-  
   
   const titles = [
     'A little cute cat',
@@ -296,9 +246,6 @@
   const canvas = document.getElementById('gridCanvas');
   const ctx = canvas.getContext('2d', { alpha: false });
   
-  const xInput = document.getElementById('xInput');
-  const yInput = document.getElementById('yInput');
-
   let width, height;
   function resizeCanvas() {
     width = window.innerWidth;
@@ -350,18 +297,13 @@
     scale = detail.zoom
   })
 
-  function goToCoords() {
-    const x = parseFloat(xInput.value);
-    const y = parseFloat(yInput.value);
-    if (!isNaN(x) && !isNaN(y)) {
-      camera.setAttribute('camx', x + .5);
-      camera.setAttribute('camy', y + .5);
-    }
-  }
+  const panind = document.querySelector('pan-indicator')
+  panind.addEventListener('pan', ({ detail }) => {
+    camera.setAttribute('camx', detail.x + .5)
+    camera.setAttribute('camy', detail.y + .5)
+  })
 
-  xInput.addEventListener('input', e => { goToCoords() });
-  yInput.addEventListener('input', e => { goToCoords() });
-
+  let lastHoveredTile;
   function draw() {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
@@ -376,10 +318,12 @@
     const mouse = {
       x: mouseX, y: mouseY, supportsHover,
       onHover: tile => {
-        if (document.activeElement !== xInput && document.activeElement !== yInput) {
-          xInput.value = Math.floor(tile.x).toString();
-          yInput.value = Math.floor(tile.y).toString();
+        if (lastHoveredTile !== tile) {
+          panind.setAttribute('x', tile.x)
+          panind.setAttribute('y', tile.y)
         }
+
+        lastHoveredTile = tile
       }
     };
     const imageLoader = { getImage, fillSquareWithImage };
@@ -391,9 +335,6 @@
         drawTile(ctx, tile, bounds, camera, mouse, imageLoader);
       }
     }
-
-    xInput.style.width = `calc(${xInput.value.length + 1}ch)`;
-    yInput.style.width = `calc(${yInput.value.length + 1}ch)`;
 
     requestAnimationFrame(draw);
   }

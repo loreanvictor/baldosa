@@ -1,11 +1,12 @@
 import { define, currentNode } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
+import '../util/glass-pane.js'
 import { observe } from '../util/observe.js'
 import { constantly } from '../util/constantly.js'
 
 
-define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
+define('zoom-indicator', ({ camera, initial = 200, min = 100, max = 300 }) => {
   const host = currentNode()
   const holder = ref()
   const indicator = ref()
@@ -14,7 +15,7 @@ define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
   let activetimeout
   let firstzoom = true
 
-  observe(control, 'zoom', ({ detail }) => {
+  observe(camera, 'zoom', ({ detail }) => {
     zoom = detail.zoom
     min = detail.min ?? min
     max = detail.max ?? max
@@ -37,17 +38,13 @@ define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
 
   return html`
     <style>
-      :host {
-        background: #42424288;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        color: #ffffff88;
+      glass-pane {
         position: fixed;
         bottom: calc(5vh - 10px);
         left: calc(50vw - 40px);
         width: 64px;
         padding: 8px 16px;
-        border-radius: 8px;
+        border-radius: 16px;
       }
       .holder {
           display: flex;
@@ -74,23 +71,25 @@ define('zoom-indicator', ({ control, initial = 200, min = 100, max = 300 }) => {
           position: absolute;
         }
     </style>
-    <div class="holder" ref=${holder}>
-      <div id="indicator" ref=${indicator}></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-      <div class="marker"></div>
-    </div>
+    <glass-pane>
+      <div class="holder" ref=${holder}>
+        <div id="indicator" ref=${indicator}></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+        <div class="marker"></div>
+      </div>
+    </glass-pane>
   `
 })
