@@ -105,7 +105,7 @@
       const idx = Math.floor(Math.random() * PICSUM_IDS.length);
       const imgid = PICSUM_IDS[idx];
       Object.keys(IMG_SIZES).forEach(size => {
-        post.image[size] = `https://picsum.photos/id/${imgid}/${IMG_SIZES[size]}?r=${i+500}-${j+500}-${idx}`
+        post.image[size] = `https://picsum.photos/id/${imgid}/${IMG_SIZES[size]}?r=${imgrand}`
           + (BLUR_MAP[size] ? `&blur=${BLUR_MAP[size]}` : '')
       });
       
@@ -234,7 +234,7 @@
   const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5;
   const MAX_SCALE = 300;
 
-  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 15;
+  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2;
   
   setInterval(() => {
     if (imageCache.size > IMG_CACHE_SIZE) {
