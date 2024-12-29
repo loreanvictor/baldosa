@@ -1,5 +1,14 @@
+import createError from 'https://esm.sh/http-errors'
+
+
 self.onmessage = async ({ data }) => {
   const { url } = data
+
+  const err = (error) => {
+    console.error('error in loading image ' + url)
+    console.error(error)
+    self.postMessage({ url, error: error.toString() })
+  }
 
   try {
     const response = await fetch(url)
@@ -9,11 +18,9 @@ self.onmessage = async ({ data }) => {
 
       self.postMessage({ url, bitmap }, [bitmap])
     } else {
-      throw new Error(response.statusText)
+      err(createError(response.status, response.statusText))
     }
   } catch (error) {
-    console.error('error in loading image ' + url)
-    console.error(error)
-    self.postMessage({ url, error: error.message })
+    err(error)
   }
 }
