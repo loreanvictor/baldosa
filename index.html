@@ -39,6 +39,7 @@
   import './client/control/pan-indicator.js'
   import './client/control/zoom-indicator.js'
 
+  import { fetchImage } from './client/render/image/fetch.js'
   import { drawTile } from './client/render/tile.js'
   import { PICSUM_IDS } from './client/util/picsum-ids.js'
 
@@ -50,7 +51,7 @@
     {
       x: 0, y: 0,
       background: '#EFA73E',
-      image: { i: './sign.png' },
+      image: { i: '/sign.png' },
     }
   );
   
@@ -158,16 +159,7 @@
     }
     
     record[size] = 'loading';
-
-    try {
-      const response = await fetch(urls[size]);
-      if (response.ok) {
-        const blob = await response.blob();
-        record[size] = await createImageBitmap(blob);
-      }
-    } catch (error) {
-      setTimeout(() => addImageSize(record, size, urls), 100);
-    }
+    record[size] = await fetchImage(urls[size]);
   }
   
   function getImage(urls, scale) {
@@ -202,16 +194,10 @@
       const load = async() => {
         try {
           // TODO: this is weird, why don't we attempt to get the requested size directly?
-          const response = await fetch(urls.i);
-          if (!response.ok) {
-            throw new Error(response.status);
-          }
-          const blob = await response.blob();
-          const img = await createImageBitmap(blob);
+          const img = await fetchImage(urls.i);
           
           const record = {
             i: img, t: Date.now(),
-            // id: response.headers.get('Picsum-ID'),
           };
           
           imageCache.set(urls.i, record);
