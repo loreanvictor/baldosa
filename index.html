@@ -39,144 +39,54 @@
   import './client/control/pan-indicator.js'
   import './client/control/zoom-indicator.js'
 
-  import { fetchImage } from './client/render/image/fetch.js'
   import { drawTile } from './client/render/tile.js'
-  import { PICSUM_IDS } from './client/util/picsum-ids.js'
-  import { IMG_SIZES, BLUR_MAP } from './client/render/image/constants.js'
   import { createGallery } from './client/render/image/gallery.js'
+  import { createRepository } from './client/data/repo.js'
 
-  const data = new Map()
-  data.set('0,0',
-    {
-      x: 0, y: 0,
-      background: '#EFA73E',
-      image: { i: 'https://loreanvictor.github.io/baldosa/sign.png' },
-    }
-  );
+  const repo = createRepository()
   
-  const titles = [
-    'A little cute cat',
-    'Some weird stuff',
-    'I have no idea',
-    'Can you believe this?',
-    'Fun Stuff',
-    'BEST DEAL!',
-    'All the love',
-    'Luxury Cat',
-  ];
-  const subtitles = [
-    '40$',
-    '130$',
-    'Contact me for prices',
-    '@SomeDude on WhatsApp',
-    '+4997312374',
-    'Email: some@dude.com',
-    'https://cool-cats.shady/shop',
-    'Will exchange for PS5',
-    'Want ASAP from Jan 1st',
-    'Dude what are you talking about?',
-    'I am not really sure',
-    'Please only contact at night',
-    'Also sell drugs',
-  ];
-  const colors = [
-    '#f3c15f', '#e76d2d', '#d22e40', '#c42a6f',
-    '#652ca4', '#2050b3', '#54b9de', '#469c9f',
-    '#43977d', '#52b469', '#9dd441', '#e0e24b',
-  ];
-  for (let i = -500; i <= 500; i++) {
-    for (let j = -500; j <= 500; j++) {
-      if (Math.abs(i) <= 1 && Math.abs(j) <= 1 && i * j === 0) {
-        continue;
-      }
-      
-      if (Math.random() > 0.95) {
-        continue;
-      }
-      
-      const post = {
-        x: i, y: j,
-        title: titles[Math.floor(Math.random() * titles.length)],
-        subtitle: subtitles[Math.floor(Math.random() * subtitles.length)],
-        image: { },
-      }
+  const wmin = Math.min(window.innerWidth, window.innerHeight)
+  const wmax = Math.max(window.innerWidth, window.innerHeight)
+  const SMALL_DEVICE = wmax <= 800
+  const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5
+  const MAX_SCALE = 300
 
-      const imgrand = `${i+500}-${j+500}`;
-      const idx = Math.floor(Math.random() * PICSUM_IDS.length);
-      const imgid = PICSUM_IDS[idx];
-      Object.keys(IMG_SIZES).forEach(size => {
-        post.image[size] = `https://picsum.photos/id/${imgid}/${IMG_SIZES[size]}?r=${imgrand}`
-          + (BLUR_MAP[size] ? `&blur=${BLUR_MAP[size]}` : '')
-      });
-      
-      if (Math.random() > 0.8) {
-        delete post['title'];
-        delete post['subtitle'];
-      } else if (Math.random() > 0.7) {
-        if (Math.random() > 0.5) {
-          post['title'] = post['subtitle'];
-        }
-        
-        delete post['subtitle'];
-      } else if (Math.random() > 0.9) {
-        delete post['image'];
-        post['background'] = colors[Math.floor(Math.random() * colors.length)];
-        post['color'] = '#000';
-      }
-      
-      data.set(`${i},${j}`, post);
-    }
-  }
-  
-  function getData(x, y) {
-    return data.get(`${x},${y}`)
-  }
-
-  window._d = getData
-  window._pid = PICSUM_IDS
-  
-  const wmin = Math.min(window.innerWidth, window.innerHeight);
-  const wmax = Math.max(window.innerWidth, window.innerHeight);
-  const SMALL_DEVICE = wmax <= 800;
-  const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5;
-  const MAX_SCALE = 300;
-
-  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2;
+  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2
   const gallery = createGallery(IMG_CACHE_SIZE)
   
-  const canvas = document.getElementById('gridCanvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
+  const canvas = document.getElementById('gridCanvas')
+  const ctx = canvas.getContext('2d', { alpha: false })
   
-  let width, height;
+  let width, height
   function resizeCanvas() {
-    width = window.innerWidth;
-    height = window.innerHeight + (SMALL_DEVICE ? 80 : 0);
+    width = window.innerWidth
+    height = window.innerHeight + (SMALL_DEVICE ? 80 : 0)
 
-    canvas.width = width * devicePixelRatio;
-    canvas.height = height * devicePixelRatio;
+    canvas.width = width * devicePixelRatio
+    canvas.height = height * devicePixelRatio
 
     ctx.resetTransform()
-    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.scale(devicePixelRatio, devicePixelRatio)
   }
   
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas)
+  resizeCanvas()
   
-  const supportsHover = window.matchMedia('(any-hover: hover)').matches;
+  const supportsHover = window.matchMedia('(any-hover: hover)').matches
   
-  let cameraX = .5;
-  let cameraY = .5;
-  let scale = SMALL_DEVICE ? Math.min(wmin / 2.5, MAX_SCALE) : Math.min(wmin / 3.5, MAX_SCALE);
-  const startScale = scale;
+  let cameraX = .5
+  let cameraY = .5
+  let scale = SMALL_DEVICE ? Math.min(wmin / 2.5, MAX_SCALE) : Math.min(wmin / 3.5, MAX_SCALE)
+  const startScale = scale
   
-  let mouseX = -Infinity;
-  let mouseY = -Infinity;
-  let panv = 0;
+  let mouseX = -Infinity
+  let mouseY = -Infinity
+  let panv = 0
 
   const cursor = document.querySelector('track-cursor')
   cursor.addEventListener('move', ({ detail }) => {
-    mouseX = detail.x;
-    mouseY = detail.y;
+    mouseX = detail.x
+    mouseY = detail.y
   })
 
   const camera = document.querySelector('camera-control')
@@ -206,16 +116,16 @@
 
   let lastHoveredTile;
   function draw() {
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, width, height)
 
-    const leftCell = Math.floor(cameraX - width/(2*scale)) - 2;
-    const rightCell = Math.floor(cameraX + width/(2*scale)) + 2;
-    const topCell = Math.floor(cameraY - height/(2*scale)) - 2;
-    const bottomCell = Math.floor(cameraY + height/(2*scale)) + 2;
+    const leftCell = Math.floor(cameraX - width/(2*scale)) - 2
+    const rightCell = Math.floor(cameraX + width/(2*scale)) + 2
+    const topCell = Math.floor(cameraY - height/(2*scale)) - 2
+    const bottomCell = Math.floor(cameraY + height/(2*scale)) + 2
 
-    const bounds = { width, height, wmin };
-    const camera = { x: cameraX, y: cameraY, zoom: scale, v: panv };
+    const bounds = { width, height, wmin }
+    const camera = { x: cameraX, y: cameraY, zoom: scale, v: panv }
     const mouse = {
       x: mouseX, y: mouseY, supportsHover,
       onHover: tile => {
@@ -226,21 +136,18 @@
 
         lastHoveredTile = tile
       }
-    };
+    }
 
     for (let x = leftCell; x <= rightCell; x++) {
       for (let y = topCell; y <= bottomCell; y++) {
-        const tile = {
-          x, y, data: getData(x, y)
-        };
-        drawTile(ctx, tile, bounds, camera, mouse, gallery);
+        drawTile(ctx, {x, y}, bounds, camera, mouse, gallery, repo);
       }
     }
 
-    requestAnimationFrame(draw);
+    requestAnimationFrame(draw)
   }
 
-  requestAnimationFrame(draw);
+  requestAnimationFrame(draw)
 </script>
 </body>
 </html>

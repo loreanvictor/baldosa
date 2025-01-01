@@ -14,7 +14,7 @@ define('pan-indicator', ({ camera }) => {
   const resize = input => input.style.width = `calc(${input.value.length + 1}ch)`
   const set = (input, value) => {
     if (
-        value && !isNaN(value) &&
+        value !== undefined && !isNaN(value) &&
         !(
           document.activeElement === self &&
           self.shadowRoot.activeElement === input.current

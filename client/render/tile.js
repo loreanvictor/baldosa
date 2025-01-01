@@ -4,7 +4,7 @@ import { fillSquareWithImage } from './image/util.js'
 const SPACING = 0.025
 const RADIUS = 0.05
 
-export function drawTile(ctx, tile, bounds, camera, mouse, gallery) {
+export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
   const viewHalfW = bounds.width / 2
   const viewHalfH = bounds.height / 2
   const zoomedOut = camera.zoom <= bounds.wmin / 4
@@ -45,7 +45,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery) {
     ry + size - (SPACING + RADIUS) * camera.zoom,
   )
 
-  const data = tile.data
+  const data = repo.get(tile.x, tile.y)
   if (data) {
     if (data.background) {
       ctx.fillStyle = data.background
