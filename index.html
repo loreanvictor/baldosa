@@ -42,9 +42,8 @@
   import { fetchImage } from './client/render/image/fetch.js'
   import { drawTile } from './client/render/tile.js'
   import { PICSUM_IDS } from './client/util/picsum-ids.js'
-
-  const IMG_SIZES = {i: 1, xs: 48, s: 96, m: 156, l: 300};
-  const BLUR_MAP = {xs: 1, s: 1};
+  import { IMG_SIZES, BLUR_MAP } from './client/render/image/constants.js'
+  import { createGallery } from './client/render/image/gallery.js'
 
   const data = new Map()
   data.set('0,0',
@@ -136,84 +135,6 @@
   window._d = getData
   window._pid = PICSUM_IDS
   
-  const imageCache = new Map();
-  const loading = {};
-  
-  function fillSquareWithImage(img, x, y, size) {
-    const iw = img.width;
-    const ih = img.height;
-
-    const k = size / Math.min(iw, ih);
-    const dw = iw * k;
-    const dh = ih * k;
-    const dx = x + (size - dw) / 2;
-    const dy = y + (size - dh) / 2;
-    
-    return [dx, dy, dw, dh];
-  };
-
-  
-  async function addImageSize(record, size, urls) {
-    if (record[size] && record[size] !== 'loading') {
-      return;
-    }
-    
-    record[size] = 'loading';
-    record[size] = await fetchImage(urls[size]);
-  }
-  
-  function getImage(urls, scale) {
-    let hit = imageCache.get(urls.i);
-    if (hit) {
-      hit.t = Date.now()
-
-      const sizes = Object.keys(IMG_SIZES).filter(size => size in urls);
-      const target = sizes.reduce(
-        (curr, candidate) =>
-           (IMG_SIZES[curr] < IMG_SIZES[candidate] && IMG_SIZES[curr] < scale)
-           ? candidate : curr
-      );
-
-      if (!hit[target]) {
-        hit[target] = 'loading';
-        setTimeout(() => addImageSize(hit, target, urls), 10);
-      }
-      
-      const available = hit[target] !== 'loading' ? target :
-        sizes.reduce(
-          (curr, candidate) => (
-            hit[candidate] && (hit[candidate] !== 'loading') &&
-            IMG_SIZES[candidate] >= (IMG_SIZES[curr] ?? 1) &&
-            IMG_SIZES[curr] < scale
-          ) ? candidate : curr
-        );
-      
-      return available ? hit[available] : hit.i;
-    } else if (!loading[urls.i]) {
-      loading[urls.i] = true;
-      const load = async() => {
-        try {
-          // TODO: this is weird, why don't we attempt to get the requested size directly?
-          const img = await fetchImage(urls.i);
-          
-          const record = {
-            i: img, t: Date.now(),
-          };
-          
-          imageCache.set(urls.i, record);
-        } catch(err) {
-          console.log(err.message);
-        } finally {
-          delete loading[urls.i];
-        }
-      };
-      
-      setTimeout(() => load(), 1);
-    }
-    
-    return undefined;
-  }
-  
   const wmin = Math.min(window.innerWidth, window.innerHeight);
   const wmax = Math.max(window.innerWidth, window.innerHeight);
   const SMALL_DEVICE = wmax <= 800;
@@ -221,36 +142,7 @@
   const MAX_SCALE = 300;
 
   const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2;
-  
-  setInterval(() => {
-    if (imageCache.size > IMG_CACHE_SIZE) {
-      const entries = [...imageCache.entries()].sort((i, j) => i[1].t - j[1].t)
-      const target = entries.slice(0, imageCache.size - IMG_CACHE_SIZE);
-      target.forEach(entry => {
-        setTimeout(() => {
-          Object.keys(IMG_SIZES).forEach(size => {
-            if (entry[1][size] && entry[1][size] !== 'loading') {
-              entry[1][size].close();
-            }
-          });
-          imageCache.delete(entry[0]);
-        }, 1);
-      });
-    } else {
-      const now = Date.now();
-      [...imageCache.entries()]
-        .filter(i => now - i[1].t > 10_000)
-        .forEach(e => {
-          Object.keys(IMG_SIZES).forEach(size => {
-            if (e[1][size] && e[1][size] !== 'loading') {
-              e[1][size].close();
-            }
-          });
-          imageCache.delete(e[0]);
-        })
-     ;
-    }
-  }, 200);
+  const gallery = createGallery(IMG_CACHE_SIZE)
   
   const canvas = document.getElementById('gridCanvas');
   const ctx = canvas.getContext('2d', { alpha: false });
@@ -335,13 +227,13 @@
         lastHoveredTile = tile
       }
     };
-    const imageLoader = { getImage, fillSquareWithImage };
+
     for (let x = leftCell; x <= rightCell; x++) {
       for (let y = topCell; y <= bottomCell; y++) {
         const tile = {
           x, y, data: getData(x, y)
         };
-        drawTile(ctx, tile, bounds, camera, mouse, imageLoader);
+        drawTile(ctx, tile, bounds, camera, mouse, gallery);
       }
     }
 
