@@ -5,12 +5,14 @@ import { fetchImage } from './fetch.js'
 export const createImageCache = (size, ttl = 10_000) => {
   const cache = new Map()
 
-  const add = async (urls) => {
-    const img = await fetchImage(urls.i)
-    cache.set(urls.i, { i: img, t: Date.now() })
+  const add = (urls) => {
+    const record = { i: undefined, t: Date.now() }
+    cache.set(urls.i, record)
+    load(record, 'i', urls)
   }
   const find = urls => touch(cache.get(urls.i))
-  const get = (record, size) => (size && record[size]) ? record[size] : record.i
+  const get = (record, size) => (size && isLoaded(record, size)) ? record[size] :
+    (record.i === 'loading' ? undefined : record.i)
   const touch = record => record ? (record.t = Date.now(), record) : record
   const isLoaded = (record, size) => record[size] && record[size] !== 'loading'
   const isLoading = (record, size) => record[size] === 'loading'

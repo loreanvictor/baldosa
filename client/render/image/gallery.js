@@ -4,7 +4,6 @@ import { createImageCache } from './cache.js'
 
 export const createGallery = (cacheSize, ttl = 10_000) => {
   const cache = createImageCache(cacheSize, ttl)
-  const loading = {}
 
   const get = (urls, scale) => {
     let hit = cache.find(urls)
@@ -28,15 +27,12 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
         )
       
       return cache.get(hit, available)
-    } else if (!loading[urls.i]) {
-      loading[urls.i] = true
-      const load = async() => {
+    } else {
+      const load = () => {
         try {
-          await cache.add(urls)
+          cache.add(urls)
         } catch(err) {
           console.log(err.message)
-        } finally {
-          delete loading[urls.i]
         }
       }
       

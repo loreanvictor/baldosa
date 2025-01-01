@@ -60,7 +60,12 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
         const [dx, dy, dw, dh] = fillSquareWithImage(
           img, rx, ry, size
         )
-        ctx.drawImage(img, dx, dy, dw, dh)
+        try {
+          ctx.drawImage(img, dx, dy, dw, dh)
+        } catch (err) {
+          console.log(img)
+          throw err
+        }
       }
       
       if (data.title || data.subtitle) {
@@ -96,7 +101,6 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
   }
   
   if (hover) {
-    console.log(hoverK)
     ctx.fillStyle = `rgba(255, 255, 255, ${hoverK * (zoomedOut ? .5 : .25) })`
     ctx.globalCompositeOperation = 'overlay'
     ctx.rect(rx, ry, size, size)
