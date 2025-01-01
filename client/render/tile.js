@@ -19,14 +19,14 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
                   actY < mouse.y && mouse.y < actY + size
   const hover = mouse.supportsHover && active
   const hoverK = (1 - Math.min(
-    Math.sqrt(
+    Math.sqrt(2 *
       (cx - mouse.x) * (cx - mouse.x) +
       (cy - mouse.y) * (cy - mouse.y)
     ) / ((zoomedOut ? 2 : 1) * size), 1
   ))
 
   const rx = actX
-  const ry = mouse.supportsHover ? actY + hoverK * (zoomedOut ? 8 : 4) : actY
+  const ry = mouse.supportsHover ? actY - hoverK * (zoomedOut ? 8 : 4) : actY
 
   ctx.save()
   ctx.fillStyle = '#212121'
@@ -96,7 +96,8 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
   }
   
   if (hover) {
-    ctx.fillStyle = `rgba(255, 255, 255, ${hoverK * zoomedOut ? .5 : .25 })`
+    console.log(hoverK)
+    ctx.fillStyle = `rgba(255, 255, 255, ${hoverK * (zoomedOut ? .5 : .25) })`
     ctx.globalCompositeOperation = 'overlay'
     ctx.rect(rx, ry, size, size)
     ctx.fill()
