@@ -4,6 +4,8 @@ import { fetchImage } from './fetch.js'
 
 export const createImageCache = (size, ttl = 10_000) => {
   const cache = new Map()
+  const listeners = []
+  const notify = (...args) => listeners.forEach(listener => listener(...args))
 
   const add = (urls) => {
     const record = { i: undefined, t: Date.now() }
@@ -26,6 +28,7 @@ export const createImageCache = (size, ttl = 10_000) => {
 
         record[size] = 'loading'
         record[size] = await fetchImage(urls[size])
+        notify(urls, size)
       }, 1)
     }
   }
@@ -63,8 +66,12 @@ export const createImageCache = (size, ttl = 10_000) => {
     })
     cache.clear()
   }
+  const listen = (listener) => {
+    listeners.push(listener)
+    return () => listeners.splice(listeners.indexOf(listener), 1)
+  }
 
-  const control = { add, find, get, touch, isLoaded, isLoading, load, clear, dispose }
+  const control = { add, find, get, touch, isLoaded, isLoading, load, clear, dispose, listen }
   control[Symbol.dispose] = dispose
 
   return control

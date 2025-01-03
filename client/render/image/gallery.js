@@ -42,5 +42,7 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
     return undefined
   }
 
-  return { get }
+  const listen = (listener) => cache.listen(listener)
+
+  return { get, listen }
 }

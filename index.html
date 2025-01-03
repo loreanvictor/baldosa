@@ -1,153 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Baldosa: the cloud city</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@300..800&display=swap" rel="stylesheet">
-<style>
-  html, body {
-    margin:0; padding:0; overflow:hidden; height:100%; width:100%;
-    background: #000; color: #fff;
-    * {
-      font-family: "Open Sans", sans-serif;
-    }
-  }
-  canvas {
-    display:block;
-    width:100vw;
-    height:100vh;
-    cursor: pointer;
-    touch-action: none; /* Prevent default gestures */
-  }
-</style>
-</head>
-<body>
-<canvas id="gridCanvas"></canvas>
-<footer>
-  <pan-indicator camera="camera-control"></pan-indicator>
-  <zoom-indicator camera="camera-control"></zoom-indicator>
-  <camera-control target="canvas"></camera-control>
-  <track-cursor></track-cursor>
-</footer>
-<script type="module">
-  import './client/control/camera-control.js'
-  import './client/control/track-cursor.js'
-  import './client/control/pan-indicator.js'
-  import './client/control/zoom-indicator.js'
-
-  import { drawTile } from './client/render/tile.js'
-  import { createGallery } from './client/render/image/gallery.js'
-  import { createRepository } from './client/data/repo.js'
-
-  const repo = createRepository()
-  
-  const wmin = Math.min(window.innerWidth, window.innerHeight)
-  const wmax = Math.max(window.innerWidth, window.innerHeight)
-  const SMALL_DEVICE = wmax <= 800
-  const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5
-  const MAX_SCALE = 300
-
-  const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2
-  const gallery = createGallery(IMG_CACHE_SIZE)
-  
-  const canvas = document.getElementById('gridCanvas')
-  const ctx = canvas.getContext('2d', { alpha: false })
-  
-  let width, height
-  function resizeCanvas() {
-    width = window.innerWidth
-    height = window.innerHeight + (SMALL_DEVICE ? 80 : 0)
-
-    canvas.width = width * devicePixelRatio
-    canvas.height = height * devicePixelRatio
-
-    ctx.resetTransform()
-    ctx.scale(devicePixelRatio, devicePixelRatio)
-  }
-  
-  window.addEventListener('resize', resizeCanvas)
-  resizeCanvas()
-  
-  const supportsHover = window.matchMedia('(any-hover: hover)').matches
-  
-  let cameraX = .5
-  let cameraY = .5
-  let scale = SMALL_DEVICE ? Math.min(wmin / 2.5, MAX_SCALE) : Math.min(wmin / 3.5, MAX_SCALE)
-  const startScale = scale
-  
-  let mouseX = -Infinity
-  let mouseY = -Infinity
-  let panv = 0
-
-  const cursor = document.querySelector('track-cursor')
-  cursor.addEventListener('move', ({ detail }) => {
-    mouseX = detail.x
-    mouseY = detail.y
-  })
-
-  const camera = document.querySelector('camera-control')
-  camera.setAttribute('camx', cameraX)
-  camera.setAttribute('camy', cameraY)
-  camera.setAttribute('zoom', startScale)
-  camera.setAttribute('minzoom', MIN_SCALE)
-  camera.setAttribute('maxzoom', MAX_SCALE)
-  camera.addEventListener('pan', ({ detail }) => {
-    cameraX = detail.camera.x
-    cameraY = detail.camera.y
-
-    panv = Math.sqrt(
-      detail.velocity.x * detail.velocity.x
-      + detail.velocity.y * detail.velocity.y
-    ) / scale
-  })
-  camera.addEventListener('zoom', ({ detail }) => {
-    scale = detail.zoom
-  })
-
-  const panind = document.querySelector('pan-indicator')
-  panind.addEventListener('pan', ({ detail }) => {
-    camera.setAttribute('camx', detail.x + .5)
-    camera.setAttribute('camy', detail.y + .5)
-  })
-
-  let lastHoveredTile;
-  function draw() {
-    ctx.fillStyle = '#000'
-    ctx.fillRect(0, 0, width, height)
-
-    const leftCell = Math.floor(cameraX - width/(2*scale)) - 2
-    const rightCell = Math.floor(cameraX + width/(2*scale)) + 2
-    const topCell = Math.floor(cameraY - height/(2*scale)) - 2
-    const bottomCell = Math.floor(cameraY + height/(2*scale)) + 2
-
-    const bounds = { width, height, wmin }
-    const camera = { x: cameraX, y: cameraY, zoom: scale, v: panv }
-    const mouse = {
-      x: mouseX, y: mouseY, supportsHover,
-      onHover: tile => {
-        if (lastHoveredTile !== tile) {
-          panind.setAttribute('x', tile.x)
-          panind.setAttribute('y', tile.y)
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <title>Baldosa: the cloud city</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@300..800&display=swap" rel="stylesheet">
+    <style>
+      html, body {
+        margin:0; padding:0; overflow:hidden; height:100%; width:100%;
+        background: #000; color: #fff;
+        * {
+          font-family: "Open Sans", sans-serif;
         }
-
-        lastHoveredTile = tile
       }
-    }
+    </style>
+  </head>
+  <body>
+    <infinite-grid></infinite-grid>
+    <footer>
+      <pan-indicator camera="camera-control"></pan-indicator>
+      <zoom-indicator camera="camera-control"></zoom-indicator>
+      <camera-control target="infinite-grid"></camera-control>
+    </footer>
+    <script type="module">
+      import './client/render/grid.js'
+      import './client/control/camera-control.js'
+      import './client/control/pan-indicator.js'
+      import './client/control/zoom-indicator.js'
 
-    for (let x = leftCell; x <= rightCell; x++) {
-      for (let y = topCell; y <= bottomCell; y++) {
-        drawTile(ctx, {x, y}, bounds, camera, mouse, gallery, repo);
-      }
-    }
+      import { createGallery } from './client/render/image/gallery.js'
+      import { createRepository } from './client/data/repo.js'
 
-    requestAnimationFrame(draw)
-  }
+      const repo = createRepository()
+      
+      const wmin = Math.min(window.innerWidth, window.innerHeight)
+      const wmax = Math.max(window.innerWidth, window.innerHeight)
+      const SMALL_DEVICE = wmax <= 800
+      const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5
+      const MAX_SCALE = 300
 
-  requestAnimationFrame(draw)
-</script>
-</body>
+      const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2
+      const gallery = createGallery(IMG_CACHE_SIZE)
+      
+      let scale = SMALL_DEVICE ? Math.min(wmin / 2.5, MAX_SCALE) : Math.min(wmin / 3.5, MAX_SCALE)
+
+      const grid = document.querySelector('infinite-grid')
+      grid.setAttribute('zoom', scale)
+      grid.setProperty('repo', repo)
+      grid.setProperty('gallery', gallery)
+
+      const camera = document.querySelector('camera-control')
+      camera.setAttribute('camx', .5)
+      camera.setAttribute('camy', .5)
+      camera.setAttribute('zoom', scale)
+      camera.setAttribute('minzoom', MIN_SCALE)
+      camera.setAttribute('maxzoom', MAX_SCALE)
+      camera.addEventListener('pan', ({ detail }) => {
+        grid.setAttribute('camx', detail.camera.x)
+        grid.setAttribute('camy', detail.camera.y)
+
+        grid.setAttribute('panv', Math.sqrt(
+          detail.velocity.x * detail.velocity.x
+          + detail.velocity.y * detail.velocity.y
+        ) / scale)
+      })
+      camera.addEventListener('zoom', ({ detail }) => {
+        scale = detail.zoom
+        grid.setAttribute('zoom', detail.zoom)
+      })
+
+      const panind = document.querySelector('pan-indicator')
+      panind.addEventListener('pan', ({ detail }) => {
+        camera.setAttribute('camx', detail.x + .5)
+        camera.setAttribute('camy', detail.y + .5)
+      })
+
+      grid.addEventListener('tile-hover', ({ detail }) => {
+        panind.setAttribute('x', detail.x)
+        panind.setAttribute('y', detail.y)
+      })
+    </script>
+  </body>
 </html>

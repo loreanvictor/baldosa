@@ -58,6 +58,7 @@ export const createPicsumMockRepo = () => {
   }
   
   return {
-    get: (x, y) => data.get(`${x},${y}`)
+    get: (x, y) => data.get(`${x},${y}`),
+    listen: () => () => {}
   }
 }
