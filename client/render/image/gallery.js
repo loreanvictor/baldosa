@@ -43,6 +43,10 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
   }
 
   const listen = (listener) => cache.listen(listener)
+  const limit = size => cache.limit(size)
+  const dispose = () => cache.dispose()
+  const control = { get, listen, limit, dispose }
+  control[Symbol.dispose] = dispose
 
-  return { get, listen }
+  return control
 }

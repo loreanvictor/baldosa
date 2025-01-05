@@ -70,8 +70,10 @@ export const createImageCache = (size, ttl = 10_000) => {
     listeners.push(listener)
     return () => listeners.splice(listeners.indexOf(listener), 1)
   }
+  
+  const limit = s => size = s
 
-  const control = { add, find, get, touch, isLoaded, isLoading, load, clear, dispose, listen }
+  const control = { add, find, get, touch, isLoaded, isLoading, load, clear, dispose, listen, limit }
   control[Symbol.dispose] = dispose
 
   return control

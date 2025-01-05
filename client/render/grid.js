@@ -1,55 +1,49 @@
-import { define, onAttribute, onProperty, useDispatch, onConnected } from 'https://esm.sh/minicomp'
+import {
+  define, useDispatch,
+  onAttribute, onProperty, onConnected, onCleanup,
+} from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
 import '../util/track-cursor.js'
 import { constantly } from '../util/constantly.js'
 import { observe } from '../util/observe.js'
+import { createGallery } from './image/gallery.js'
 import { drawTile } from './tile.js'
 
 
 define('infinite-grid', () => {
+  const WMIN = Math.min(window.innerWidth, window.innerHeight)
+  const WMAX = Math.max(window.innerWidth, window.innerHeight)
+  const SUPPORTS_HOVER = window.matchMedia('(any-hover: hover)').matches
+  const SMALL_DEVICE = WMAX <= 800
+  /**
+   * how many frames to draw after a change is triggered?
+   * - 1 is minimum.
+   * - more is smoother animation, but more battery usage
+   */
+  const ANIMATION_SMOOTHNESS = SMALL_DEVICE ? 2 : 32
+
   //
   // TODO:
   //   rendering should be done offscreen for increased performance.
   // this means gallery should be inlined with the rendering worker
   // as it needs to reside in the same memroy space.
   //
-  // perhaps a step in preparation for that would be to make gallery
-  // inline to canvas. this way, all inputs required to create gallery
-  // will be specified, and determined either locally or passed as attributes.
-  //
   // also we'd need to cook up a way for having the rendering worker
   // access the repo (since the repo object itself is not transferrable
   // and should not be transferred, and needs to reside in the main worker).
   //
-
-  const gallery = ref()
   const repo = ref()
-
-  gallery.current = { get: () => undefined }
   repo.current= { get: () => undefined }
+
+  let imageCacheSize = 100
+  const gallery = createGallery(imageCacheSize)
 
   const onHover = useDispatch('tile-hover')
   const onClick = useDispatch('tile-click')
 
   const canvas = ref()
   const ctx = ref()
-
-  const WMIN = Math.min(window.innerWidth, window.innerHeight)
-  const WMAX = Math.max(window.innerWidth, window.innerHeight)
-  const SUPPORTS_HOVER = window.matchMedia('(any-hover: hover)').matches
-  const SMALL_DEVICE = WMAX <= 800
-
-  /**
-   * this determines how many frames should be repainted in response
-   * to an event that causes the grid to change (i.e. camera movement, image loading, etc.).
-   * 
-   * - 1 is the minimum, but is choppy
-   * - higher is smoother animation
-   * - higher means constant heavy compute, e.g. causes phones to heat up
-   * - balance accordingly.
-   */
-  const FRAME_SMOOTHNESS = SMALL_DEVICE ? 2 : 32
 
   const camera = { x: .5, y: .5, v: 0, zoom: 200 }
   let width, height
@@ -91,16 +85,18 @@ define('infinite-grid', () => {
 
     for (let x = left; x <= right; x++) {
       for (let y = top; y <= bottom; y++) {
-        drawTile(ctx.current, {x, y}, bounds, camera, mouse, gallery.current, repo.current)
+        drawTile(ctx.current, {x, y}, bounds, camera, mouse, gallery, repo.current)
       }
     }
   }
 
   let _drawReq = 0
-  const draw = () => _drawReq = FRAME_SMOOTHNESS
+  const draw = () => _drawReq = ANIMATION_SMOOTHNESS
+
   constantly(() => _drawReq > 0 && (_drawReq--, _draw()))
   /** generally repaint every second, so images in view remain cached. */
   constantly(_draw, f => setTimeout(f, 1000))
+  gallery.listen(draw)
 
   observe(window, 'resize', resize)
   onConnected(() => {
@@ -108,6 +104,7 @@ define('infinite-grid', () => {
     resize()
     draw()
   })
+  onCleanup(() => gallery.dispose())
 
   const valid = (n, prev) => n !== undefined && !isNaN(n) ? n : prev
   onAttribute('camx', x => (camera.x = valid(parseFloat(x), camera.x), draw()))
@@ -116,7 +113,7 @@ define('infinite-grid', () => {
   onAttribute('panv', v => (camera.v = valid(parseFloat(v), camera.v), draw()))
 
   onProperty('repo', r => r && (repo.current = r, r.listen(draw), draw()))
-  onProperty('gallery', g => g && (gallery.current = g, g.listen(draw), draw()))
+  onAttribute('image-cache-size', s => gallery.limit(imageCacheSize = valid(parseInt(s), imageCacheSize)))
 
   return html`
     <style>

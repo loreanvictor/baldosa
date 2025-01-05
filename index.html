@@ -31,26 +31,24 @@
       import './client/control/pan-indicator.js'
       import './client/control/zoom-indicator.js'
 
-      import { createGallery } from './client/render/image/gallery.js'
       import { createRepository } from './client/data/repo.js'
-
+      
+      const WMIN = Math.min(window.innerWidth, window.innerHeight)
+      const WMAX = Math.max(window.innerWidth, window.innerHeight)
+      const SMALL_DEVICE = WMAX <= 800
+      const MIN_SCALE = SMALL_DEVICE ? WMIN / 4 : WMIN / 5
+      const MAX_SCALE = 300
+      const IMG_CACHE_SIZE = (Math.ceil(WMIN / MIN_SCALE) + 4) * (Math.ceil(WMAX / MIN_SCALE) + 4) * 2
+      
       const repo = createRepository()
       
-      const wmin = Math.min(window.innerWidth, window.innerHeight)
-      const wmax = Math.max(window.innerWidth, window.innerHeight)
-      const SMALL_DEVICE = wmax <= 800
-      const MIN_SCALE = SMALL_DEVICE ? wmin / 4 : wmin / 5
-      const MAX_SCALE = 300
-
-      const IMG_CACHE_SIZE = (Math.ceil(wmin / MIN_SCALE) + 4) * (Math.ceil(wmax / MIN_SCALE) + 4) * 2
-      const gallery = createGallery(IMG_CACHE_SIZE)
-      
-      let scale = SMALL_DEVICE ? Math.min(wmin / 2.5, MAX_SCALE) : Math.min(wmin / 3.5, MAX_SCALE)
+      let scale = SMALL_DEVICE ? Math.min(WMIN / 2.5, MAX_SCALE) : Math.min(WMIN / 3.5, MAX_SCALE)
 
       const grid = document.querySelector('infinite-grid')
       grid.setAttribute('zoom', scale)
+      grid.setAttribute('image-cache-size', IMG_CACHE_SIZE)
       grid.setProperty('repo', repo)
-      grid.setProperty('gallery', gallery)
+      // grid.setProperty('gallery', gallery)
 
       const camera = document.querySelector('camera-control')
       camera.setAttribute('camx', .5)
