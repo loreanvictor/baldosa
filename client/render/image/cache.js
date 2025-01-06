@@ -5,7 +5,9 @@ import { fetchImage } from './fetch.js'
 export const createImageCache = (size, ttl = 10_000) => {
   const cache = new Map()
   const listeners = []
-  const notify = (...args) => listeners.forEach(listener => listener(...args))
+  const notify = (...args) => {
+    listeners.forEach(listener => listener(...args))
+  }
 
   const add = (urls) => {
     const record = { i: undefined, t: Date.now() }

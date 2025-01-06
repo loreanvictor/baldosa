@@ -36,7 +36,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
   ctx.clip()
   ctx.fill()
 
-  ctx.font = `${camera.zoom / 18}px "Open Sans"`
+  ctx.font = `${camera.zoom / 18}px "Open Sans", monospace`
   ctx.textAlign = 'right'
   ctx.textBaseline = 'middle'
   ctx.fillStyle = '#616161'
@@ -79,7 +79,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
     
     if (data.title) {
       ctx.fillStyle = data.color ?? `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (camera.v * 64)))})`
-      ctx.font = `bold ${camera.zoom / 14}px "Montserrat"`
+      ctx.font = `bold ${camera.zoom / 14}px "Montserrat", helvetica, sans-serif`
       ctx.textAlign = 'left'
       ctx.fillText(
         data.title,
@@ -90,7 +90,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, repo) {
     
     if (data.subtitle) {
       ctx.fillStyle = data.color ?? `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (camera.v * 64)))})`
-      ctx.font = `${camera.zoom / 16}px "Open Sans"`
+      ctx.font = `${camera.zoom / 16}px "Open Sans", helvetica, sans-serif`
       ctx.textAlign = 'left'
       ctx.fillText(
         data.subtitle,
