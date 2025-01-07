@@ -23,16 +23,6 @@ define('infinite-grid', () => {
    */
   const ANIMATION_SMOOTHNESS = SMALL_DEVICE ? 2 : 32
 
-  //
-  // TODO:
-  //   rendering should be done offscreen for increased performance.
-  // this means gallery should be inlined with the rendering worker
-  // as it needs to reside in the same memroy space.
-  //
-  // also we'd need to cook up a way for having the rendering worker
-  // access the repo (since the repo object itself is not transferrable
-  // and should not be transferred, and needs to reside in the main worker).
-  //
   const repo = ref()
   repo.current= { get: () => undefined }
 

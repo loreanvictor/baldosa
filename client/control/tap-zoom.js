@@ -12,9 +12,11 @@ define('tap-zoom', ({ target, friction = 0.035 }) => {
   let dbltimer
   let zooming = false
   let zoomstart
+  let touchstart
   let last
 
   observe(target, 'touchstart', event => {
+    touchstart = { x: event.touches[0].clientX, y: event.touches[0].clientY }
     if (event.touches.length === 1 && dbltimer) {
       event.preventDefault()
       zooming = true
@@ -46,7 +48,13 @@ define('tap-zoom', ({ target, friction = 0.035 }) => {
       zoom.unlock()
       zooming = false
     } else {
-      dbltimer = setTimeout(() => dbltimer = undefined, 200)
+      const touchend = { x: event.changedTouches[0].clientX, y: event.changedTouches[0].clientY }
+      const dx = touchend.x - touchstart.x
+      const dy = touchend.y - touchstart.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      if (dist < 10) {
+        dbltimer = setTimeout(() => dbltimer = undefined, 200) 
+      }
     }
   }, { passive: false })
 
