@@ -1,4 +1,4 @@
-const worker = new Worker('/client/render/image/fetch-worker.js', { type: 'module' })
+const worker = new Worker(new URL('./fetch-worker.js', import.meta.url), { type: 'module' })
 const reqs = new Map()
 
 
