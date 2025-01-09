@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:17.2-bookworm
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=baldosa
+      - POSTGRES_USER=baldosa
+      - POSTGRES_PASSWORD=complex_password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U baldosa" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7.4.1-bookworm
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - BALDOSA__POSTGRES_NAME=baldosa
+      - BALDOSA__POSTGRES_USER=baldosa
+      - BALDOSA__POSTGRES_PASSWORD=complex_password
+      - BALDOSA__POSTGRES_HOST=db
+      - BALDOSA__REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
