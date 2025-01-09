@@ -1,4 +1,4 @@
-module github.com/loreanvictor/baldosa.git/server
+module github.com/loreanvictor/baldosa.git
 
 go 1.23.4
 

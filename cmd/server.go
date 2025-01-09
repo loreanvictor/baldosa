@@ -6,7 +6,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/loreanvictor/baldosa.git/server/internal/storage"
+	"github.com/loreanvictor/baldosa.git/internal/storage"
 )
 
 func main() {
