@@ -5,7 +5,6 @@ go 1.23.4
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/jackc/pgx/v5 v5.7.2
-	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.19.0
 )
 

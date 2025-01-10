@@ -2,6 +2,7 @@ package storage
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/httpfs"
-	"github.com/pkg/errors"
 )
 
 //go:embed migrations
