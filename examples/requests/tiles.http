@@ -20,3 +20,14 @@ Content-Type: application/json
   "link": "tel:+989109403234",
   "image": "https://ehsandar.top"
 }
+
+### Get tiles in a specific area
+POST {{host}}/tiles/GetTileRange
+Content-Type: application/json
+
+{
+  "x_low": -10,
+  "y_low": -10,
+  "x_high": 10,
+  "y_high": 10
+}
