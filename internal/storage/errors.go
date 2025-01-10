@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/loreanvictor/baldosa.git/pkg/pgerrcode"
 )
 
 var (
