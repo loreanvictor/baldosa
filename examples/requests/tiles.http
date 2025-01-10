@@ -1,2 +1,17 @@
+### Get a tile by its ID
 GET {{host}}/tiles/1
 Accept: application/json
+
+
+### Create a tile without owner
+POST {{host}}/tiles
+Content-Type: application/json
+
+{
+  "x": 1,
+  "y": 2,
+  "title": "Cat Shop",
+  "subtitle": "Deposit your cats here",
+  "link": "tel:+989109403234",
+  "image": "https://ehsandar.top"
+}
