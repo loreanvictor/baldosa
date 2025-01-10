@@ -28,11 +28,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - BALDOSA__POSTGRES_NAME=baldosa
-      - BALDOSA__POSTGRES_USER=baldosa
-      - BALDOSA__POSTGRES_PASSWORD=complex_password
-      - BALDOSA__POSTGRES_HOST=db
-      - BALDOSA__REDIS_HOST=redis
+      - BALDOSA__DATABASE__CONN_STRING=postgresql://baldosa:complex_password@db:5432/baldosa?sslmode=disable
+    volumes:
+      - ./config.yaml:/app/config.yaml
     depends_on:
       - db
       - redis

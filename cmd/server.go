@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
-
-	_ "modernc.org/sqlite"
+	"log"
 
 	"github.com/loreanvictor/baldosa.git/internal/storage"
 )
@@ -12,20 +10,16 @@ import (
 func main() {
 	ctx := context.Background()
 
-	db, err := sql.Open("sqlite", "baldosa.db")
+	config := loadConfig()
+
+	pool, err := storage.NewConnectionPool(ctx, config.Database.ConnString)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to create pool: %v", err)
 	}
+	defer pool.Close()
 
-	q := storage.New(db)
-
-	_, err = q.CreateUser(ctx, "admin", "admin")
+	err = storage.EnsureMigrations(config.Database.ConnString)
 	if err != nil {
-		panic(err)
-	}
-
-	if err = db.Close(); err != nil {
-		panic(err)
-
+		log.Fatalf("Failed to run migrations: %v", err)
 	}
 }
