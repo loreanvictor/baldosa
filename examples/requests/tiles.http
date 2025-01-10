@@ -1,0 +1,2 @@
+GET {{host}}/tiles/1
+Accept: application/json

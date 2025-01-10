@@ -11,13 +11,13 @@ import (
 
 const assignTile = `-- name: AssignTile :one
 update tiles
-set owner=?1
-where id = ?2
+set owner = $1
+where id = $2
 returning id, x, y, owner, title, subtitle, image, link, created_at, updated_at
 `
 
-func (q *Queries) AssignTile(ctx context.Context, owner *string, iD int64) (Tile, error) {
-	row := q.db.QueryRowContext(ctx, assignTile, owner, iD)
+func (q *Queries) AssignTile(ctx context.Context, db DBTX, owner *string, iD int64) (Tile, error) {
+	row := db.QueryRow(ctx, assignTile, owner, iD)
 	var i Tile
 	err := row.Scan(
 		&i.ID,
@@ -36,21 +36,21 @@ func (q *Queries) AssignTile(ctx context.Context, owner *string, iD int64) (Tile
 
 const createOrphanTile = `-- name: CreateOrphanTile :one
 insert into tiles(x, y, title, subtitle, image, link)
-values (?1, ?2, ?3, ?4, ?5, ?6)
+values ($1, $2, $3, $4, $5, $6)
 returning id, x, y, owner, title, subtitle, image, link, created_at, updated_at
 `
 
 type CreateOrphanTileParams struct {
-	X        int64  `db:"x" json:"x"`
-	Y        int64  `db:"y" json:"y"`
+	X        int32  `db:"x" json:"x"`
+	Y        int32  `db:"y" json:"y"`
 	Title    string `db:"title" json:"title"`
 	Subtitle string `db:"subtitle" json:"subtitle"`
 	Image    string `db:"image" json:"image"`
 	Link     string `db:"link" json:"link"`
 }
 
-func (q *Queries) CreateOrphanTile(ctx context.Context, arg CreateOrphanTileParams) (Tile, error) {
-	row := q.db.QueryRowContext(ctx, createOrphanTile,
+func (q *Queries) CreateOrphanTile(ctx context.Context, db DBTX, arg CreateOrphanTileParams) (Tile, error) {
+	row := db.QueryRow(ctx, createOrphanTile,
 		arg.X,
 		arg.Y,
 		arg.Title,
@@ -76,12 +76,12 @@ func (q *Queries) CreateOrphanTile(ctx context.Context, arg CreateOrphanTilePara
 
 const editTile = `-- name: EditTile :one
 update tiles
-set title=?1,
-    subtitle=?2,
-    image=?3,
-    link=?4,
-    updated_at=current_timestamp
-where id = ?5
+set title = $1,
+    subtitle = $2,
+    image = $3,
+    link = $4,
+    updated_at=now()
+where id = $5
 returning id, x, y, owner, title, subtitle, image, link, created_at, updated_at
 `
 
@@ -93,8 +93,8 @@ type EditTileParams struct {
 	ID       int64  `db:"id" json:"id"`
 }
 
-func (q *Queries) EditTile(ctx context.Context, arg EditTileParams) (Tile, error) {
-	row := q.db.QueryRowContext(ctx, editTile,
+func (q *Queries) EditTile(ctx context.Context, db DBTX, arg EditTileParams) (Tile, error) {
+	row := db.QueryRow(ctx, editTile,
 		arg.Title,
 		arg.Subtitle,
 		arg.Image,
@@ -120,11 +120,11 @@ func (q *Queries) EditTile(ctx context.Context, arg EditTileParams) (Tile, error
 const getTileByID = `-- name: GetTileByID :one
 select id, x, y, owner, title, subtitle, image, link, created_at, updated_at
 from tiles
-where id = ?1
+where id = $1
 `
 
-func (q *Queries) GetTileByID(ctx context.Context, id int64) (Tile, error) {
-	row := q.db.QueryRowContext(ctx, getTileByID, id)
+func (q *Queries) GetTileByID(ctx context.Context, db DBTX, id int64) (Tile, error) {
+	row := db.QueryRow(ctx, getTileByID, id)
 	var i Tile
 	err := row.Scan(
 		&i.ID,
@@ -144,14 +144,14 @@ func (q *Queries) GetTileByID(ctx context.Context, id int64) (Tile, error) {
 const getTileRange = `-- name: GetTileRange :many
 select id, x, y, owner, title, subtitle, image, link, created_at, updated_at
 from tiles
-where x >= ?1
-  and x <= ?2
-  and y >= ?3
-  and y <= ?4
+where x >= $1
+  and x <= $2
+  and y >= $3
+  and y <= $4
 `
 
-func (q *Queries) GetTileRange(ctx context.Context, x1 int64, x2 int64, y1 int64, y2 int64) ([]Tile, error) {
-	rows, err := q.db.QueryContext(ctx, getTileRange,
+func (q *Queries) GetTileRange(ctx context.Context, db DBTX, x1 int32, x2 int32, y1 int32, y2 int32) ([]Tile, error) {
+	rows, err := db.Query(ctx, getTileRange,
 		x1,
 		x2,
 		y1,
@@ -179,9 +179,6 @@ func (q *Queries) GetTileRange(ctx context.Context, x1 int64, x2 int64, y1 int64
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
