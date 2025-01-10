@@ -56,6 +56,14 @@ func (s *tilesServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		response, err = s.CreateTile(ctx, request)
+	case "GetTileRange":
+		request := GetTileRangeRequest{}
+		err = json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+		response, err = s.GetTileRange(ctx, request)
 	default:
 		http.Error(w, "invalid rpc", http.StatusNotFound)
 	}
