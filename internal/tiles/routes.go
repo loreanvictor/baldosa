@@ -23,4 +23,5 @@ func RegisterServer(
 	}
 
 	mux.HandleFunc("/tiles/{TileID}", s.GetTile)
+	mux.HandleFunc("/tiles", s.CreateTile)
 }
