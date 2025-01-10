@@ -5,23 +5,28 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/loreanvictor/baldosa.git/internal/storage"
 )
 
 type tilesServer struct {
-	pool    *pgxpool.Pool
-	querier storage.Querier
+	pool     *pgxpool.Pool
+	querier  storage.Querier
+	s3Client *s3.Client
 }
 
 func RegisterServer(
 	mux *http.ServeMux,
 	pool *pgxpool.Pool,
 	querier storage.Querier,
+	s3Client *s3.Client,
 ) {
 	s := &tilesServer{
-		pool:    pool,
-		querier: querier,
+		pool:     pool,
+		querier:  querier,
+		s3Client: s3Client,
 	}
 
 	mux.HandleFunc("/tiles/{rpc}", s.handleRequest)
