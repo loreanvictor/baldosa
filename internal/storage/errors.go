@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -19,6 +20,7 @@ var (
 	ErrCheckFailed         = errors.New("check constraint failed")
 	ErrNotNullViolation    = errors.New("not null constraint failed")
 	ErrForeignKeyViolation = errors.New("foreign key constraint failed")
+	ErrNotFound            = errors.New("not found")
 )
 
 func TransformPgxError(err error) (int, error) {
@@ -54,6 +56,10 @@ func TransformPgxError(err error) (int, error) {
 		default:
 			return http.StatusInternalServerError, err
 		}
+	}
+
+	if errors.Is(err, pgx.ErrNoRows) {
+		return http.StatusNotFound, ErrNotFound
 	}
 
 	return http.StatusInternalServerError, err
