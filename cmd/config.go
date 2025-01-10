@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Database   DatabaseConfig   `mapstructure:"database"`
 	HTTPServer HTTPServerConfig `mapstructure:"http_server"`
+	S3Client   S3ClientConfig   `mapstructure:"s3_client"`
 }
 
 type DatabaseConfig struct {
@@ -18,6 +19,14 @@ type DatabaseConfig struct {
 
 type HTTPServerConfig struct {
 	Addr string `mapstructure:"addr"`
+}
+
+type S3ClientConfig struct {
+	Endpoint        string `mapstructure:"endpoint"`
+	Region          string `mapstructure:"region"`
+	AccessKeyID     string `mapstructure:"access_key_id"`
+	SecretAccessKey string `mapstructure:"secret_access_key"`
+	Bucket          string `mapstructure:"bucket"`
 }
 
 func loadConfig() Config {

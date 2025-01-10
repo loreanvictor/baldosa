@@ -33,9 +33,11 @@ func main() {
 
 	querier := storage.New()
 
+	s3Client := getS3Client(ctx, config.S3Client)
+
 	mux := http.NewServeMux()
 
-	tiles.RegisterServer(mux, pool, querier)
+	tiles.RegisterServer(mux, pool, querier, s3Client)
 
 	s := http.Server{
 		Addr:    config.HTTPServer.Addr,
