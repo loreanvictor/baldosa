@@ -1,5 +1,6 @@
 *.db
 data/
+config.yaml
 
 # Logs
 logs
