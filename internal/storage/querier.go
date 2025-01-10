@@ -9,12 +9,12 @@ import (
 )
 
 type Querier interface {
-	AssignTile(ctx context.Context, owner *string, iD int64) (Tile, error)
-	CreateOrphanTile(ctx context.Context, arg CreateOrphanTileParams) (Tile, error)
-	CreateUser(ctx context.Context, email string, password string) (User, error)
-	EditTile(ctx context.Context, arg EditTileParams) (Tile, error)
-	GetTileByID(ctx context.Context, id int64) (Tile, error)
-	GetTileRange(ctx context.Context, x1 int64, x2 int64, y1 int64, y2 int64) ([]Tile, error)
+	AssignTile(ctx context.Context, db DBTX, owner *string, iD int64) (Tile, error)
+	CreateOrphanTile(ctx context.Context, db DBTX, arg CreateOrphanTileParams) (Tile, error)
+	CreateUser(ctx context.Context, db DBTX, email string, password string) (User, error)
+	EditTile(ctx context.Context, db DBTX, arg EditTileParams) (Tile, error)
+	GetTileByID(ctx context.Context, db DBTX, id int64) (Tile, error)
+	GetTileRange(ctx context.Context, db DBTX, x1 int32, x2 int32, y1 int32, y2 int32) ([]Tile, error)
 }
 
 var _ Querier = (*Queries)(nil)

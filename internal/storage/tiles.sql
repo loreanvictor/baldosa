@@ -5,17 +5,17 @@ returning *;
 
 -- name: AssignTile :one
 update tiles
-set owner=@owner
+set owner = @owner
 where id = @id
 returning *;
 
 -- name: EditTile :one
 update tiles
-set title=@title,
-    subtitle=@subtitle,
-    image=@image,
-    link=@link,
-    updated_at=current_timestamp
+set title = @title,
+    subtitle = @subtitle,
+    image = @image,
+    link = @link,
+    updated_at=now()
 where id = @id
 returning *;
 

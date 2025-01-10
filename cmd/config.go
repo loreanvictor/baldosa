@@ -8,11 +8,16 @@ import (
 )
 
 type Config struct {
-	Database DatabaseConfig `mapstructure:"database"`
+	Database   DatabaseConfig   `mapstructure:"database"`
+	HTTPServer HTTPServerConfig `mapstructure:"http_server"`
 }
 
 type DatabaseConfig struct {
 	ConnString string `mapstructure:"conn_string"`
+}
+
+type HTTPServerConfig struct {
+	Addr string `mapstructure:"addr"`
 }
 
 func loadConfig() Config {

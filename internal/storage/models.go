@@ -5,25 +5,25 @@
 package storage
 
 import (
-	"time"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Tile struct {
-	ID        int64     `db:"id" json:"id"`
-	X         int64     `db:"x" json:"x"`
-	Y         int64     `db:"y" json:"y"`
-	Owner     *string   `db:"owner" json:"owner"`
-	Title     string    `db:"title" json:"title"`
-	Subtitle  string    `db:"subtitle" json:"subtitle"`
-	Image     string    `db:"image" json:"image"`
-	Link      string    `db:"link" json:"link"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	ID        int64              `db:"id" json:"id"`
+	X         int32              `db:"x" json:"x"`
+	Y         int32              `db:"y" json:"y"`
+	Owner     *string            `db:"owner" json:"owner"`
+	Title     string             `db:"title" json:"title"`
+	Subtitle  string             `db:"subtitle" json:"subtitle"`
+	Image     string             `db:"image" json:"image"`
+	Link      string             `db:"link" json:"link"`
+	CreatedAt pgtype.Timestamptz `db:"created_at" json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `db:"updated_at" json:"updated_at"`
 }
 
 type User struct {
-	Email     string    `db:"email" json:"email"`
-	Password  string    `db:"password" json:"password"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	Email     string             `db:"email" json:"email"`
+	Password  string             `db:"password" json:"password"`
+	CreatedAt pgtype.Timestamptz `db:"created_at" json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `db:"updated_at" json:"updated_at"`
 }

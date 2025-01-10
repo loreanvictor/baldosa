@@ -1,6 +1,6 @@
 version: "2"
 sql:
-  - engine: "sqlite"
+  - engine: "postgresql"
     queries: "."
     schema: "migrations"
     gen:
@@ -12,5 +12,7 @@ sql:
         emit_interface: true
         emit_empty_slices: true
         omit_unused_structs: true
+        emit_methods_with_db_argument: true
         query_parameter_limit: 4
         emit_pointers_for_null_types: true
+        sql_package: "pgx/v5"
