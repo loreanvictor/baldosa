@@ -1,42 +1,63 @@
 package tiles
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
-	"strconv"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/pkg/errors"
+	"github.com/loreanvictor/baldosa.git/internal/storage"
 )
 
+type getTileRequest struct {
+	ID int64 `json:"id"`
+}
+
+type getTileResponse struct {
+	Tile storage.Tile `json:"tile"`
+}
+
 func (s *tilesServer) GetTile(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+	if r.Method != http.MethodPost {
+		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	rawTileID := r.PathValue("TileID")
-	tileID, err := strconv.ParseInt(rawTileID, 10, 64)
+	ctx := r.Context()
+	var err error
+
+	request := getTileRequest{}
+	err = json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		slog.InfoContext(r.Context(), "Invalid tile ID")
-		http.Error(w, "Invalid tile ID", http.StatusBadRequest)
+		slog.InfoContext(ctx, "invalid request body")
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	tile, err := s.querier.GetTileByID(r.Context(), s.pool, tileID)
+	tile, err := s.querier.GetTileByID(ctx, s.pool, request.ID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			http.Error(w, "Tile not found", http.StatusNotFound)
-			return
+		slog.ErrorContext(
+			ctx, "failed to get tile",
+			"error", err,
+			"request", request,
+		)
+
+		code, storageErr := storage.TransformPgxError(err)
+		if storageErr != nil {
+			http.Error(w, storageErr.Error(), code)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		slog.ErrorContext(r.Context(), "Failed to get tile",
-			"tileID", tileID)
-		http.Error(w, "Failed to get tile", http.StatusInternalServerError)
 		return
 	}
 
-	tileJSON := tile.JSON()
+	response := getTileResponse{Tile: tile}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(tileJSON)
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to encode response", "error", err)
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+	}
 }

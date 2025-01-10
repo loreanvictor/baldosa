@@ -22,6 +22,6 @@ func RegisterServer(
 		querier: querier,
 	}
 
-	mux.HandleFunc("/tiles/{TileID}", s.GetTile)
-	mux.HandleFunc("/tiles", s.CreateTile)
+	mux.HandleFunc("/tiles/GetTile", s.GetTile)
+	mux.HandleFunc("/tiles/CreateTile", s.CreateTile)
 }
