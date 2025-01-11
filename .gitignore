@@ -1,6 +1,6 @@
 *.db
-data/
-config.yaml
+server/data/
+server/config.yaml
 
 # Logs
 logs

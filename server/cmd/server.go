@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/loreanvictor/baldosa.git/internal/storage"
-	"github.com/loreanvictor/baldosa.git/internal/tiles"
-	"github.com/loreanvictor/baldosa.git/internal/users"
-	"github.com/loreanvictor/baldosa.git/internal/webtoken"
+	"github.com/loreanvictor/baldosa.git/server/internal/storage"
+	"github.com/loreanvictor/baldosa.git/server/internal/tiles"
+	"github.com/loreanvictor/baldosa.git/server/internal/users"
+	"github.com/loreanvictor/baldosa.git/server/internal/webtoken"
 )
 
 func main() {
