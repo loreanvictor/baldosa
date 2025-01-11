@@ -40,6 +40,7 @@ services:
       - "8000:8000"
     environment:
       - BALDOSA_DATABASE__CONN_STRING=postgresql://baldosa:complex_password@db:5432/baldosa?sslmode=disable
+      - BALDOSA_S3_CLIENT__ENDPOINT=minio:9000
     volumes:
       - ./config.yaml:/app/config.yaml
     depends_on:

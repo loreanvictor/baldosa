@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/minio/minio-go/v7"
 
 	"github.com/loreanvictor/baldosa.git/internal/storage"
 )
@@ -14,14 +14,14 @@ import (
 type tilesServer struct {
 	pool     *pgxpool.Pool
 	querier  storage.Querier
-	s3Client *s3.Client
+	s3Client *minio.Client
 }
 
 func RegisterServer(
 	mux *http.ServeMux,
 	pool *pgxpool.Pool,
 	querier storage.Querier,
-	s3Client *s3.Client,
+	s3Client *minio.Client,
 ) {
 	s := &tilesServer{
 		pool:     pool,
@@ -69,6 +69,14 @@ func (s *tilesServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		response, err = s.GetTileRange(ctx, request)
+	case "PrepImageUpload":
+		request := PrepImageUploadRequest{}
+		err = json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+		response, err = s.PrepImageUpload(ctx, request)
 	default:
 		http.Error(w, "invalid rpc", http.StatusNotFound)
 	}

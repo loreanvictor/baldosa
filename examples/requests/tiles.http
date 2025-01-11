@@ -31,3 +31,21 @@ Content-Type: application/json
   "x_high": 10,
   "y_high": 10
 }
+
+### Get image upload URL
+POST {{host}}/tiles/PrepImageUpload
+Content-Type: application/json
+
+{
+  "content_type": "image/png"
+}
+
+> {%
+  client.global.set("upload_url", response.body.upload_url);
+%}
+
+### Upload image
+PUT {{upload_url}}
+Content-Type: image/png
+
+< ./sample.png
