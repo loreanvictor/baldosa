@@ -10,6 +10,8 @@ import (
 
 	"github.com/loreanvictor/baldosa.git/internal/storage"
 	"github.com/loreanvictor/baldosa.git/internal/tiles"
+	"github.com/loreanvictor/baldosa.git/internal/users"
+	"github.com/loreanvictor/baldosa.git/internal/webtoken"
 )
 
 func main() {
@@ -37,6 +39,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	users.RegisterServer(mux, pool, querier, s3Client, webtoken.New(config.Crypto.JWTSecret))
 	tiles.RegisterServer(mux, pool, querier, s3Client)
 
 	s := http.Server{
@@ -47,8 +50,9 @@ func main() {
 		},
 	}
 
-	log.Printf("Server listening on %s", config.HTTPServer.Addr)
+	slog.InfoContext(ctx, "server listening", "address", config.HTTPServer.Addr)
 	if err := s.ListenAndServe(); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		slog.ErrorContext(ctx, "failed to start server", "error", err)
+		return
 	}
 }

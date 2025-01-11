@@ -11,6 +11,7 @@ type Config struct {
 	Database   DatabaseConfig   `mapstructure:"database"`
 	HTTPServer HTTPServerConfig `mapstructure:"http_server"`
 	S3Client   S3ClientConfig   `mapstructure:"s3_client"`
+	Crypto     CryptoConfig     `mapstructure:"crypto"`
 }
 
 type DatabaseConfig struct {
@@ -28,6 +29,10 @@ type S3ClientConfig struct {
 	SecretAccessKey string `mapstructure:"secret_access_key"`
 	Bucket          string `mapstructure:"bucket"`
 	Secure          bool   `mapstructure:"secure"`
+}
+
+type CryptoConfig struct {
+	JWTSecret string `mapstructure:"jwt_secret"`
 }
 
 func loadConfig() Config {
