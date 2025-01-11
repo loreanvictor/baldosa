@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/loreanvictor/baldosa.git/internal/storage"
-	"github.com/loreanvictor/baldosa.git/internal/webtoken"
+	"github.com/loreanvictor/baldosa.git/server/internal/storage"
+	"github.com/loreanvictor/baldosa.git/server/internal/webtoken"
 )
 
 var (

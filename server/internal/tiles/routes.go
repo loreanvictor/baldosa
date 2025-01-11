@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/minio/minio-go/v7"
 
-	"github.com/loreanvictor/baldosa.git/internal/storage"
+	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
 type tilesServer struct {

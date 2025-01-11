@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	"github.com/loreanvictor/baldosa.git/pkg/pgerrcode"
+	"github.com/loreanvictor/baldosa.git/server/pkg/pgerrcode"
 )
 
 var (

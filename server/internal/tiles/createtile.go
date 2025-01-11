@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/loreanvictor/baldosa.git/internal/storage"
+	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
 type createTileRequest struct {

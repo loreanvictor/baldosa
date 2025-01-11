@@ -3,7 +3,7 @@ package tiles
 import (
 	"context"
 
-	"github.com/loreanvictor/baldosa.git/internal/storage"
+	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
 type GetTileRangeRequest struct {
