@@ -1,0 +1,25 @@
+### Create a user
+POST {{host}}/users/Signup
+Content-Type: application/json
+
+{
+  "email": "ehsandaramir@gmail.com",
+  "password": "ehsandaramir1234"
+}
+
+> {%
+  client.global.set("token", response.body.token);
+%}
+
+### Login
+POST {{host}}/users/Login
+Content-Type: application/json
+
+{
+  "email": "ehsandaramir@gmail.com",
+  "password": "ehsandaramir1234"
+}
+
+> {%
+  client.global.set("token", response.body.token);
+%}

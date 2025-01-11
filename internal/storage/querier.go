@@ -15,6 +15,7 @@ type Querier interface {
 	EditTile(ctx context.Context, db DBTX, arg EditTileParams) (Tile, error)
 	GetTileByID(ctx context.Context, db DBTX, id int64) (Tile, error)
 	GetTileRange(ctx context.Context, db DBTX, x1 int32, x2 int32, y1 int32, y2 int32) ([]Tile, error)
+	GetUser(ctx context.Context, db DBTX, email string) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

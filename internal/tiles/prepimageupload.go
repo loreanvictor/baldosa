@@ -13,7 +13,7 @@ import (
 var (
 	ErrInvalidContentType = errors.New("invalid content type")
 
-	acceptContentTypeRegexp = regexp.MustCompile(`^image/(jpeg|png)$`)
+	acceptContentTypeRegexp = regexp.MustCompile(`^image/(png)$`)
 )
 
 type PrepImageUploadRequest struct {
