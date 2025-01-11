@@ -27,6 +27,7 @@ type S3ClientConfig struct {
 	AccessKeyID     string `mapstructure:"access_key_id"`
 	SecretAccessKey string `mapstructure:"secret_access_key"`
 	Bucket          string `mapstructure:"bucket"`
+	Secure          bool   `mapstructure:"secure"`
 }
 
 func loadConfig() Config {

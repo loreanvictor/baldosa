@@ -33,7 +33,7 @@ func main() {
 
 	querier := storage.New()
 
-	s3Client := getS3Client(ctx, config.S3Client)
+	s3Client := getS3Client(config.S3Client)
 
 	mux := http.NewServeMux()
 
