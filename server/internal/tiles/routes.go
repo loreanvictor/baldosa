@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/minio/minio-go/v7"
 
+	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
@@ -29,7 +30,7 @@ func RegisterServer(
 		s3Client: s3Client,
 	}
 
-	mux.HandleFunc("/tiles/{x}/{y}", s.GetTileHandler)
+	mux.HandleFunc("/tiles/{x}/{y}", middleware.WithAuthorization(s.GetTileHandler))
 	mux.HandleFunc("/tiles/{rpc}", s.handleRequest)
 }
 

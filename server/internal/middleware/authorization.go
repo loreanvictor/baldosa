@@ -11,26 +11,40 @@ var (
 	authHeaderRegexp = regexp.MustCompile(`(?m)^Bearer ((?:\.?[A-Za-z0-9-_]+){3})$`)
 )
 
-func NewJWTAuthorizationMiddleware(tokens webtoken.WebToken) http.HandlerFunc {
+func WithAuthentication(next http.HandlerFunc, tokens webtoken.WebToken) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ClearClaims(r)
+
+		defer next(w, r)
+
 		rawAuthHeader := r.Header.Get("Authorization")
 		if rawAuthHeader == "" {
-			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		matches := authHeaderRegexp.FindStringSubmatch(rawAuthHeader)
 
 		if len(matches) != 2 {
-			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		claims, err := tokens.Validate(matches[1])
 		if err != nil {
+			return
+		}
+
+		SetClaims(r, claims)
+	}
+}
+
+func WithAuthorization(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		c := GetClaims(r)
+		if c == nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
+		next(w, r)
 	}
 }

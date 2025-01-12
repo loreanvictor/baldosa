@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 	"github.com/loreanvictor/baldosa.git/server/internal/tiles"
 	"github.com/loreanvictor/baldosa.git/server/internal/users"
@@ -37,14 +38,16 @@ func main() {
 
 	s3Client := getS3Client(config.S3Client)
 
+	wt := webtoken.New(config.Crypto.JWTSecret)
+
 	mux := http.NewServeMux()
 
-	users.RegisterServer(mux, pool, querier, s3Client, webtoken.New(config.Crypto.JWTSecret))
+	users.RegisterServer(mux, pool, querier, s3Client, wt)
 	tiles.RegisterServer(mux, pool, querier, s3Client)
 
 	s := http.Server{
 		Addr:    config.HTTPServer.Addr,
-		Handler: mux,
+		Handler: middleware.WithAuthentication(mux.ServeHTTP, wt),
 		BaseContext: func(_ net.Listener) context.Context {
 			return ctx
 		},
