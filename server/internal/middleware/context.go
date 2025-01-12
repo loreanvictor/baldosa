@@ -12,5 +12,9 @@ func WithCtxValues(ctx context.Context, r *http.Request) context.Context {
 }
 
 func GetCtxUsername(ctx context.Context) string {
-	return ctx.Value(usernameHeader).(string)
+	username, ok := ctx.Value(usernameHeader).(string)
+	if ok {
+		return username
+	}
+	return ""
 }

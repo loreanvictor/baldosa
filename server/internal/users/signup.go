@@ -2,9 +2,11 @@ package users
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"log/slog"
+	"net/http"
 	"regexp"
-	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -24,8 +26,7 @@ type SignupRequest struct {
 }
 
 type SignupResponse struct {
-	Token string       `json:"jwt"`
-	User  storage.User `json:"user"`
+	Token string `json:"jwt"`
 }
 
 func (s *server) Signup(ctx context.Context, req SignupRequest) (SignupResponse, error) {
@@ -55,8 +56,51 @@ func (s *server) Signup(ctx context.Context, req SignupRequest) (SignupResponse,
 	return SignupResponse{Token: jwt}, nil
 }
 
+func (s *server) SignupHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	request := SignupRequest{}
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	response, err := s.Signup(ctx, request)
+
+	if err != nil {
+		slog.ErrorContext(
+			ctx, "request failed",
+			"path", r.URL.Path,
+			"error", err,
+		)
+
+		code, storageErr := storage.TransformPgxError(err)
+		if storageErr != nil {
+			http.Error(w, storageErr.Error(), code)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		slog.ErrorContext(
+			ctx, "failed to encode response",
+			"path", r.URL.Path,
+			"error", err,
+			"response", response,
+		)
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func validateEmail(email string) error {
-	if !strings.Contains(email, "@") {
+	if !emailRegex.MatchString(email) {
 		return ErrInvalidEmail
 	}
 
