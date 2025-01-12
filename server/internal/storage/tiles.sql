@@ -11,9 +11,9 @@ returning *;
 
 -- name: EditTile :one
 update tiles
-set title = @title,
-    subtitle = @subtitle,
-    link = @link,
+set title     = @title,
+    subtitle  = @subtitle,
+    link      = @link,
     updated_at=now()
 where id = @id
 returning *;
@@ -22,6 +22,12 @@ returning *;
 select *
 from tiles
 where id = @id;
+
+-- name: GetTile :one
+select *
+from tiles
+where x = @x
+  and y = @y;
 
 -- name: GetTileRange :many
 select *

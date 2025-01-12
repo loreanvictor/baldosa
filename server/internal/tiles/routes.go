@@ -29,6 +29,7 @@ func RegisterServer(
 		s3Client: s3Client,
 	}
 
+	mux.HandleFunc("/tiles/{x}/{y}", s.GetTileHandler)
 	mux.HandleFunc("/tiles/{rpc}", s.handleRequest)
 }
 
@@ -45,14 +46,6 @@ func (s *tilesServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	var response any
 
 	switch rpc {
-	case "GetTile":
-		request := getTileRequest{}
-		err = json.NewDecoder(r.Body).Decode(&request)
-		if err != nil {
-			http.Error(w, "invalid request body", http.StatusBadRequest)
-			return
-		}
-		response, err = s.GetTile(ctx, request)
 	case "CreateTile":
 		request := createTileRequest{}
 		err = json.NewDecoder(r.Body).Decode(&request)

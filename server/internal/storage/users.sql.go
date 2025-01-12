@@ -12,7 +12,7 @@ import (
 const createUser = `-- name: CreateUser :one
 insert into users(email, password)
 values ($1, $2)
-returning email, password, created_at, updated_at
+returning email, password, created_at, updated_at, coins
 `
 
 func (q *Queries) CreateUser(ctx context.Context, db DBTX, email string, password string) (User, error) {
@@ -23,12 +23,13 @@ func (q *Queries) CreateUser(ctx context.Context, db DBTX, email string, passwor
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Coins,
 	)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-select email, password, created_at, updated_at
+select email, password, created_at, updated_at, coins
 from users
 where email = $1
 `
@@ -41,6 +42,7 @@ func (q *Queries) GetUser(ctx context.Context, db DBTX, email string) (User, err
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Coins,
 	)
 	return i, err
 }

@@ -25,4 +25,5 @@ type User struct {
 	Password  string             `db:"password" json:"password"`
 	CreatedAt pgtype.Timestamptz `db:"created_at" json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `db:"updated_at" json:"updated_at"`
+	Coins     int32              `db:"coins" json:"coins"`
 }
