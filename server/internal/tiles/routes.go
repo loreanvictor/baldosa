@@ -30,7 +30,8 @@ func RegisterServer(
 		s3Client: s3Client,
 	}
 
-	mux.HandleFunc("/tiles/{x}/{y}", middleware.WithAuthorization(s.GetTileHandler))
+	mux.HandleFunc("GET /tiles/{x}/{y}", middleware.WithAuthorization(s.GetTileHandler))
+	mux.HandleFunc("POST /tiles/{x}/{y}", middleware.WithAuthorization(s.PurchaseHandler))
 	mux.HandleFunc("/tiles/{rpc}", s.handleRequest)
 }
 

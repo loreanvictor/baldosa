@@ -70,6 +70,29 @@ func (q *Queries) CreateOrphanTile(ctx context.Context, db DBTX, arg CreateOrpha
 	return i, err
 }
 
+const createTile = `-- name: CreateTile :one
+insert into tiles(x, y, owner)
+values ($1, $2, $3)
+returning id, x, y, owner, title, subtitle, link, created_at, updated_at
+`
+
+func (q *Queries) CreateTile(ctx context.Context, db DBTX, x int32, y int32, owner *string) (Tile, error) {
+	row := db.QueryRow(ctx, createTile, x, y, owner)
+	var i Tile
+	err := row.Scan(
+		&i.ID,
+		&i.X,
+		&i.Y,
+		&i.Owner,
+		&i.Title,
+		&i.Subtitle,
+		&i.Link,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const editTile = `-- name: EditTile :one
 update tiles
 set title     = $1,

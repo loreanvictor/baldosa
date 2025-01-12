@@ -13,7 +13,7 @@ var (
 
 func WithAuthentication(next http.HandlerFunc, tokens webtoken.WebToken) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ClearClaims(r)
+		ClearSecureHeaders(r)
 
 		defer next(w, r)
 
@@ -28,19 +28,19 @@ func WithAuthentication(next http.HandlerFunc, tokens webtoken.WebToken) http.Ha
 			return
 		}
 
-		claims, err := tokens.Validate(matches[1])
+		username, err := tokens.Validate(matches[1])
 		if err != nil {
 			return
 		}
 
-		SetClaims(r, claims)
+		SetUsername(r, username)
 	}
 }
 
 func WithAuthorization(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		c := GetClaims(r)
-		if c == nil {
+		c := GetUsername(r)
+		if c == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

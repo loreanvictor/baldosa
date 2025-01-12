@@ -1,6 +1,7 @@
 *.db
 server/data/
 server/config.yaml
+*.private.env.json
 
 # Logs
 logs

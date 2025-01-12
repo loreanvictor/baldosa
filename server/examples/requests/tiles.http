@@ -1,21 +1,30 @@
-### Get a tile by its ID
-GET {{host}}/tiles/1/1
-Accept: application/json
-Content-Type: application/json
-
-
-### Create a tile without owner
-POST {{host}}/tiles/CreateTile
+### Login
+POST {{host}}/users/Login
 Content-Type: application/json
 
 {
-  "x": 2,
-  "y": 1,
-  "title": "Cat Shop",
-  "subtitle": "Deposit your cats here",
-  "link": "tel:+989109403234",
-  "image": "https://ehsandar.top"
+  "email": "ehsandaramir@gmail.com",
+  "password": "ehsandaramir1234"
 }
+
+> {%
+  client.global.set("token", response.body.jwt);
+%}
+
+
+### Get a tile by its coordinates
+GET {{host}}/tiles/1/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### Purchase a tile
+POST {{host}}/tiles/1/1
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
 
 ### Get tiles in a specific area
 POST {{host}}/tiles/GetTileRange
@@ -28,6 +37,7 @@ Content-Type: application/json
   "y_high": 10
 }
 
+
 ### Get image upload URL
 POST {{host}}/tiles/PrepImageUpload
 Content-Type: application/json
@@ -39,6 +49,7 @@ Content-Type: application/json
 > {%
   client.global.set("upload_url", response.body.upload_url);
 %}
+
 
 ### Upload image
 PUT {{upload_url}}

@@ -7,7 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
-	"github.com/loreanvictor/baldosa.git/server/internal/webtoken"
 )
 
 var (
@@ -34,7 +33,7 @@ func (s *server) Login(ctx context.Context, req LoginRequest) (LoginResponse, er
 		return LoginResponse{}, err
 	}
 
-	jwt, err := s.tokens.Generate(webtoken.Claims{Email: user.Email})
+	jwt, err := s.tokens.Generate(user.Email)
 	if err != nil {
 		return LoginResponse{}, err
 	}

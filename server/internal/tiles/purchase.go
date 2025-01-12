@@ -8,39 +8,58 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jackc/pgx/v5"
-
+	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
-type GetTileRequest struct {
+var (
+	ErrUnauthorized  = errors.New("unauthorized")
+	ErrAlreadyExists = errors.New("tile already exists")
+)
+
+type PurchaseRequest struct {
 	X int32 `json:"x"`
 	Y int32 `json:"y"`
 }
 
-type GetTileResponse struct {
-	Tile  storage.Tile `json:"tile,omitempty"`
-	Price int32        `json:"price,omitempty"`
-}
+type PurchaseResponse struct{}
 
-func (s *tilesServer) GetTile(ctx context.Context, request GetTileRequest) (GetTileResponse, error) {
-	tile, err := s.querier.GetTile(ctx, s.pool, request.X, request.Y)
+func (s *tilesServer) Purchase(ctx context.Context, request PurchaseRequest) (PurchaseResponse, error) {
+	username := middleware.GetCtxUsername(ctx)
 
-	if errors.Is(err, pgx.ErrNoRows) {
-		return GetTileResponse{
-			Price: 20,
-		}, nil
+	resp, err := s.GetTile(ctx, GetTileRequest{
+		X: request.X,
+		Y: request.Y,
+	})
+	if err != nil {
+		return PurchaseResponse{}, err
 	}
 
-	return GetTileResponse{Tile: tile}, err
-}
-
-func (s *tilesServer) GetTileHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
-		return
+	if resp.Price == 0 {
+		return PurchaseResponse{}, ErrAlreadyExists
 	}
 
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return PurchaseResponse{}, err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = s.querier.SpendCoins(ctx, tx, resp.Price, username)
+	if err != nil {
+		return PurchaseResponse{}, err
+	}
+
+	_, err = s.querier.CreateTile(ctx, tx, request.X, request.Y, &username)
+	if err != nil {
+		return PurchaseResponse{}, err
+	}
+
+	err = tx.Commit(ctx)
+	return PurchaseResponse{}, err
+}
+
+func (s *tilesServer) PurchaseHandler(w http.ResponseWriter, r *http.Request) {
 	xRaw := r.PathValue("x")
 	yRaw := r.PathValue("y")
 
@@ -52,11 +71,11 @@ func (s *tilesServer) GetTileHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	request := GetTileRequest{
+	request := PurchaseRequest{
 		X: int32(x),
 		Y: int32(y),
 	}
-	response, err := s.GetTile(ctx, request)
+	response, err := s.Purchase(middleware.WithCtxValues(ctx, r), request)
 
 	if err != nil {
 		slog.ErrorContext(

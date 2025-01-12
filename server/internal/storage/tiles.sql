@@ -3,6 +3,11 @@ insert into tiles(x, y, title, subtitle, link)
 values (@x, @y, @title, @subtitle, @link)
 returning *;
 
+-- name: CreateTile :one
+insert into tiles(x, y, owner)
+values (@x, @y, @owner)
+returning *;
+
 -- name: AssignTile :one
 update tiles
 set owner = @owner

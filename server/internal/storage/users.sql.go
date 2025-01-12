@@ -46,3 +46,23 @@ func (q *Queries) GetUser(ctx context.Context, db DBTX, email string) (User, err
 	)
 	return i, err
 }
+
+const spendCoins = `-- name: SpendCoins :one
+update users
+set coins = coins - $1
+where email = $2
+returning email, password, created_at, updated_at, coins
+`
+
+func (q *Queries) SpendCoins(ctx context.Context, db DBTX, coins int32, email string) (User, error) {
+	row := db.QueryRow(ctx, spendCoins, coins, email)
+	var i User
+	err := row.Scan(
+		&i.Email,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Coins,
+	)
+	return i, err
+}
