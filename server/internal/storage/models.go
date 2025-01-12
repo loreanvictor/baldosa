@@ -15,7 +15,6 @@ type Tile struct {
 	Owner     *string            `db:"owner" json:"owner"`
 	Title     string             `db:"title" json:"title"`
 	Subtitle  string             `db:"subtitle" json:"subtitle"`
-	Image     string             `db:"image" json:"image"`
 	Link      string             `db:"link" json:"link"`
 	CreatedAt pgtype.Timestamptz `db:"created_at" json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `db:"updated_at" json:"updated_at"`

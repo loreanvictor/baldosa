@@ -3,11 +3,10 @@ package tiles
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"regexp"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var (
@@ -17,11 +16,15 @@ var (
 )
 
 type PrepImageUploadRequest struct {
+	X int32 `json:"x"`
+	Y int32 `json:"y"`
+
 	ContentType string `json:"content_type"`
 }
 
 type PrepImageUploadResponse struct {
 	UploadUrl string `json:"upload_url"`
+	Key       string `json:"key"`
 }
 
 func (s *tilesServer) PrepImageUpload(ctx context.Context,
@@ -32,13 +35,9 @@ func (s *tilesServer) PrepImageUpload(ctx context.Context,
 		return PrepImageUploadResponse{}, ErrInvalidContentType
 	}
 
-	objectKey, err := uuid.NewRandom()
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to generate object key", "error", err)
-		return PrepImageUploadResponse{}, err
-	}
+	objectKey := fmt.Sprintf("tile-%d-%d", request.X, request.Y)
 
-	url, err := s.s3Client.PresignedPutObject(ctx, "baldosa", objectKey.String(), 30*time.Minute)
+	url, err := s.s3Client.PresignedPutObject(ctx, "baldosa", objectKey, 30*time.Minute)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to presign put object", "error", err)
 		return PrepImageUploadResponse{}, err
@@ -46,6 +45,6 @@ func (s *tilesServer) PrepImageUpload(ctx context.Context,
 
 	return PrepImageUploadResponse{
 		UploadUrl: url.String(),
+		Key:       objectKey,
 	}, nil
-
 }

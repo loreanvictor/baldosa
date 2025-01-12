@@ -1,6 +1,6 @@
 -- name: CreateOrphanTile :one
-insert into tiles(x, y, title, subtitle, image, link)
-values (@x, @y, @title, @subtitle, @image, @link)
+insert into tiles(x, y, title, subtitle, link)
+values (@x, @y, @title, @subtitle, @link)
 returning *;
 
 -- name: AssignTile :one
@@ -13,7 +13,6 @@ returning *;
 update tiles
 set title = @title,
     subtitle = @subtitle,
-    image = @image,
     link = @link,
     updated_at=now()
 where id = @id

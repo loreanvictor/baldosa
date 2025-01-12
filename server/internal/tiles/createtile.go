@@ -15,8 +15,6 @@ type createTileRequest struct {
 	Title    string `json:"title"`
 	Subtitle string `json:"subtitle"`
 	Link     string `json:"link"`
-
-	Image string `json:"image"`
 }
 
 type createTileResponse struct {
@@ -35,7 +33,6 @@ func (s *tilesServer) CreateTile(ctx context.Context, request createTileRequest)
 		Y:        request.Y,
 		Title:    request.Title,
 		Subtitle: request.Subtitle,
-		Image:    request.Image,
 		Link:     request.Link,
 	})
 	return createTileResponse{Tile: tile}, err
