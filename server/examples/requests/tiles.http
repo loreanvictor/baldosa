@@ -34,13 +34,14 @@ Content-Type: image/png
 < ./sample.png
 
 
-### Get tiles in a specific area
-POST {{host}}/tiles/GetTileRange
+### Edit a tile
+POST {{host}}/tiles/1/1
+Accept: application/json
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "x_low": -10,
-  "y_low": -10,
-  "x_high": 10,
-  "y_high": 10
+  "title": "Pipes Shop",
+  "subtitle": "The best pipes in town",
+  "link": "https://pipes.com"
 }

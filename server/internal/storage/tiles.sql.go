@@ -9,67 +9,6 @@ import (
 	"context"
 )
 
-const assignTile = `-- name: AssignTile :one
-update tiles
-set owner = $1
-where id = $2
-returning id, x, y, owner, title, subtitle, link, created_at, updated_at
-`
-
-func (q *Queries) AssignTile(ctx context.Context, db DBTX, owner *string, iD int64) (Tile, error) {
-	row := db.QueryRow(ctx, assignTile, owner, iD)
-	var i Tile
-	err := row.Scan(
-		&i.ID,
-		&i.X,
-		&i.Y,
-		&i.Owner,
-		&i.Title,
-		&i.Subtitle,
-		&i.Link,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const createOrphanTile = `-- name: CreateOrphanTile :one
-insert into tiles(x, y, title, subtitle, link)
-values ($1, $2, $3, $4, $5)
-returning id, x, y, owner, title, subtitle, link, created_at, updated_at
-`
-
-type CreateOrphanTileParams struct {
-	X        int32  `db:"x" json:"x"`
-	Y        int32  `db:"y" json:"y"`
-	Title    string `db:"title" json:"title"`
-	Subtitle string `db:"subtitle" json:"subtitle"`
-	Link     string `db:"link" json:"link"`
-}
-
-func (q *Queries) CreateOrphanTile(ctx context.Context, db DBTX, arg CreateOrphanTileParams) (Tile, error) {
-	row := db.QueryRow(ctx, createOrphanTile,
-		arg.X,
-		arg.Y,
-		arg.Title,
-		arg.Subtitle,
-		arg.Link,
-	)
-	var i Tile
-	err := row.Scan(
-		&i.ID,
-		&i.X,
-		&i.Y,
-		&i.Owner,
-		&i.Title,
-		&i.Subtitle,
-		&i.Link,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const createTile = `-- name: CreateTile :one
 insert into tiles(x, y, owner)
 values ($1, $2, $3)
@@ -93,22 +32,35 @@ func (q *Queries) CreateTile(ctx context.Context, db DBTX, x int32, y int32, own
 	return i, err
 }
 
-const editTile = `-- name: EditTile :one
+const editTileByOwner = `-- name: EditTileByOwner :one
 update tiles
 set title     = $1,
     subtitle  = $2,
     link      = $3,
     updated_at=now()
-where id = $4
+where x = $4
+  and y = $5
+  and owner = $6
 returning id, x, y, owner, title, subtitle, link, created_at, updated_at
 `
 
-func (q *Queries) EditTile(ctx context.Context, db DBTX, title string, subtitle string, link string, iD int64) (Tile, error) {
-	row := db.QueryRow(ctx, editTile,
-		title,
-		subtitle,
-		link,
-		iD,
+type EditTileByOwnerParams struct {
+	Title    string  `db:"title" json:"title"`
+	Subtitle string  `db:"subtitle" json:"subtitle"`
+	Link     string  `db:"link" json:"link"`
+	X        int32   `db:"x" json:"x"`
+	Y        int32   `db:"y" json:"y"`
+	Owner    *string `db:"owner" json:"owner"`
+}
+
+func (q *Queries) EditTileByOwner(ctx context.Context, db DBTX, arg EditTileByOwnerParams) (Tile, error) {
+	row := db.QueryRow(ctx, editTileByOwner,
+		arg.Title,
+		arg.Subtitle,
+		arg.Link,
+		arg.X,
+		arg.Y,
+		arg.Owner,
 	)
 	var i Tile
 	err := row.Scan(
@@ -147,71 +99,4 @@ func (q *Queries) GetTile(ctx context.Context, db DBTX, x int32, y int32) (Tile,
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const getTileByID = `-- name: GetTileByID :one
-select id, x, y, owner, title, subtitle, link, created_at, updated_at
-from tiles
-where id = $1
-`
-
-func (q *Queries) GetTileByID(ctx context.Context, db DBTX, id int64) (Tile, error) {
-	row := db.QueryRow(ctx, getTileByID, id)
-	var i Tile
-	err := row.Scan(
-		&i.ID,
-		&i.X,
-		&i.Y,
-		&i.Owner,
-		&i.Title,
-		&i.Subtitle,
-		&i.Link,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getTileRange = `-- name: GetTileRange :many
-select id, x, y, owner, title, subtitle, link, created_at, updated_at
-from tiles
-where x >= $1
-  and x <= $2
-  and y >= $3
-  and y <= $4
-`
-
-func (q *Queries) GetTileRange(ctx context.Context, db DBTX, x1 int32, x2 int32, y1 int32, y2 int32) ([]Tile, error) {
-	rows, err := db.Query(ctx, getTileRange,
-		x1,
-		x2,
-		y1,
-		y2,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Tile{}
-	for rows.Next() {
-		var i Tile
-		if err := rows.Scan(
-			&i.ID,
-			&i.X,
-			&i.Y,
-			&i.Owner,
-			&i.Title,
-			&i.Subtitle,
-			&i.Link,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }

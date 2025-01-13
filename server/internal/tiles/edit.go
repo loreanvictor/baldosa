@@ -4,69 +4,64 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
-	"regexp"
 	"strconv"
-	"time"
 
 	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
-var (
-	ErrInvalidContentType = errors.New("invalid content type")
-
-	acceptContentTypeRegexp = regexp.MustCompile(`^image/(png)$`)
-)
-
-type CreateImageRequest struct {
+type EditRequest struct {
 	X int32 `json:"x"`
 	Y int32 `json:"y"`
 
-	ContentType string `json:"content_type"`
+	Title    string `json:"title"`
+	Subtitle string `json:"subtitle"`
+	Link     string `json:"link"`
 }
 
-type CreateImageResponse struct {
-	UploadUrl string `json:"upload_url"`
-	Key       string `json:"key"`
-}
+type EditResponse struct{}
 
-func (s *tilesServer) CreateImage(ctx context.Context,
-	request CreateImageRequest) (CreateImageResponse, error) {
-
+func (s *tilesServer) Edit(ctx context.Context, request EditRequest) (EditResponse, error) {
 	username := middleware.GetCtxUsername(ctx)
 
-	if !acceptContentTypeRegexp.MatchString(request.ContentType) {
-		slog.WarnContext(ctx, "invalid content type", "content_type", request.ContentType)
-		return CreateImageResponse{}, ErrInvalidContentType
+	if err := validateTile(request.Title, request.Subtitle, request.Link); err != nil {
+		return EditResponse{}, err
 	}
 
-	tile, err := s.querier.GetTile(ctx, s.pool, request.X, request.Y)
-	if err != nil {
-		return CreateImageResponse{}, err
-	}
+	_, err := s.querier.EditTileByOwner(ctx, s.pool, storage.EditTileByOwnerParams{
+		Title:    request.Title,
+		Subtitle: request.Subtitle,
+		Link:     request.Link,
+		X:        request.X,
+		Y:        request.Y,
+		Owner:    &username,
+	})
 
-	if tile.Owner != nil && *tile.Owner != username {
-		return CreateImageResponse{}, ErrUnauthorized
-	}
-
-	objectKey := fmt.Sprintf("tile-%d-%d-uploaded", request.X, request.Y)
-
-	url, err := s.s3Client.PresignedPutObject(ctx, "baldosa", objectKey, 30*time.Minute)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to presign put object", "error", err)
-		return CreateImageResponse{}, err
-	}
-
-	return CreateImageResponse{
-		UploadUrl: url.String(),
-		Key:       objectKey,
-	}, nil
+	return EditResponse{}, err
 }
 
-func (s *tilesServer) CreateImageHandler(w http.ResponseWriter, r *http.Request) {
+func validateTile(title, subtitle, link string) error {
+	if len(title) == 0 {
+		return errors.New("title is required")
+	}
+	if len(title) > 120 {
+		return errors.New("title is too long")
+	}
+
+	if len(subtitle) > 120 {
+		return errors.New("subtitle is too long")
+	}
+
+	if err := ValidateLink(link); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *tilesServer) EditHandler(w http.ResponseWriter, r *http.Request) {
 	xRaw := r.PathValue("x")
 	yRaw := r.PathValue("y")
 
@@ -78,7 +73,7 @@ func (s *tilesServer) CreateImageHandler(w http.ResponseWriter, r *http.Request)
 
 	ctx := r.Context()
 
-	request := CreateImageRequest{}
+	request := EditRequest{}
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
@@ -88,7 +83,7 @@ func (s *tilesServer) CreateImageHandler(w http.ResponseWriter, r *http.Request)
 	request.X = int32(x)
 	request.Y = int32(y)
 
-	response, err := s.CreateImage(middleware.WithCtxValues(ctx, r), request)
+	response, err := s.Edit(middleware.WithCtxValues(ctx, r), request)
 
 	if err != nil {
 		slog.ErrorContext(
@@ -120,4 +115,5 @@ func (s *tilesServer) CreateImageHandler(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 		return
 	}
+
 }

@@ -9,14 +9,10 @@ import (
 )
 
 type Querier interface {
-	AssignTile(ctx context.Context, db DBTX, owner *string, iD int64) (Tile, error)
-	CreateOrphanTile(ctx context.Context, db DBTX, arg CreateOrphanTileParams) (Tile, error)
 	CreateTile(ctx context.Context, db DBTX, x int32, y int32, owner *string) (Tile, error)
 	CreateUser(ctx context.Context, db DBTX, email string, password string) (User, error)
-	EditTile(ctx context.Context, db DBTX, title string, subtitle string, link string, iD int64) (Tile, error)
+	EditTileByOwner(ctx context.Context, db DBTX, arg EditTileByOwnerParams) (Tile, error)
 	GetTile(ctx context.Context, db DBTX, x int32, y int32) (Tile, error)
-	GetTileByID(ctx context.Context, db DBTX, id int64) (Tile, error)
-	GetTileRange(ctx context.Context, db DBTX, x1 int32, x2 int32, y1 int32, y2 int32) ([]Tile, error)
 	GetUser(ctx context.Context, db DBTX, email string) (User, error)
 	SpendCoins(ctx context.Context, db DBTX, coins int32, email string) (User, error)
 }
