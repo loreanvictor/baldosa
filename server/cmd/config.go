@@ -5,13 +5,16 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+
+	"github.com/loreanvictor/baldosa.git/server/internal/clients/publisher"
 )
 
 type Config struct {
-	Database   DatabaseConfig   `mapstructure:"database"`
-	HTTPServer HTTPServerConfig `mapstructure:"http_server"`
-	S3Client   S3ClientConfig   `mapstructure:"s3_client"`
-	Crypto     CryptoConfig     `mapstructure:"crypto"`
+	Database              DatabaseConfig   `mapstructure:"database"`
+	HTTPServer            HTTPServerConfig `mapstructure:"http_server"`
+	S3Client              S3ClientConfig   `mapstructure:"s3_client"`
+	PublisherClientConfig publisher.Config `mapstructure:"publisher"`
+	Crypto                CryptoConfig     `mapstructure:"crypto"`
 }
 
 type DatabaseConfig struct {

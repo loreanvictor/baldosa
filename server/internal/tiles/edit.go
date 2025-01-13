@@ -4,9 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/minio/minio-go/v7"
 
 	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
@@ -39,6 +43,19 @@ func (s *tilesServer) Edit(ctx context.Context, request EditRequest) (EditRespon
 		Owner:    &username,
 	})
 
+	if err != nil {
+		return EditResponse{}, err
+	}
+
+	objectKey := fmt.Sprintf("tile-%d-%d-uploaded", request.X, request.Y)
+	hasChanged, err := objectHasChanged(ctx, s.s3Client, objectKey)
+	if hasChanged {
+		err = s.publisherClient.Process(ctx, request.X, request.Y)
+		if err != nil {
+			return EditResponse{}, err
+		}
+	}
+
 	return EditResponse{}, err
 }
 
@@ -59,6 +76,23 @@ func validateTile(title, subtitle, link string) error {
 	}
 
 	return nil
+}
+
+func objectHasChanged(ctx context.Context, s3Client *minio.Client, key string) (bool, error) {
+	attrs, err := s3Client.GetObjectAttributes(ctx, "baldosa", key, minio.ObjectAttributesOptions{})
+	if err != nil {
+		var minioErr minio.ErrorResponse
+		ok := errors.As(err, &minioErr)
+		if !ok || minioErr.Code != "NoSuchKey" {
+			return false, err
+		}
+	}
+
+	if attrs != nil && attrs.LastModified.After(time.Now().Add(-30*time.Minute)) {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func (s *tilesServer) EditHandler(w http.ResponseWriter, r *http.Request) {

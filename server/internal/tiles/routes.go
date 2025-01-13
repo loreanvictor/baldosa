@@ -6,14 +6,16 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/minio/minio-go/v7"
 
+	"github.com/loreanvictor/baldosa.git/server/internal/clients/publisher"
 	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
 type tilesServer struct {
-	pool     *pgxpool.Pool
-	querier  storage.Querier
-	s3Client *minio.Client
+	pool            *pgxpool.Pool
+	querier         storage.Querier
+	s3Client        *minio.Client
+	publisherClient publisher.Publisher
 }
 
 func RegisterServer(
@@ -21,11 +23,13 @@ func RegisterServer(
 	pool *pgxpool.Pool,
 	querier storage.Querier,
 	s3Client *minio.Client,
+	publisherClient publisher.Publisher,
 ) {
 	s := &tilesServer{
-		pool:     pool,
-		querier:  querier,
-		s3Client: s3Client,
+		pool:            pool,
+		querier:         querier,
+		s3Client:        s3Client,
+		publisherClient: publisherClient,
 	}
 
 	mux.HandleFunc("GET /tiles/{x}/{y}", s.GetTileHandler)

@@ -35,7 +35,7 @@ Content-Type: image/png
 
 
 ### Edit a tile
-POST {{host}}/tiles/1/1
+PUT {{host}}/tiles/1/1
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{token}}
