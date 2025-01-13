@@ -26,7 +26,7 @@ type SignupRequest struct {
 }
 
 type SignupResponse struct {
-	Token string `json:"jwt"`
+	JWT string `json:"jwt"`
 }
 
 func (s *server) Signup(ctx context.Context, req SignupRequest) (SignupResponse, error) {
@@ -53,7 +53,7 @@ func (s *server) Signup(ctx context.Context, req SignupRequest) (SignupResponse,
 		return SignupResponse{}, err
 	}
 
-	return SignupResponse{Token: jwt}, nil
+	return SignupResponse{JWT: jwt}, nil
 }
 
 func (s *server) SignupHandler(w http.ResponseWriter, r *http.Request) {

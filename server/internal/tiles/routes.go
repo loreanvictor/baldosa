@@ -11,7 +11,7 @@ import (
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
-type tilesServer struct {
+type server struct {
 	pool            *pgxpool.Pool
 	querier         storage.Querier
 	s3Client        *minio.Client
@@ -25,7 +25,7 @@ func RegisterServer(
 	s3Client *minio.Client,
 	publisherClient publisher.Publisher,
 ) {
-	s := &tilesServer{
+	s := &server{
 		pool:            pool,
 		querier:         querier,
 		s3Client:        s3Client,

@@ -23,7 +23,7 @@ type GetTileResponse struct {
 	Price int32        `json:"price,omitempty"`
 }
 
-func (s *tilesServer) GetTile(ctx context.Context, request GetTileRequest) (GetTileResponse, error) {
+func (s *server) GetTile(ctx context.Context, request GetTileRequest) (GetTileResponse, error) {
 	tile, err := s.querier.GetTile(ctx, s.pool, request.X, request.Y)
 
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -35,7 +35,7 @@ func (s *tilesServer) GetTile(ctx context.Context, request GetTileRequest) (GetT
 	return GetTileResponse{Tile: tile}, err
 }
 
-func (s *tilesServer) GetTileHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) GetTileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		return

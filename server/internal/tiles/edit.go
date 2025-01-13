@@ -27,7 +27,7 @@ type EditRequest struct {
 
 type EditResponse struct{}
 
-func (s *tilesServer) Edit(ctx context.Context, request EditRequest) (EditResponse, error) {
+func (s *server) Edit(ctx context.Context, request EditRequest) (EditResponse, error) {
 	username := middleware.GetCtxUsername(ctx)
 
 	if err := validateTile(request.Title, request.Subtitle, request.Link); err != nil {
@@ -95,7 +95,7 @@ func objectHasChanged(ctx context.Context, s3Client *minio.Client, key string) (
 	return false, nil
 }
 
-func (s *tilesServer) EditHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) EditHandler(w http.ResponseWriter, r *http.Request) {
 	xRaw := r.PathValue("x")
 	yRaw := r.PathValue("y")
 

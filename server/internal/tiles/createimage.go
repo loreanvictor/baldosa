@@ -33,7 +33,7 @@ type CreateImageResponse struct {
 	Key       string `json:"key"`
 }
 
-func (s *tilesServer) CreateImage(ctx context.Context,
+func (s *server) CreateImage(ctx context.Context,
 	request CreateImageRequest) (CreateImageResponse, error) {
 
 	username := middleware.GetCtxUsername(ctx)
@@ -66,7 +66,7 @@ func (s *tilesServer) CreateImage(ctx context.Context,
 	}, nil
 }
 
-func (s *tilesServer) CreateImageHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 	xRaw := r.PathValue("x")
 	yRaw := r.PathValue("y")
 

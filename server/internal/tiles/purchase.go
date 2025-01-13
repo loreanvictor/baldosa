@@ -24,7 +24,7 @@ type PurchaseRequest struct {
 
 type PurchaseResponse struct{}
 
-func (s *tilesServer) Purchase(ctx context.Context, request PurchaseRequest) (PurchaseResponse, error) {
+func (s *server) Purchase(ctx context.Context, request PurchaseRequest) (PurchaseResponse, error) {
 	username := middleware.GetCtxUsername(ctx)
 
 	resp, err := s.GetTile(ctx, GetTileRequest{
@@ -59,7 +59,7 @@ func (s *tilesServer) Purchase(ctx context.Context, request PurchaseRequest) (Pu
 	return PurchaseResponse{}, err
 }
 
-func (s *tilesServer) PurchaseHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) PurchaseHandler(w http.ResponseWriter, r *http.Request) {
 	xRaw := r.PathValue("x")
 	yRaw := r.PathValue("y")
 

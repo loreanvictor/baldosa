@@ -8,7 +8,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token", response.body.token);
+  client.global.set("token", response.body.jwt);
 %}
 
 ### Login
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 > {%
-  client.global.set("token", response.body.token);
+  client.global.set("token", response.body.jwt);
 %}
 
 
@@ -30,6 +30,3 @@ GET {{host}}/users/me
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-> {%
-  client.global.set("token", response.body.token);
-%}
