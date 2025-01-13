@@ -1,17 +1,3 @@
-### Login
-POST {{host}}/users/Login
-Content-Type: application/json
-
-{
-  "email": "ehsandaramir@gmail.com",
-  "password": "ehsandaramir1234"
-}
-
-> {%
-  client.global.set("token", response.body.jwt);
-%}
-
-
 ### Get a tile by its coordinates
 GET {{host}}/tiles/1/1
 Accept: application/json
@@ -26,21 +12,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
-### Get tiles in a specific area
-POST {{host}}/tiles/GetTileRange
+### Create tile image
+POST {{host}}/tiles/1/1/images
+Accept: application/json
 Content-Type: application/json
-
-{
-  "x_low": -10,
-  "y_low": -10,
-  "x_high": 10,
-  "y_high": 10
-}
-
-
-### Get image upload URL
-POST {{host}}/tiles/PrepImageUpload
-Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "content_type": "image/png"
@@ -56,3 +32,15 @@ PUT {{upload_url}}
 Content-Type: image/png
 
 < ./sample.png
+
+
+### Get tiles in a specific area
+POST {{host}}/tiles/GetTileRange
+Content-Type: application/json
+
+{
+  "x_low": -10,
+  "y_low": -10,
+  "x_high": 10,
+  "y_high": 10
+}

@@ -32,6 +32,7 @@ func RegisterServer(
 
 	mux.HandleFunc("GET /tiles/{x}/{y}", middleware.WithAuthorization(s.GetTileHandler))
 	mux.HandleFunc("POST /tiles/{x}/{y}", middleware.WithAuthorization(s.PurchaseHandler))
+	mux.HandleFunc("POST /tiles/{x}/{y}/images", middleware.WithAuthorization(s.CreateImageHandler))
 	mux.HandleFunc("/tiles/{rpc}", s.handleRequest)
 }
 
@@ -64,14 +65,6 @@ func (s *tilesServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		response, err = s.GetTileRange(ctx, request)
-	case "PrepImageUpload":
-		request := PrepImageUploadRequest{}
-		err = json.NewDecoder(r.Body).Decode(&request)
-		if err != nil {
-			http.Error(w, "invalid request body", http.StatusBadRequest)
-			return
-		}
-		response, err = s.PrepImageUpload(ctx, request)
 	default:
 		http.Error(w, "invalid rpc", http.StatusNotFound)
 	}
