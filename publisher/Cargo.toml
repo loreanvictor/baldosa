@@ -7,9 +7,13 @@ edition = "2021"
 tower = "0.5.2"
 axum = { version = "0.8.1", features = ["macros"] }
 log = "0.4.22"
-simple_logger = "5.0.0"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8.19"
 image = "0.25.5"
 futures = "0.3.31"
+aws-config = "1.5.13"
+aws-sdk-s3 = "1.68.0"
+dotenv = "0.15.0"
+env_logger = "0.11.6"
+async-trait = "0.1.85"
