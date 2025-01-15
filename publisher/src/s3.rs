@@ -1,10 +1,9 @@
-use std::sync::Arc;
 use log::{ error, info };
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::{ config::ProvideCredentials, Client as S3Client };
 
 
-pub async fn init() -> Arc<S3Client> {
+pub async fn init() -> S3Client {
   let config = aws_config::load_defaults(BehaviorVersion::latest()).await;
   let client = S3Client::new(&config);
 
@@ -21,5 +20,5 @@ pub async fn init() -> Arc<S3Client> {
     },
   }
 
-  Arc::new(client)
+  client
 }

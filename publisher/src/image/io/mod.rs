@@ -12,3 +12,4 @@ pub use fs_png::FsPngInterface;
 
 #[allow(unused_imports)]
 pub use s3_jpeg::S3JpegInterface;
+

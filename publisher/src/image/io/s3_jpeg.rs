@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use std::{ env, error::Error, sync::Arc, io::Cursor, io::Error as IOError, io::ErrorKind };
+use std::{ env, error::Error, io::Cursor, io::Error as IOError, io::ErrorKind };
 use aws_sdk_s3::Client as S3Client;
 use image::{ Rgb, RgbImage, ImageReader, ImageFormat::Jpeg };
 
@@ -7,7 +7,7 @@ use super::interface::{ ImageInterface, Metadata };
 
 
 pub struct S3JpegInterface {
-  client: Arc<S3Client>,
+  client: S3Client,
   source_bucket: String,
   target_bucket: String,
 }
@@ -15,7 +15,7 @@ pub struct S3JpegInterface {
 impl S3JpegInterface {
   #[allow(dead_code)]
   pub fn new(
-    client: Arc<S3Client>,
+    client: S3Client,
     source_bucket: Option<String>,
     target_bucket: Option<String>,
   ) -> Self {
@@ -39,7 +39,6 @@ impl S3JpegInterface {
 #[async_trait]
 impl ImageInterface for S3JpegInterface {
   type Pixel = Rgb<u8>;
-
   async fn load(&self, source: &str) -> Result<RgbImage, Box<dyn Error + Send + Sync>> {
     match self.client.get_object()
       .bucket(&self.source_bucket)
@@ -86,5 +85,21 @@ impl ImageInterface for S3JpegInterface {
 
     let region = self.client.config().region().unwrap().as_ref();
     Ok(format!("https://{}.s3.{}.amazonaws.com/{}", self.target_bucket, region, key))
+  }
+
+  async fn delete(&self, target: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let key = String::from(target) + ".jpg";
+
+    match self.client.delete_object()
+      .bucket(&self.target_bucket)
+      .key(&key)
+      .send()
+      .await {
+      Ok(_) => {
+        let region = self.client.config().region().unwrap().as_ref();
+        Ok(format!("https://{}.s3.{}.amazonaws.com/{}", self.target_bucket, region, key))
+      },
+      Err(err) => Err(Box::new(err)),
+    }
   }
 }

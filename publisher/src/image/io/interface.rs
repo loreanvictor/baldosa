@@ -19,10 +19,13 @@ pub trait ImageInterface: Sync + Send {
       ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
       Box<dyn std::error::Error + Send + Sync>
     >;
+
   async fn save(
     &self,
     image: &ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
     meta: &Metadata,
     target: &str
   ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
+
+  async fn delete(&self, target: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
 }

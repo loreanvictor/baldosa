@@ -1,56 +1,87 @@
 
 use std::{ io::{ Error as IOError, ErrorKind }, sync::Arc };
-use axum::{ extract::{ Query, Json }, http::StatusCode, response::IntoResponse, Extension };
+use axum::{ extract::{ Path, Json }, http::StatusCode, response::IntoResponse, Extension };
 use serde::Deserialize;
-use aws_sdk_s3::Client as S3Client;
+use image::Pixel;
 use log::{ info, error };
 
-use super::super::config::Config;
-use super::publish::publish;
-use super::io::S3JpegInterface  as IO;
+use super::{super::config::Config, io::interface::ImageInterface };
+use super::{ publish::publish, unpublish::unpublish };
 
-#[derive(Deserialize)]
-pub struct ProcessQuery {
-  source: String,
-}
 
 #[derive(Deserialize)]
 pub struct ProcessBody {
-  x: i32,
-  y: i32,
+  source: String,
   title: String,
   subtitle: String,
   link: String,
 }
 
 
-pub async fn publish_handler(
+pub async fn publish_handler<IO: ImageInterface>(
   Extension(config): Extension<Arc<Config>>,
-  Extension(s3): Extension<Arc<S3Client>>,
-  Query(query): Query<ProcessQuery>,
+  Extension(io): Extension<Arc<IO>>,
+  Path(coords): Path<String>,
   Json(body): Json<ProcessBody>,
-) -> Result<impl IntoResponse, (StatusCode, &'static str)> {
-  info!("Processing image {}", query.source);
-  let interface = IO::new(Arc::clone(&s3), None, None);
-  match publish(
-    &query.source, body.x, body.y,
-    &body.title, &body.subtitle, &body.link,
-    Arc::new(interface),
-    config
-  ).await {
-    Ok(result) => {
-      info!("Processed image {}", query.source);
-      Ok((StatusCode::OK, Json(result)))
+) -> Result<impl IntoResponse, (StatusCode, &'static str)>
+  where
+    IO: 'static,
+    <IO as ImageInterface>::Pixel: 'static,
+    <<IO as ImageInterface>::Pixel as Pixel>::Subpixel: Send + Sync + 'static {
+  match coords
+    .split_once(':')
+    .map(|(x, y)| (x.parse::<i32>(), y.parse::<i32>())) {
+    Some((Ok(x), Ok(y))) => {
+      info!("Publishing {} to ({}, {})", body.source, x, y);
+      match publish(
+        &body.source, x, y,
+        &body.title, &body.subtitle, &body.link,
+        io,
+        config
+      ).await {
+        Ok(result) => {
+          info!("Published {} to ({}, {})", body.source, x, y);
+          Ok((StatusCode::OK, Json(result)))
+        },
+        Err(err) => {
+          error!("Failed to publish {}, {}", body.source, err);
+          match err.downcast_ref::<IOError>() {
+            Some(err) if err.kind() == ErrorKind::NotFound =>
+              Err((StatusCode::NOT_FOUND, "Image not found")),
+            Some(err) if err.kind() == ErrorKind::InvalidInput =>
+              Err((StatusCode::BAD_REQUEST, "Invalid file format")),
+            _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong")),
+          }
+        }
+      }
     },
-    Err(err) => {
-      error!("Failed to process image, {}", err);
-      match err.downcast_ref::<IOError>() {
-        Some(err) if err.kind() == ErrorKind::NotFound =>
-          Err((StatusCode::NOT_FOUND, "Image not found")),
-        Some(err) if err.kind() == ErrorKind::InvalidInput =>
-          Err((StatusCode::BAD_REQUEST, "Invalid file format")),
+    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates"))
+  }
+}
+
+pub async fn unpublish_handler<IO: ImageInterface>(
+  Extension(config): Extension<Arc<Config>>,
+  Extension(io): Extension<Arc<IO>>,
+  Path(coords): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, &'static str)>
+  where
+    IO: 'static,
+    <IO as ImageInterface>::Pixel: 'static,
+    <<IO as ImageInterface>::Pixel as Pixel>::Subpixel: Send + Sync + 'static {
+  match coords
+    .split_once(':')
+    .map(|(x, y)| (x.parse::<i32>(), y.parse::<i32>())) {
+    Some((Ok(x), Ok(y))) => {
+      info!("Unpublishing ({}, {})", x, y);
+      match unpublish(x, y, io, config).await {
+        Ok(result) => {
+          info!("UnPublished ({}, {})", x, y);
+          Ok((StatusCode::OK, Json(result)))
+        },
+        // TODO: improve error handling here
         _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong")),
       }
-    }
+    },
+    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates"))
   }
 }

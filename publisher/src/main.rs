@@ -1,6 +1,8 @@
+use std::sync::Arc;
 use axum::{
-  routing::post, Extension, Router
+  routing::{ put, delete }, Extension, Router
 };
+
 use log::info;
 use env_logger;
 
@@ -9,7 +11,8 @@ mod config;
 mod s3;
 mod image;
 
-use image::api::publish_handler;
+use image::api::{ publish_handler, unpublish_handler };
+use image::io::S3JpegInterface as IO;
 
 
 #[tokio::main]
@@ -18,15 +21,16 @@ async fn main() {
   env_logger::init();
 
   let config = config::init().await;
-  let s3 = s3::init().await;
+  let io = IO::new(s3::init().await, None, None);
 
   info!("starting server");
 
   let app = auth::protect(
     Router::new()
-      .route("/publish", post(publish_handler))
-      .layer(Extension(config))
-      .layer(Extension(s3))
+      .route("/{coords}", put(publish_handler::<IO>))
+      .route("/{coords}", delete(unpublish_handler::<IO>))
+      .layer(Extension(Arc::new(config)))
+      .layer(Extension(Arc::new(io)))
   );
 
   let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
