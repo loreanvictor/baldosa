@@ -1,4 +1,5 @@
 
+use serde::Serialize;
 use std::{ io::{ Error as IOError, ErrorKind }, sync::Arc };
 use axum::{ extract::{ Path, Json }, http::StatusCode, response::IntoResponse, Extension };
 use serde::Deserialize;
@@ -10,7 +11,7 @@ use super::{ publish::publish, unpublish::unpublish };
 
 
 #[derive(Deserialize)]
-pub struct ProcessBody {
+pub struct PublishBody {
   source: String,
   title: String,
   subtitle: String,
@@ -22,12 +23,12 @@ pub async fn publish_handler<IO: ImageInterface>(
   Extension(config): Extension<Arc<Config>>,
   Extension(io): Extension<Arc<IO>>,
   Path(coords): Path<String>,
-  Json(body): Json<ProcessBody>,
+  Json(body): Json<PublishBody>,
 ) -> Result<impl IntoResponse, (StatusCode, &'static str)>
   where
     IO: 'static,
     <IO as ImageInterface>::Pixel: 'static,
-    <<IO as ImageInterface>::Pixel as Pixel>::Subpixel: Send + Sync + 'static {
+    <<IO as ImageInterface>::Pixel as Pixel>::Subpixel: Serialize + Send + Sync + 'static {
   match coords
     .split_once(':')
     .map(|(x, y)| (x.parse::<i32>(), y.parse::<i32>())) {
