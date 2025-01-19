@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/rs/cors"
+
 	"github.com/loreanvictor/baldosa.git/server/internal/clients/publisher"
 	"github.com/loreanvictor/baldosa.git/server/internal/middleware"
 	"github.com/loreanvictor/baldosa.git/server/internal/storage"
@@ -51,9 +53,17 @@ func main() {
 	users.RegisterServer(mux, pool, querier, wt)
 	tiles.RegisterServer(mux, pool, querier, s3Client, publisherClient)
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   config.HTTPServer.AllowedOrigins,
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+	handler := c.Handler(mux)
+
 	s := http.Server{
 		Addr:    config.HTTPServer.Addr,
-		Handler: middleware.WithAuthentication(mux.ServeHTTP, wt),
+		Handler: middleware.WithAuthentication(handler.ServeHTTP, wt),
 		BaseContext: func(_ net.Listener) context.Context {
 			return ctx
 		},
