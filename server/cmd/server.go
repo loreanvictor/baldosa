@@ -37,7 +37,10 @@ func main() {
 
 	querier := storage.New()
 
-	s3Client := getS3Client(config.S3Client)
+	s3Client, err := getS3Client(ctx, config.S3Client)
+	if err != nil {
+		log.Fatalf("Failed to create S3 client: %v", err)
+	}
 
 	publisherClient := publisher.New(config.PublisherClientConfig, querier, pool)
 

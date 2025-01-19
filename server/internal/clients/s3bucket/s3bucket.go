@@ -6,7 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/minio/minio-go/v7"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 type S3Bucket interface {
@@ -15,36 +16,63 @@ type S3Bucket interface {
 }
 
 type s3bucket struct {
-	client          *minio.Client
+	client          *s3.Client
+	preSignClient   *s3.PresignClient
 	bucketName      string
 	presignedExpiry time.Duration
 }
 
-func New(client *minio.Client, bucketName string, presignedExpiry time.Duration) S3Bucket {
-	return &s3bucket{client, bucketName, presignedExpiry}
+func New(client *s3.Client, bucketName string, presignedExpiry time.Duration) S3Bucket {
+	return &s3bucket{
+		client,
+		s3.NewPresignClient(client, s3.WithPresignExpires(presignedExpiry)),
+		bucketName,
+		presignedExpiry,
+	}
 }
 
 func (s *s3bucket) PresignedPut(ctx context.Context, key string) (string, error) {
-	url, err := s.client.PresignedPutObject(ctx, s.bucketName, key, s.presignedExpiry)
+	resp, err := s.preSignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &key,
+	})
 	if err != nil {
-		slog.ErrorContext(ctx, "failed to presign put object", "error", err)
 		return "", err
 	}
 
-	return url.String(), nil
+	return resp.URL, nil
 }
 
 func (s *s3bucket) ChangedRecently(ctx context.Context, key string) (bool, error) {
-	attrs, err := s.client.GetObjectAttributes(ctx, s.bucketName, key, minio.ObjectAttributesOptions{})
+	resp, err := s.client.HeadObject(ctx, &s3.HeadObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &key,
+	})
+
 	if err != nil {
-		var minioErr minio.ErrorResponse
-		ok := errors.As(err, &minioErr)
-		if !ok || minioErr.Code != "NoSuchKey" {
-			return false, err
+		var noKey *types.NoSuchKey
+		if errors.As(err, &noKey) {
+			slog.WarnContext(
+				ctx, "can't get object. no such key exists",
+				"bucket", s.bucketName,
+				"key", key,
+			)
+			err = noKey
+		} else {
+			slog.ErrorContext(ctx, "couldn't get object",
+				"bucket", s.bucketName,
+				"key", key,
+				"error", err,
+			)
 		}
+		return false, err
 	}
 
-	if attrs != nil && attrs.LastModified.After(time.Now().Add(-s.presignedExpiry)) {
+	if resp.LastModified == nil {
+		return false, nil
+	}
+
+	if time.Since(*resp.LastModified) < s.presignedExpiry {
 		return true, nil
 	}
 

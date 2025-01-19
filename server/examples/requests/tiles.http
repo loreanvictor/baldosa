@@ -19,7 +19,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "content_type": "image/png"
+  "content_type": "image/jpeg"
 }
 
 > {%
@@ -29,13 +29,13 @@ Authorization: Bearer {{token}}
 
 ### Upload image
 PUT {{upload_url}}
-Content-Type: image/png
+Content-Type: image/jpeg
 
 < ./sample.png
 
 
 ### Edit a tile
-PUT {{host}}/tiles/1/1
+PUT {{host}}/tiles/{{x}}/{{y}}
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{token}}
