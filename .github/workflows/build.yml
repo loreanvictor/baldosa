@@ -1,0 +1,70 @@
+name: Build Binaries
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-publisher:
+    strategy:
+      matrix:
+        platform:
+          - name: linux
+            runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+          - name: macos
+            runner: macos-latest
+            target: aarch64-apple-darwin
+
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: rustup update
+
+      - name: Build Rust Binary
+        run: |
+          cd publisher
+          cargo build --release --target ${{ matrix.platform.target }}
+          mkdir -p bin
+
+      - name: Upload Rust Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: publisher-${{ matrix.platform.name }}
+          path: publisher/target/${{ matrix.platform.target }}/release/publisher
+
+  build-server:
+    strategy:
+      matrix:
+        platform:
+          - name: linux
+            runner: ubuntu-24.04
+            goos: linux
+            goarch: amd64
+          - name: macos
+            runner: macos-latest
+            goos: darwin
+            goarch: arm64
+
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build Go Binary
+        run: |
+          cd server/cmd
+          GOOS=${{ matrix.platform.goos }} GOARCH=${{ matrix.platform.goarch }} go build -o server
+
+      - name: Upload Go Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-${{ matrix.platform.name }}
+          path: server/cmd/server
