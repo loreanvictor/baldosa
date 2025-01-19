@@ -23,7 +23,8 @@ type DatabaseConfig struct {
 }
 
 type HTTPServerConfig struct {
-	Addr string `mapstructure:"addr"`
+	Addr           string   `mapstructure:"addr"`
+	AllowedOrigins []string `mapstructure:"allowed_origins"`
 }
 
 type S3ClientConfig struct {
