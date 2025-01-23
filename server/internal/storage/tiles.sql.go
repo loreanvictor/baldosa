@@ -100,3 +100,42 @@ func (q *Queries) GetTile(ctx context.Context, db DBTX, x int32, y int32) (Tile,
 	)
 	return i, err
 }
+
+const getTileAvailabilityMap = `-- name: GetTileAvailabilityMap :many
+select x, y
+from tiles
+where x >= $1
+  and y >= $2
+  and x < $3
+  and y < $4
+`
+
+type GetTileAvailabilityMapRow struct {
+	X int32 `db:"x" json:"x"`
+	Y int32 `db:"y" json:"y"`
+}
+
+func (q *Queries) GetTileAvailabilityMap(ctx context.Context, db DBTX, x int32, y int32, xx int32, yy int32) ([]GetTileAvailabilityMapRow, error) {
+	rows, err := db.Query(ctx, getTileAvailabilityMap,
+		x,
+		y,
+		xx,
+		yy,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetTileAvailabilityMapRow{}
+	for rows.Next() {
+		var i GetTileAvailabilityMapRow
+		if err := rows.Scan(&i.X, &i.Y); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -24,6 +24,7 @@ func RegisterServer(
 	querier storage.Querier,
 	s3Client s3bucket.S3Bucket,
 	publisherClient publisher.Publisher,
+	simpleKeyMW middleware.Middleware,
 ) {
 	s := &server{
 		pool:            pool,
@@ -36,4 +37,5 @@ func RegisterServer(
 	mux.HandleFunc("POST /tiles/{x}/{y}", middleware.WithAuthorization(s.PurchaseHandler))
 	mux.HandleFunc("PUT /tiles/{x}/{y}", middleware.WithAuthorization(s.EditHandler))
 	mux.HandleFunc("POST /tiles/{x}/{y}/images", middleware.WithAuthorization(s.CreateImageHandler))
+	mux.HandleFunc("GET /tiles/map/{x}/{y}", simpleKeyMW(s.GetMapHandler))
 }
