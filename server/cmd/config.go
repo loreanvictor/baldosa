@@ -39,6 +39,7 @@ type S3ClientConfig struct {
 
 type CryptoConfig struct {
 	JWTSecret string `mapstructure:"jwt_secret"`
+	SimpleKey string `mapstructure:"simple_key"`
 }
 
 func loadConfig() Config {
