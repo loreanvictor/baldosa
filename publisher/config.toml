@@ -1,6 +1,3 @@
-source_dir = "tmp/in"
-target_dir = "tmp/out"
-format = "jpeg"
 sizes = [1, 24, 48, 96, 156, 300]
 
 [[blur]]

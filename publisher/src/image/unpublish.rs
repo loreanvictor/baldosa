@@ -8,12 +8,21 @@ use super::io::interface::ImageInterface;
 use super::super::config::Config;
 
 
+///
+/// Result of the unpublish operation. Unpublishing a tile
+/// will cause the associated images for that tile to be removed.
+///
 #[derive(Serialize, Debug)]
 pub struct UnPublishResult {
+  /// Map of image sizes to the image addresses that was removed.
   pub images: HashMap<u32, String>,
 }
 
 
+///
+/// Unpublish the tile at the given coordinates,
+/// removing all associated images.
+/// 
 pub async fn unpublish<P: Pixel + Send + Sync + 'static>(
   x: i32,
   y: i32,

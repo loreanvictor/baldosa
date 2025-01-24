@@ -11,7 +11,8 @@ use axum::{
 ///
 #[derive(Clone)]
 pub struct AuthState {
-  pub key: &'static str,
+  /// The key that incoming requests should have in their headers.
+  pub key: String,
 }
 
 ///
