@@ -19,3 +19,11 @@ select *
 from tiles
 where x = @x
   and y = @y;
+
+-- name: GetTileAvailabilityMap :many
+select x, y
+from tiles
+where x >= @x
+  and y >= @y
+  and x < @xx
+  and y < @yy;

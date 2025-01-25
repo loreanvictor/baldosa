@@ -13,6 +13,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, db DBTX, email string, password string) (User, error)
 	EditTileByOwner(ctx context.Context, db DBTX, arg EditTileByOwnerParams) (Tile, error)
 	GetTile(ctx context.Context, db DBTX, x int32, y int32) (Tile, error)
+	GetTileAvailabilityMap(ctx context.Context, db DBTX, x int32, y int32, xx int32, yy int32) ([]GetTileAvailabilityMapRow, error)
 	GetUser(ctx context.Context, db DBTX, email string) (User, error)
 	SpendCoins(ctx context.Context, db DBTX, coins int32, email string) (User, error)
 }

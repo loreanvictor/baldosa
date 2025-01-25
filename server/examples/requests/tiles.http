@@ -45,3 +45,8 @@ Authorization: Bearer {{token}}
   "subtitle": "The best pipes in town",
   "link": "https://pipes.com"
 }
+
+### Get the tile map at a coordination
+GET {{host}}/tiles/map/0/256
+Accept: application/octet-stream
+Authorization: Bearer {{simple_key}}
