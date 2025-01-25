@@ -3,6 +3,7 @@ pub mod interface;
 mod fs_jpeg;
 mod fs_png;
 mod s3_jpeg;
+mod util;
 
 #[allow(unused_imports)]
 pub use fs_jpeg::FsJpegInterface;

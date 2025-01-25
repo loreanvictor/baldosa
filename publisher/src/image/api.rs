@@ -18,11 +18,11 @@ pub struct PublishBody {
   /// The source image to publish (for example URL in S3 bucket if S3 IO is used).
   source: String,
   /// The title of the image.
-  title: String,
+  title: Option<String>,
   /// The subtitle of the image.
-  subtitle: String,
+  subtitle: Option<String>,
   /// The link of the produced tile.
-  link: String,
+  link: Option<String>,
 }
 
 

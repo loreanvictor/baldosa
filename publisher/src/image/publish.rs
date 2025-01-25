@@ -38,9 +38,9 @@ pub async fn publish<P: Pixel + Send + Sync + 'static> (
   source: &str,
   x: i32,
   y: i32,
-  title: &str,
-  subtitle: &str,
-  link: &str,
+  title: &Option<String>,
+  subtitle: &Option<String>,
+  link: &Option<String>,
   io: Arc<dyn ImageInterface<Pixel = P>>,
   config: Arc<Config>,
 ) -> Result<PublishResult<P>, Box<dyn Error + Send + Sync>>
@@ -49,9 +49,9 @@ where P::Subpixel: Send + Sync + Serialize {
   let square = Arc::new(crop_to_square(&image));
   let published_shared = Arc::new(Mutex::new(HashMap::<u32, String>::new()));
   let meta = Metadata {
-    title: title.to_string(),
-    subtitle: subtitle.to_string(),
-    link: link.to_string(),
+    title: title.clone(),
+    subtitle: subtitle.clone(),
+    link: link.clone(),
   };
 
   let color: Arc<MX<Option<Rgb<P::Subpixel>>>> = Arc::new(MX::new(None));

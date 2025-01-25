@@ -4,7 +4,7 @@ use std::{ env, error::Error, io::Cursor, io::Error as IOError, io::ErrorKind };
 use aws_sdk_s3::Client as S3Client;
 use image::{ Rgb, RgbImage, ImageReader, ImageFormat::Jpeg };
 
-use super::interface::{ ImageInterface, Metadata };
+use super::{interface::{ ImageInterface, Metadata }, util::metadata_to_hashmap};
 
 
 pub struct S3JpegInterface {
@@ -69,35 +69,35 @@ impl ImageInterface for S3JpegInterface {
     }
   }
 
-  // TODO: improve error handling here
   async fn save(
     &self,
     image: &RgbImage,
     meta: &Metadata,
     target: &str
   ) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let key = String::from(target) + ".jpg";
+    let key = format!("{}.jpg", target);
 
     let mut buffer = Vec::new();
     image.write_to(&mut Cursor::new(&mut buffer), Jpeg)?;
 
-    self.client.put_object()
+    match self.client.put_object()
       .bucket(&self.target_bucket)
       .key(&key)
+      .set_metadata(metadata_to_hashmap(meta))
       .body(buffer.to_vec().into())
-      .metadata("title", &meta.title)
-      .metadata("subtitle", &meta.subtitle)
-      .metadata("link", &meta.link)
       .send()
-      .await?;
-
-    let mut target = self.target_url.clone();
-    target.path_segments_mut().unwrap().push(&key);
-    Ok(target.to_string())
+      .await {
+      Ok(_) => {
+        let mut target = self.target_url.clone();
+        target.path_segments_mut().unwrap().push(&key);
+        Ok(target.to_string())
+      },
+      Err(err) => Err(Box::new(err)),
+    }
   }
 
   async fn delete(&self, target: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
-    let key = String::from(target) + ".jpg";
+    let key = format!("{}.jpg", target);
 
     match self.client.delete_object()
       .bucket(&self.target_bucket)
