@@ -6,7 +6,7 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
   const cache = createImageCache(cacheSize, ttl)
 
   const get = (urls, scale) => {
-    let hit = cache.find(urls)
+    let hit = cache.find(urls.i)
     if (hit) {
       const sizes = Object.keys(IMG_SIZES).filter(size => size in urls)
       const target = sizes.reduce(
@@ -15,8 +15,8 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
            ? candidate : curr
       )
 
-      cache.load(hit, target, urls)
-      
+      cache.load(hit, target, urls[target])
+
       const available = cache.isLoaded(hit, target) ? target :
         sizes.reduce(
           (curr, candidate) => (
@@ -25,17 +25,17 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
             IMG_SIZES[curr] < scale
           ) ? candidate : curr
         )
-      
+
       return cache.get(hit, available)
     } else {
       const load = () => {
         try {
-          cache.add(urls)
+          cache.add(urls.i, urls.i)
         } catch(err) {
           console.log(err.message)
         }
       }
-      
+
       setTimeout(() => load(), 1)
     }
     

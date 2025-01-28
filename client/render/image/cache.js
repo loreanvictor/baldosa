@@ -7,18 +7,18 @@ export const createImageCache = (size, ttl = 10_000) => {
   const listeners = []
   const notify = (...args) => listeners.forEach(listener => listener(...args))
 
-  const add = (urls) => {
-    const record = { i: undefined, t: Date.now() }
-    cache.set(urls.i, record)
-    load(record, 'i', urls)
+  const add = (key, iurl) => {
+    const record = { key, i: undefined, t: Date.now() }
+    cache.set(key, record)
+    load(record, 'i', iurl)
   }
-  const find = urls => touch(cache.get(urls.i))
+  const find = key => touch(cache.get(key))
   const get = (record, size) => (size && isLoaded(record, size)) ? record[size] :
     (record.i === 'loading' ? undefined : record.i)
   const touch = record => record ? (record.t = Date.now(), record) : record
   const isLoaded = (record, size) => record[size] && record[size] !== 'loading'
   const isLoading = (record, size) => record[size] === 'loading'
-  const load = (record, size, urls) => {
+  const load = (record, size, url) => {
     if (!record[size]) {
       record[size] = 'loading'
       setTimeout(async () => {
@@ -27,8 +27,8 @@ export const createImageCache = (size, ttl = 10_000) => {
         }
 
         record[size] = 'loading'
-        record[size] = await fetchImage(urls[size])
-        notify(urls, size)
+        record[size] = await fetchImage(url)
+        notify(record.key, size)
       }, 1)
     }
   }
