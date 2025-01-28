@@ -23,11 +23,11 @@ define('infinite-grid', () => {
    */
   const ANIMATION_SMOOTHNESS = SMALL_DEVICE ? 2 : 32
 
-  const repo = ref()
-  repo.current= { get: () => undefined }
+  const mask = ref()
+  mask.current= { has: () => false }
+  const gallery = ref()
 
   let imageCacheSize = 100
-  const gallery = createGallery(imageCacheSize)
 
   const onHover = useDispatch('tile-hover')
   const onClick = useDispatch('tile-click')
@@ -75,7 +75,7 @@ define('infinite-grid', () => {
 
     for (let x = left; x <= right; x++) {
       for (let y = top; y <= bottom; y++) {
-        drawTile(ctx.current, {x, y}, bounds, camera, mouse, gallery, repo.current)
+        drawTile(ctx.current, {x, y}, bounds, camera, mouse, gallery.current, mask.current)
       }
     }
   }
@@ -86,7 +86,6 @@ define('infinite-grid', () => {
   constantly(() => _drawReq > 0 && (_drawReq--, _draw()))
   /** generally repaint every second, so images in view remain cached. */
   constantly(_draw, f => setTimeout(f, 1000))
-  gallery.listen(draw)
 
   observe(window, 'resize', resize)
   onConnected(() => {
@@ -94,7 +93,7 @@ define('infinite-grid', () => {
     resize()
     draw()
   })
-  onCleanup(() => gallery.dispose())
+  onCleanup(() => gallery.current?.dispose())
 
   const valid = (n, prev) => n !== undefined && !isNaN(n) ? n : prev
   onAttribute('camx', x => (camera.x = valid(parseFloat(x), camera.x), draw()))
@@ -102,8 +101,16 @@ define('infinite-grid', () => {
   onAttribute('zoom', zoom => (camera.zoom = valid(parseFloat(zoom), camera.zoom), draw()))
   onAttribute('panv', v => (camera.v = valid(parseFloat(v), camera.v), draw()))
 
-  onProperty('repo', r => r && (repo.current = r, r.listen(draw), draw()))
-  onAttribute('image-cache-size', s => gallery.limit(imageCacheSize = valid(parseInt(s), imageCacheSize)))
+  onProperty('mask', m => m && (mask.current = m, m.listen(draw), draw()))
+  onAttribute('src', src => {
+    if (src) {
+      gallery.current?.dispose()
+      gallery.current = createGallery(src, imageCacheSize)
+      gallery.current.listen(draw)
+    }
+  })
+
+  onAttribute('image-cache-size', s => gallery.current?.limit(imageCacheSize = valid(parseInt(s), imageCacheSize)))
 
   return html`
     <style>
