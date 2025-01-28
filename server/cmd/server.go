@@ -50,10 +50,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	simpleKeyMW := middleware.NewSimpleKey(config.Crypto.SimpleKey)
+	usersServer := users.NewServer(pool, querier, wt)
+	tilesServer := tiles.NewServer(pool, querier, s3Client, publisherClient)
 
-	users.RegisterServer(mux, pool, querier, wt)
-	tiles.RegisterServer(mux, pool, querier, s3Client, publisherClient, simpleKeyMW)
+	mux.Handle("/tiles/", tilesServer)
+	mux.Handle("/users/", usersServer)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   config.HTTPServer.AllowedOrigins,

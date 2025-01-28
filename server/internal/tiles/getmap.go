@@ -1,6 +1,7 @@
 package tiles
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -30,6 +31,17 @@ func (s *server) GetMapHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.mapCacheLock.RLock()
+	cached, ok := s.mapCache[fmt.Sprintf("%d,%d", x, y)]
+	s.mapCacheLock.RUnlock()
+
+	if ok {
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.WriteHeader(http.StatusOK)
+		w.Write(cached)
+		return
+	}
+
 	tiles, err := s.querier.GetTileAvailabilityMap(ctx, s.pool, int32(x), int32(y), int32(x+MapChunkSize), int32(y+MapChunkSize))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -40,6 +52,10 @@ func (s *server) GetMapHandler(w http.ResponseWriter, r *http.Request) {
 	lo.ForEach(tiles, func(tile storage.GetTileAvailabilityMapRow, _ int) {
 		setBitTileInBitmap(m, tile.X, tile.Y)
 	})
+
+	s.mapCacheLock.Lock()
+	s.mapCache[fmt.Sprintf("%d,%d", x, y)] = m
+	s.mapCacheLock.Unlock()
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.WriteHeader(http.StatusOK)

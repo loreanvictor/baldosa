@@ -11,24 +11,31 @@ import (
 )
 
 type server struct {
+	mux     *http.ServeMux
 	pool    *pgxpool.Pool
 	querier storage.Querier
 	tokens  webtoken.WebToken
 }
 
-func RegisterServer(
-	mux *http.ServeMux,
+func NewServer(
 	pool *pgxpool.Pool,
 	querier storage.Querier,
 	token webtoken.WebToken,
-) {
+) http.Handler {
 	s := &server{
+		mux:     http.NewServeMux(),
 		pool:    pool,
 		querier: querier,
 		tokens:  token,
 	}
 
-	mux.HandleFunc("POST /users", s.SignupHandler)
-	mux.HandleFunc("POST /users/login", s.LoginHandler)
-	mux.HandleFunc("GET /users/me", middleware.WithAuthorization(s.MeHandler))
+	s.mux.HandleFunc("POST /users", s.SignupHandler)
+	s.mux.HandleFunc("POST /users/login", s.LoginHandler)
+	s.mux.HandleFunc("GET /users/me", middleware.WithAuthorization(s.MeHandler))
+
+	return s
+}
+
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.mux.ServeHTTP(w, r)
 }
