@@ -49,4 +49,3 @@ Authorization: Bearer {{token}}
 ### Get the tile map at a coordination
 GET {{host}}/tiles/map/0/256
 Accept: application/octet-stream
-Authorization: Bearer {{simple_key}}
