@@ -66,7 +66,7 @@ func (p *publisher) Publish(ctx context.Context, x, y int32) error {
 	}
 
 	body := PublishRequest{
-		Source:   fmt.Sprintf("%d-%d", x, y),
+		Source:   fmt.Sprintf("tile-%d-%d", x, y),
 		Title:    tile.Title,
 		Subtitle: tile.Subtitle,
 		Link:     tile.Link,

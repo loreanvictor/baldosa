@@ -1,9 +1,12 @@
 package tiles
 
 import (
-	"math/rand"
 	"net/http"
 	"strconv"
+
+	"github.com/samber/lo"
+
+	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
 const (
@@ -33,13 +36,22 @@ func (s *server) GetMapHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m := make([]byte, MapChunkSize*MapChunkSize)
-	for _, t := range tiles {
-		index := t.Y*MapChunkSize + t.X
-		m[index] = byte(rand.Intn(255) + 1)
-	}
+	m := make([]byte, MapChunkSize*MapChunkSize/8)
+	lo.ForEach(tiles, func(tile storage.GetTileAvailabilityMapRow, _ int) {
+		setBitTileInBitmap(m, tile.X, tile.Y)
+	})
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.WriteHeader(http.StatusOK)
 	w.Write(m)
+}
+
+func setBitTileInBitmap(bitmap []byte, x, y int32) {
+	ex := x % MapChunkSize
+	ey := y % MapChunkSize
+	bitNum := ex + ey*MapChunkSize
+	byteNum := bitNum / 8
+	byteIdx := bitNum % 8
+
+	bitmap[byteNum] |= 1 << byteIdx
 }
