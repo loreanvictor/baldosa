@@ -3,12 +3,12 @@ const reqs = new Map()
 
 
 worker.onmessage = ({ data }) => {
-  const { url, error, bitmap } = data
+  const { url, error, bitmap, meta } = data
   if (reqs.has(url)) {
     if (error) {
       reqs.get(url).reject(error)
     } else {
-      reqs.get(url).resolve(bitmap)
+      reqs.get(url).resolve({ bitmap, meta })
     }
 
     reqs.delete(url)

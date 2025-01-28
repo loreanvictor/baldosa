@@ -27,7 +27,14 @@ export const createImageCache = (size, ttl = 10_000) => {
         }
 
         record[size] = 'loading'
-        record[size] = await fetchImage(url)
+        const img = await fetchImage(url)
+        record[size] = img.bitmap
+        if (img.meta && (img.meta.title || img.meta.subtitle || img.meta.link)) {
+          record.meta ??= {}
+          record.meta.title ??= img.meta.title
+          record.meta.subtitle ??= img.meta.subtitle
+          record.meta.link ??= img.meta.link
+        }
         notify(record.key, size)
       }, 1)
     }

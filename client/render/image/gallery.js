@@ -2,20 +2,22 @@ import { IMG_SIZES } from './constants.js'
 import { createImageCache } from './cache.js'
 
 
-export const createGallery = (cacheSize, ttl = 10_000) => {
+export const createGallery = (baseUrl, cacheSize, ttl = 10_000) => {
   const cache = createImageCache(cacheSize, ttl)
+  const getUrl = (x, y, size) => baseUrl + `/tile-${x}-${y}-${size}.jpg`
 
-  const get = (urls, scale) => {
-    let hit = cache.find(urls.i)
+  const get = (x, y, scale) => {
+    const key = `${x}:${y}`
+    let hit = cache.find(key)
     if (hit) {
-      const sizes = Object.keys(IMG_SIZES).filter(size => size in urls)
+      const sizes = Object.keys(IMG_SIZES)
       const target = sizes.reduce(
         (curr, candidate) =>
            (IMG_SIZES[curr] < IMG_SIZES[candidate] && IMG_SIZES[curr] < scale)
            ? candidate : curr
       )
 
-      cache.load(hit, target, urls[target])
+      cache.load(hit, target, getUrl(x, y, IMG_SIZES[target]))
 
       const available = cache.isLoaded(hit, target) ? target :
         sizes.reduce(
@@ -26,11 +28,11 @@ export const createGallery = (cacheSize, ttl = 10_000) => {
           ) ? candidate : curr
         )
 
-      return cache.get(hit, available)
+      return { bitmap: cache.get(hit, available), meta: hit.meta }
     } else {
       const load = () => {
         try {
-          cache.add(urls.i, urls.i)
+          cache.add(key, getUrl(x, y, IMG_SIZES['i']))
         } catch(err) {
           console.log(err.message)
         }
