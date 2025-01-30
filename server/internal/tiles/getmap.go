@@ -1,13 +1,9 @@
 package tiles
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
-
-	"github.com/samber/lo"
-
-	"github.com/loreanvictor/baldosa.git/server/internal/storage"
 )
 
 const (
@@ -31,31 +27,12 @@ func (s *server) GetMapHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.mapCacheLock.RLock()
-	cached, ok := s.mapCache[fmt.Sprintf("%d,%d", x, y)]
-	s.mapCacheLock.RUnlock()
-
-	if ok {
-		w.Header().Set("Content-Type", "application/octet-stream")
-		w.WriteHeader(http.StatusOK)
-		w.Write(cached)
-		return
-	}
-
-	tiles, err := s.querier.GetTileAvailabilityMap(ctx, s.pool, int32(x), int32(y), int32(x+MapChunkSize), int32(y+MapChunkSize))
+	m, err := s.getMapCache(ctx, int32(x), int32(y))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		slog.ErrorContext(ctx, "failed to get map cache", "err", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	m := make([]byte, MapChunkSize*MapChunkSize/8)
-	lo.ForEach(tiles, func(tile storage.GetTileAvailabilityMapRow, _ int) {
-		setBitTileInBitmap(m, tile.X, tile.Y)
-	})
-
-	s.mapCacheLock.Lock()
-	s.mapCache[fmt.Sprintf("%d,%d", x, y)] = m
-	s.mapCacheLock.Unlock()
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.WriteHeader(http.StatusOK)

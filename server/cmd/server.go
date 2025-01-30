@@ -39,7 +39,12 @@ func main() {
 
 	querier := storage.New()
 
-	s3Client, err := getS3Client(ctx, config.S3Client)
+	bucketSubmitted, err := getS3Client(config.S3SubmittedBucket)
+	if err != nil {
+		log.Fatalf("Failed to create S3 client: %v", err)
+	}
+
+	bucketPublished, err := getS3Client(config.S3PublishedBucket)
 	if err != nil {
 		log.Fatalf("Failed to create S3 client: %v", err)
 	}
@@ -51,7 +56,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	usersServer := users.NewServer(pool, querier, wt)
-	tilesServer := tiles.NewServer(pool, querier, s3Client, publisherClient)
+	tilesServer := tiles.NewServer(ctx, pool, querier, bucketSubmitted, bucketPublished, publisherClient)
 
 	mux.Handle("/tiles/", tilesServer)
 	mux.Handle("/users/", usersServer)

@@ -45,12 +45,14 @@ func (s *server) Edit(ctx context.Context, request EditRequest) (EditResponse, e
 	}
 
 	objectKey := fmt.Sprintf("tile-%d-%d", request.X, request.Y)
-	hasChanged, err := s.s3Client.ChangedRecently(ctx, objectKey)
+	hasChanged, err := s.bucketSubmitted.ChangedRecently(ctx, objectKey)
 	if hasChanged {
 		err = s.publisherClient.Publish(ctx, request.X, request.Y)
 		if err != nil {
 			return EditResponse{}, err
 		}
+
+		s.mapUpdateTaskChan <- mapUpdateTask{request.X, request.Y}
 	}
 
 	return EditResponse{}, err
