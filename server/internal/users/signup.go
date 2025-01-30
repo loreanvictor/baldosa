@@ -65,7 +65,10 @@ func (s *server) SignupHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
+
+	slog.InfoContext(ctx, "request received", "path", r.URL.Path, "request", request)
 	response, err := s.Signup(ctx, request)
+	slog.InfoContext(ctx, "request completed", "path", r.URL.Path, "response", response, "error", err)
 
 	if err != nil {
 		slog.ErrorContext(

@@ -29,9 +29,9 @@ func NewServer(
 		tokens:  token,
 	}
 
-	s.mux.HandleFunc("POST /users", s.SignupHandler)
-	s.mux.HandleFunc("POST /users/login", s.LoginHandler)
-	s.mux.HandleFunc("GET /users/me", middleware.WithAuthorization(s.MeHandler))
+	s.mux.HandleFunc("POST /users/", s.SignupHandler)
+	s.mux.HandleFunc("POST /users/login/", s.LoginHandler)
+	s.mux.HandleFunc("GET /users/me/", middleware.WithAuthorization(s.MeHandler))
 
 	return s
 }
