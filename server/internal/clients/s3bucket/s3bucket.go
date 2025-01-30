@@ -1,6 +1,7 @@
 package s3bucket
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"log/slog"
@@ -11,6 +12,7 @@ import (
 )
 
 type S3Bucket interface {
+	Put(ctx context.Context, key string, body []byte) error
 	PresignedPut(ctx context.Context, key string) (string, error)
 	ChangedRecently(ctx context.Context, key string) (bool, error)
 }
@@ -29,6 +31,26 @@ func New(client *s3.Client, bucketName string, presignedExpiry time.Duration) S3
 		bucketName,
 		presignedExpiry,
 	}
+}
+
+func (s *s3bucket) Put(ctx context.Context, key string, body []byte) error {
+	slog.InfoContext(ctx, "putting object", "bucket", s.bucketName, "key", key, "size", len(body))
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &key,
+		Body:   bytes.NewReader(body),
+	})
+
+	if err != nil {
+		slog.ErrorContext(ctx, "couldn't put object",
+			"bucket", s.bucketName,
+			"key", key,
+			"error", err,
+		)
+		return err
+	}
+
+	return nil
 }
 
 func (s *s3bucket) PresignedPut(ctx context.Context, key string) (string, error) {

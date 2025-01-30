@@ -53,7 +53,7 @@ func (s *server) CreateImage(ctx context.Context,
 
 	objectKey := fmt.Sprintf("tile-%d-%d", request.X, request.Y)
 
-	url, err := s.s3Client.PresignedPut(ctx, objectKey)
+	url, err := s.bucketSubmitted.PresignedPut(ctx, objectKey)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to presign put object", "error", err)
 		return CreateImageResponse{}, err

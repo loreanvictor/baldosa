@@ -98,7 +98,10 @@ func (p *publisher) Publish(ctx context.Context, x, y int32) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		slog.ErrorContext(ctx, "request failed", "status", resp.StatusCode)
+		slog.ErrorContext(ctx, "request failed",
+			"status", resp.StatusCode,
+			"body", resp.Body,
+		)
 		return errors.New("request failed")
 	}
 

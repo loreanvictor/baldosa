@@ -1,6 +1,7 @@
 package tiles
 
 import (
+	"context"
 	"net/http"
 	"sync"
 
@@ -16,30 +17,37 @@ type server struct {
 	mux             *http.ServeMux
 	pool            *pgxpool.Pool
 	querier         storage.Querier
-	s3Client        s3bucket.S3Bucket
+	bucketSubmitted s3bucket.S3Bucket
+	bucketPublished s3bucket.S3Bucket
 	publisherClient publisher.Publisher
 
 	// mapCache keeps generated tile availability maps in memory, protected by
 	// mapCacheLock.
 	mapCache     map[string][]byte
 	mapCacheLock sync.RWMutex
+
+	mapUpdateTaskChan chan mapUpdateTask
 }
 
 func NewServer(
+	ctx context.Context,
 	pool *pgxpool.Pool,
 	querier storage.Querier,
-	s3Client s3bucket.S3Bucket,
+	bucketSubmitted s3bucket.S3Bucket,
+	bucketPublished s3bucket.S3Bucket,
 	publisherClient publisher.Publisher,
 ) http.Handler {
 	s := &server{
 		mux:             http.NewServeMux(),
 		pool:            pool,
 		querier:         querier,
-		s3Client:        s3Client,
+		bucketSubmitted: bucketSubmitted,
+		bucketPublished: bucketPublished,
 		publisherClient: publisherClient,
 
-		mapCache:     make(map[string][]byte),
-		mapCacheLock: sync.RWMutex{},
+		mapCache:          make(map[string][]byte),
+		mapCacheLock:      sync.RWMutex{},
+		mapUpdateTaskChan: make(chan mapUpdateTask, 100),
 	}
 
 	s.mux.HandleFunc("GET /tiles/{x}/{y}", s.GetTileHandler)
@@ -47,6 +55,8 @@ func NewServer(
 	s.mux.HandleFunc("PUT /tiles/{x}/{y}", middleware.WithAuthorization(s.EditHandler))
 	s.mux.HandleFunc("POST /tiles/{x}/{y}/images", middleware.WithAuthorization(s.CreateImageHandler))
 	s.mux.HandleFunc("GET /tiles/map/{x}/{y}", s.GetMapHandler)
+
+	s.RunPeriodicBitmapUpdateTask(ctx)
 
 	return s
 }

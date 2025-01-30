@@ -13,7 +13,8 @@ import (
 type Config struct {
 	Database              DatabaseConfig   `mapstructure:"database"`
 	HTTPServer            HTTPServerConfig `mapstructure:"http_server"`
-	S3Client              S3ClientConfig   `mapstructure:"s3_client"`
+	S3SubmittedBucket     S3ClientConfig   `mapstructure:"s3_submitted_bucket"`
+	S3PublishedBucket     S3ClientConfig   `mapstructure:"s3_published_bucket"`
 	PublisherClientConfig publisher.Config `mapstructure:"publisher"`
 	Crypto                CryptoConfig     `mapstructure:"crypto"`
 }
