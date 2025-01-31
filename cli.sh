@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default host URL
-DEFAULT_HOST="http://localhost:8000"
+DEFAULT_HOST="https://baldosa-api.ehsandar.top"
 
 # Parse command-line options
 while getopts ":h:" opt; do
@@ -35,7 +35,7 @@ create_account() {
     read -sp "Password: " password
     echo
 
-    response=$(curl -s -L -w "%{http_code}" -o temp_response.txt -X POST "$HOST/users" \
+    response=$(curl -s -L -w "%{http_code}" -o temp_response.txt -X POST "$HOST/users/" \
         -H "Content-Type: application/json" \
         -d "{\"email\": \"$email\", \"password\": \"$password\"}")
 
