@@ -81,7 +81,7 @@
       })
 
       grid.addEventListener('tile-click', ({ detail }) => {
-        if (detail.meta.link) {
+        if (detail.meta?.link) {
           window.open(detail.meta.link, '_blank')
         }
       })

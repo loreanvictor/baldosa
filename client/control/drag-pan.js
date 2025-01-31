@@ -11,7 +11,7 @@ define('drag-pan', ({ target, friction = 0.035 }) => {
 
   const motion = slipperyVector((_, v) => onPan(v), { friction: parseFloat(friction) })
 
-  observe(target, 'mousedown', event => {
+  observe(target, 'mousedown', () => {
     drag = true
     motion.init({x: 0, y: 0})
   })
@@ -27,5 +27,5 @@ define('drag-pan', ({ target, friction = 0.035 }) => {
     motion.unlock()
   })
 
-  return '';
+  return ''
 })

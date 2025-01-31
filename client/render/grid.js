@@ -5,6 +5,7 @@ import {
 import { html, ref } from 'https://esm.sh/rehtm'
 
 import '../util/track-cursor.js'
+import '../control/click-control.js'
 import { constantly } from '../util/constantly.js'
 import { observe } from '../util/observe.js'
 import { createGallery } from './image/gallery.js'
@@ -122,7 +123,8 @@ define('infinite-grid', () => {
         touch-action: none; /* Prevent default gestures */
       }
     </style>
-    <canvas ref=${canvas} onclick=${() => onClick(_last_hovered_tile)}></canvas>
+    <canvas ref=${canvas}></canvas>
+    <click-control target="canvas" onclick=${() => onClick(_last_hovered_tile)}></click-control>
     <track-cursor onmove=${({ detail }) => (mouse.x = detail.x, mouse.y = detail.y, draw())}></track-cursor>
   `
 })
