@@ -40,7 +40,10 @@
       const MAX_SCALE = 300
       const IMG_CACHE_SIZE = (Math.ceil(WMIN / MIN_SCALE) + 4) * (Math.ceil(WMAX / MIN_SCALE) + 4) * 2
 
-      const mask = createGridMask()
+      const mask = createGridMask({
+        mapUrl: (x, y) => `https://dp5ho7dvg88z2.cloudfront.net/maps-${x}-${y}.bin`,
+        chunkSize: 256
+      })
 
       let scale = SMALL_DEVICE ? Math.min(WMIN / 2.5, MAX_SCALE) : Math.min(WMIN / 3.5, MAX_SCALE)
 
