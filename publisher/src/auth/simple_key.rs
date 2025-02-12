@@ -28,10 +28,7 @@ pub async fn auth(
   match headers.get(AUTHORIZATION)
     .and_then(|auth| auth.to_str().ok())
     .and_then(|auth| auth.strip_prefix("Bearer ")) {
-    Some(key) if key == state.key => (),
+    Some(key) if key == state.key => next.run(request).await,
     _ => return (StatusCode::UNAUTHORIZED, "Unauthorized").into_response(),
   }
-
-  let response = next.run(request).await;
-  response
 }
