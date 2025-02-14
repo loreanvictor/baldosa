@@ -67,37 +67,3 @@ export const createGridMaskFromBucket = (options) => {
 
   return { has, listen }
 }
-
-// ------------- debugging ------------- \\\
-
-async function __debugHasTile(x, y) {
-  const MapChunkSize = 256
-  const ex = Math.floor(x / MapChunkSize) * MapChunkSize
-  const ey = Math.floor(y / MapChunkSize) * MapChunkSize
-
-  try {
-      const response = await fetch(`https://dp5ho7dvg88z2.cloudfront.net/maps-${ex}-${ey}.bin`)
-      if (!response.ok) return false
-
-      const bitmap = await response.arrayBuffer()
-      const localX = x - ex
-      const localY = y - ey
-
-      // Calculate bit position in the bitmap
-      const bitPosition = localX + localY * MapChunkSize
-      const byteIndex = Math.floor(bitPosition / 8)
-      const bitOffset = bitPosition % 8
-
-      // Safety check for bitmap bounds
-      const bytes = new Uint8Array(bitmap)
-      if (byteIndex >= bytes.length) return false
-
-      // Check if the specific bit is set
-      return (bytes[byteIndex] & (1 << bitOffset)) !== 0
-  } catch (error) {
-      console.error('Error checking tile:', error)
-      return false
-  }
-}
-
-window.__debugHasTile = __debugHasTile

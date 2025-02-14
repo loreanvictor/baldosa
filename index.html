@@ -41,7 +41,7 @@
       const IMG_CACHE_SIZE = (Math.ceil(WMIN / MIN_SCALE) + 4) * (Math.ceil(WMAX / MIN_SCALE) + 4) * 2
 
       const mask = createGridMask({
-        mapUrl: (x, y) => `https://dp5ho7dvg88z2.cloudfront.net/maps-${x}-${y}.bin`,
+        mapUrl: (x, y) => `https://baldosa-published.s3.eu-central-1.amazonaws.com/tilemap-${x}-${y}.bin`,
         chunkSize: 256
       })
 
