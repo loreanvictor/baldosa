@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "\n          select x, y, color_hex from tiles\n            where x >=? and x <=?\n            and y >=? and y <=?",
+  "describe": {
+    "columns": [
+      {
+        "name": "x",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "y",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "color_hex",
+        "ordinal": 2,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c06e44703e53c090013e2518b9e67323fb842b33b953439ac6d3a9d3c442eab0"
+}
