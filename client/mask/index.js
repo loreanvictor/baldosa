@@ -1,10 +1,7 @@
 
-const MOCK_PUBLISHED = ['0:0', '1:1', '2:1', '511:511']
+import { createMockGridMask } from './mock.js';
+import { createGridMaskFromBucket } from './from-bucket.js'
 
-// TODO: this is mock, complete it
-export const createGridMask = () => {
-  return {
-    has: (x, y) => MOCK_PUBLISHED.includes(`${x}:${y}`),
-    listen: () => {},
-  }
-}
+// TODO: connect it to the actual
+// export const createGridMask = createMockGridMask;
+export const createGridMask = createGridMaskFromBucket;

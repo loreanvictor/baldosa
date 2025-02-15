@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "delete from tiles where x = ? and y = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "606de68d21f298b3f681b317c88095ab1c867981891c326778d4f8545ac186c2"
+}

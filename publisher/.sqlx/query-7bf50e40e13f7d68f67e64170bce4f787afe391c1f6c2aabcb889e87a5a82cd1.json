@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n      insert into tiles (x, y, color_hex) values (?, ?, ?)\n      on conflict (x, y) do update set color_hex = excluded.color_hex\n      ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "7bf50e40e13f7d68f67e64170bce4f787afe391c1f6c2aabcb889e87a5a82cd1"
+}

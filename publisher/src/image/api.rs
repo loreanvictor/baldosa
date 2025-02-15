@@ -7,6 +7,7 @@ use image::Pixel;
 use log::{ info, error };
 
 use super::super::config::Config;
+use super::super::cartography::Storage as MapStorage;
 use super::{ publish::publish, unpublish::unpublish, io::interface::ImageInterface, util::parse_coords_from_path };
 
 
@@ -56,9 +57,10 @@ pub struct PublishBody {
 /// }
 /// ```
 /// 
-pub async fn publish_handler<IO: ImageInterface>(
+pub async fn publish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageInterface>::Pixel>>(
   Extension(config): Extension<Arc<Config>>,
   Extension(io): Extension<Arc<IO>>,
+  Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
   Json(body): Json<PublishBody>,
 ) -> Result<impl IntoResponse, (StatusCode, &'static str)>
@@ -77,6 +79,15 @@ where
       ).await {
         Ok(result) => {
           info!("Published {} to ({}, {})", body.source, x, y);
+          match &result.color {
+            Some(color) => {
+              match map.put(&(x, y), color).await {
+                Ok(()) => info!("Updated tilemap for ({}, {})", x, y),
+                Err(err) => error!("Failed to update tilemap for ({}, {}): {}", x, y, err),
+              }
+            },
+            None => {},
+          }
           Ok((StatusCode::OK, Json(result)))
         },
         Err(err) => {
@@ -115,9 +126,10 @@ where
 ///   }
 /// }
 /// ```
-pub async fn unpublish_handler<IO: ImageInterface>(
+pub async fn unpublish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageInterface>::Pixel>>(
   Extension(config): Extension<Arc<Config>>,
   Extension(io): Extension<Arc<IO>>,
+  Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
 ) -> Result<impl IntoResponse, (StatusCode, &'static str)>
   where
@@ -130,6 +142,10 @@ pub async fn unpublish_handler<IO: ImageInterface>(
       match unpublish(x, y, io, config).await {
         Ok(result) => {
           info!("UnPublished ({}, {})", x, y);
+          match map.delete(&(x, y)).await {
+            Ok(()) => info!("Deleted tilemap for ({}, {})", x, y),
+            Err(err) => error!("Failed to delete tilemap for ({}, {}): {}", x, y, err),
+          }
           Ok((StatusCode::OK, Json(result)))
         },
         // TODO: improve error handling here
