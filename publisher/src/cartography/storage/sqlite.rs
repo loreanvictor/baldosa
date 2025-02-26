@@ -6,6 +6,12 @@ use sqlx::{ Pool, Sqlite };
 
 use super::{ Storage, Coords, Point };
 
+///
+/// A map storage implementation using SQLite. A stored map is an infinite grid
+/// of potentially existing points. The map storage is used for storing and updating
+/// chunked bitmasks of the tile map, with each published tile corresponding to a single
+/// point on the map.
+///
 pub struct SqliteMapStorage {
   pool: Pool<Sqlite>
 }
@@ -65,29 +71,5 @@ impl Storage<Rgb<u8>> for SqliteMapStorage {
           Point { coords, color: rgb }
         })
       )
-
-      // match sqlx::query!("
-      //   select x, y, color_hex from tiles
-      //     where x >= ? and x <= ?
-      //     and y >= ? and y <= ?",
-      //     from.0, to.0, from.1, to.1
-      //   )
-      //   .fetch_all(&self.pool)
-      //   .await {
-      //   Ok(rows) => {
-      //     let mut points = Vec::new();
-      //     for row in rows {
-      //       let coords = (row.x as i32, row.y as i32);
-      //       let mut hex = row.color_hex.chars();
-      //       hex.next();
-      //       let rgb = hex::decode(hex.as_str())?;
-
-      //       points.push(Point { coords, color: rgb });
-      //     }
-
-      //     Ok(points)
-      //   },
-      //   Err(e) => Err(e.into())
-      // }
   }
 }

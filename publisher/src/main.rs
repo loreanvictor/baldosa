@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{ env, sync::Arc };
 use axum::{
   routing::{ put, delete }, Extension, Router
 };
@@ -41,6 +41,12 @@ async fn main() {
       .layer(Extension(Arc::new(map)))
   );
 
-  let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
+  let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+  let port = env::var("PORT").ok().and_then(|p| p.parse::<u16>().ok()).unwrap_or(8080);
+  let addr = format!("{}:{}", host, port);
+
+  info!("serving on {}", addr);
+
+  let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
   axum::serve(listener, app).await.unwrap();
 }

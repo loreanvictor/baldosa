@@ -116,8 +116,9 @@ const isPublished = async (x, y) => {
 - [sqlx-cli](https://crates.io/crates/sqlx-cli)
 - AWS credentials with S3 access. Make sure your account key has read access to the submissions bucket and read and write for the target bucket.
 
-### Environment Configuration
+### Configuration
 
+The publisher service is configured via environment variables (either in a `.env` file or directly in the environment).
 Create a `.env` file in the `publisher` root, and add the following environment variables:
 
 ```bash
