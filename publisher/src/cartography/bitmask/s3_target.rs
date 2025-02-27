@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use std::{ env, error::Error };
+use std::error::Error;
 use aws_sdk_s3::Client as S3Client;
 
 use super::super::Coords;
@@ -27,13 +27,7 @@ impl S3BitmaskTarget {
   /// - `bucket` - the target bucket to store the bitmasks in. If not specified, the
   ///  `S3_TARGET_BUCKET` environment variable is used.
   ///
-  pub fn new(client: S3Client, bucket: Option<String>) -> Self {
-    let bucket = bucket
-      .unwrap_or_else(
-        || env::var("S3_TARGET_BUCKET")
-        .expect("Target bucket not specified for S3 map target.")
-    );
-
+  pub fn new(client: S3Client, bucket: String) -> Self {
     Self { client, bucket }
   }
 }

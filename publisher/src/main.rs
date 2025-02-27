@@ -1,33 +1,32 @@
-use std::{ env, sync::Arc };
+use std::sync::Arc;
 use axum::{
   routing::{ put, delete }, Extension, Router
 };
 
 use log::info;
-use env_logger;
 
-mod auth;
+mod env;
 mod config;
 mod s3;
-mod image;
 mod db;
+mod auth;
+mod image;
 mod cartography;
 
 use image::api::{ publish_handler, unpublish_handler };
-use image::io::S3JpegInterface as IO;
+use image::io::DefaultImageInterface as IO;
 use cartography::DefaultMapStorage as Map;
 
 
 #[tokio::main]
 async fn main() {
-  dotenv::dotenv().ok();
-  env_logger::init();
+  env::init().ok();
 
   let config = config::init().await;
   let s3client = s3::init().await;
   let db = db::init().await;
 
-  let io = IO::new(s3client.clone(), None, None);
+  let io = image::io::init(s3client.clone());
   let map = cartography::init(db, s3client);
 
   info!("starting server");
@@ -41,8 +40,8 @@ async fn main() {
       .layer(Extension(Arc::new(map)))
   );
 
-  let host = env::var("HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
-  let port = env::var("PORT").ok().and_then(|p| p.parse::<u16>().ok()).unwrap_or(8080);
+  let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
+  let port = std::env::var("PORT").ok().and_then(|p| p.parse::<u16>().ok()).unwrap_or(8080);
   let addr = format!("{}:{}", host, port);
 
   info!("serving on {}", addr);

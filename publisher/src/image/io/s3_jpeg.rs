@@ -1,6 +1,6 @@
 use url::Url;
 use async_trait::async_trait;
-use std::{ env, error::Error, io::Cursor, io::Error as IOError, io::ErrorKind };
+use std::{ error::Error, io::Cursor, io::Error as IOError, io::ErrorKind };
 use aws_sdk_s3::Client as S3Client;
 use image::{ Rgb, RgbImage, ImageReader, ImageFormat::Jpeg };
 
@@ -18,27 +18,21 @@ impl S3JpegInterface {
   #[allow(dead_code)]
   pub fn new(
     client: S3Client,
-    source_bucket: Option<String>,
-    target_bucket: Option<String>,
+    source_bucket: String,
+    target_bucket: String,
+    target_url: Option<Url>,
   ) -> Self {
     let region = String::from(client.config().region().unwrap().as_ref());
-    let target_bucket = target_bucket
-      .unwrap_or_else(
-        || env::var("S3_TARGET_BUCKET")
-          .expect("Target bucket not specified for S3 JPEG interface.")
-      );
+
     Self {
       client,
-      source_bucket: source_bucket
-        .unwrap_or_else(
-          || env::var("S3_SOURCE_BUCKET")
-            .expect("Source bucket not specified for S3 JPEG interface.")
-        ),
-      target_bucket: String::from(&target_bucket),
-      target_url: Url::parse(
-          &env::var("S3_TARGET_URL_BASE")
-            .unwrap_or_else(|_| format!("https://{}.s3.{}.amazonaws.com/", &target_bucket, region))
-        ).unwrap(),
+      target_url: target_url.unwrap_or(
+        Url::parse(
+          format!("https://{}.s3.{}.amazonaws.com/", &target_bucket, region).as_str()
+        ).unwrap()
+      ),
+      source_bucket,
+      target_bucket,
     }
   }
 }
