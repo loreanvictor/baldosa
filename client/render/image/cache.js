@@ -1,11 +1,18 @@
 import { IMG_SIZES } from './constants.js'
 import { fetchImage } from './fetch.js'
+import { createTopic } from '../../util/topic.js'
 
+
+// TODO: use Quick-LRU here instead of manually implementing
+//       a cache mechanism. the performance should be analysed of course,
+//       perhaps its better to first test on demo/picsum-infinite branch.
+// NOTE: the max size of the cache can currently be modified after the fact,
+//       but using the Quick-LRU library this wouldn't be possible, so we should
+//       take this into account as well.
 
 export const createImageCache = (size, ttl = 10_000) => {
   const cache = new Map()
-  const listeners = []
-  const notify = (...args) => listeners.forEach(listener => listener(...args))
+  const { listen, notify } = createTopic()
 
   const add = (key, iurl) => {
     const record = { key, i: undefined, t: Date.now() }
@@ -73,11 +80,7 @@ export const createImageCache = (size, ttl = 10_000) => {
     })
     cache.clear()
   }
-  const listen = (listener) => {
-    listeners.push(listener)
-    return () => listeners.splice(listeners.indexOf(listener), 1)
-  }
-  
+
   const limit = s => size = s
 
   const control = { add, find, get, touch, isLoaded, isLoading, load, clear, dispose, listen, limit }

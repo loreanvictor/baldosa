@@ -40,3 +40,6 @@
 *.swn
 
 tmp/
+
+tiles.db
+tiles.db*
