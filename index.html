@@ -35,7 +35,6 @@
       import { createGridMask } from './client/mask/index.js'
       import { setDevMode, isDevMode, loadDevEnv } from './client/util/dev-mode.js'
 
-
       const WMIN = Math.min(window.innerWidth, window.innerHeight)
       const WMAX = Math.max(window.innerWidth, window.innerHeight)
       const SMALL_DEVICE = WMAX <= 800
@@ -100,8 +99,14 @@
       if (isDevMode()) {
         loadDevEnv().then(config => {
           const envBaseURL = config['S3_PUBLISH_URL_BASE']
-          const envBucketURL = `https://${config['S3_PUBLISH_BUCKET']}.s3.amazonaws.com`
-          const baseURL = envBaseURL || envBucketURL || DEFAULT_BASE_URL
+          const envBucket = config['S3_PUBLISH_BUCKET']
+          const envBucketURL = envBucket && `https://${envBucket}.s3.amazonaws.com`
+
+          if (!envBaseURL && !envBucket) {
+            console.warn('No S3_PUBLISH_URL_BASE or S3_PUBLISH_BUCKET found in env, falling back to prod default.')
+          }
+
+          const baseURL = envBaseURL ?? envBucketURL ?? DEFAULT_BASE_URL
           init({ baseURL })
         })
       } else {
