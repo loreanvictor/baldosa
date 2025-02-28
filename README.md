@@ -9,7 +9,10 @@ Baldosa is an infinite (well, max int) grid of tiles, where tile content is subm
 > [!WARNING]
 > This project is under active development and quite unstable.
 
-## Developmetn Setup
+- [current prototype](https://loreanvictor.github.io/baldosa)
+- [mock demo](https://baldosa.surge.sh)
+
+## Development Setup
 
 Create a `.env` at the root of the project
 with the following content:
