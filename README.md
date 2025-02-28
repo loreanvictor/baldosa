@@ -45,9 +45,15 @@ DATABASE_URL=sqlite://tiles.db
 >
 > The AWS key provided for `publisher` must be able to read from `S3_SUBMIT_BUCKET` and write to `S3_PUBLISH_BUCKET`.
 
-Finally, run the script:
+Run all services and serve the web app:
 
 ```bash
 chmod +x ./dev.sh
 ./dev.sh
+```
+
+Open browser console and enable developer mode:
+
+```js
+setDevMode(true)
 ```
