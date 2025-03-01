@@ -2,7 +2,8 @@ import { parse } from 'https://esm.sh/envfile'
 import { define, attachControls } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import './glass-modal.js'
+import '../design/glass-modal.js'
+import '../design/buttons.js'
 
 
 let devModeAlert = false
@@ -74,9 +75,10 @@ define('dev-mode-indicator', () => {
       position: fixed;
       bottom: 0px;
       left: 0px;
-      padding: 1ch;
+      padding: 0.5ch 2ch;
       border-top-right-radius: 12px;
       font-size: 0.8rem;
+      font-weight: bold;
       cursor: pointer;
     }
     code {
@@ -102,7 +104,7 @@ define('dev-mode-indicator', () => {
     }
     </style>
     <glass-pane onclick=${() => modal.current.controls.open()}>
-      <span>dev mode</span>
+      dev mode
     </glass-pane>
     <glass-modal ref=${modal}>
       <span slot="title">Developer Mode</span>
@@ -117,6 +119,7 @@ define('dev-mode-indicator', () => {
           <ul ref=${env}>
           </ul>
         </p>
+        <secondary-button onclick=${() => setDevMode(false)}>Turn Off Dev Mode</secondary-button>
       </div>
     </glass-modal>
   `

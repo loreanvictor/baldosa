@@ -1,85 +1,83 @@
 import { define, useDispatch, onAttribute, currentNode } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import '../util/glass-pane.js'
+import '../design/glass-pane.js'
+import '../design/glass-modal.js'
+import '../design/coord-input.js'
+import '../design/buttons.js'
 import { observe } from '../util/observe.js'
 
 
 define('pan-indicator', ({ camera }) => {
-  const self = currentNode()
   const onPan = useDispatch('pan')
-  const xinput = ref()
-  const yinput = ref()
+  const x = ref()
+  const y = ref()
 
-  const resize = input => input.style.width = `calc(${input.value.length + 1}ch)`
-  const set = (input, value) => {
-    if (
-        value !== undefined && !isNaN(value) &&
-        !(
-          document.activeElement === self &&
-          self.shadowRoot.activeElement === input.current
-        )
-      ) {
-      input.current.value = Math.floor(value)
-      resize(input.current)
+  const modal = ref()
+  const coord = ref()
+
+  const set = (span, value) => {
+    if (value !== undefined && !isNaN(value)) {
+      span.current.textContent = Math.floor(value)
     }
   }
 
   observe(camera, 'pan', ({ detail }) => {
-    set(xinput, detail.camera.x)
-    set(yinput, detail.camera.y)
+    set(x, detail.camera.x)
+    set(y, detail.camera.y)
   })
 
-  onAttribute('x', value => set(xinput, parseInt(value)))
-  onAttribute('y', value => set(yinput, parseInt(value)))
+  onAttribute('x', value => set(x, parseInt(value)))
+  onAttribute('y', value => set(y, parseInt(value)))
 
-  // TODO: on mobile this is not a fun experience,
-  //       since there isn't a good keyboard for coords.
-  //       we should perhaps use a custom keyboard on mobile
-  //       with a dialog to enter coords
-  const go = (event) => {
-    resize(event.target)
-    const x = parseInt(xinput.current.value)
-    const y = parseInt(yinput.current.value)
-    if (!isNaN(x) && !isNaN(y)) {
-      onPan({ x, y })
+  const go = () => {
+    const target = coord.current.value
+    if (target.x !== NaN && target.y !== NaN) {
+      onPan(target)
+      modal.current.controls.close()
     }
   }
 
   return html`
     <style>
       glass-pane {
+        cursor: pointer;
         position: fixed;
         bottom: 0px;
         right: 0px;
         padding-left: 1ch;
         padding-right: 2ch;
         border-top-left-radius: 12px;
+        padding: 0.25ch 2ch;
+
+        span {
+          font-size: 0.8rem;
+          font-weight: bold;
+        }
       }
 
-      input {
-        &::-webkit-inner-spin-button,
-        &::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
+      glass-modal {
+        input {
+          border: none;
+          background: none;
+          outline: none;
+          font-size: 1.1rem;
+          color: white;
         }
-
-        text-align: right;
-        margin: .25rem;
-        width: 1ch;
-        padding: 0;
-        font-size:12px;
-        font-weight: bold;
-        color: #ffffff88;
-        background: none;
-        border: none;
-        outline: none;
-        white-space: nowrap;
-    }
+      }
     </style>
-    <glass-pane>
-      <input ref=${xinput} type="text" value="0" pattern="-?[0-9]*" oninput=${go} /> ,
-      <input ref=${yinput} type="text" value="0" pattern="-?[0-9]*" oninput=${go} />
+    <glass-pane onclick=${() => {
+      coord.current.setAttribute('value', `${x.current.textContent},${y.current.textContent}`)
+      modal.current.controls.open()
+      coord.current.focus()
+    }}>
+      <span ref=${x}>0</span> , <span ref=${y}>0</span>
     </glass-pane>
+    <glass-modal ref=${modal}>
+      <p>
+        <coord-input ref=${coord} oncomplete=${go}></coord-input>
+        <primary-button onclick=${go}>Jump to Location</primary-button>
+      </p>
+    </glass-modal>
   `
 })
