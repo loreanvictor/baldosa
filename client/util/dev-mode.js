@@ -73,10 +73,10 @@ define('dev-mode-indicator', () => {
     } 
     glass-pane {
       position: fixed;
-      bottom: 0px;
+      top: 0px;
       left: 0px;
       padding: 0.5ch 2ch;
-      border-top-right-radius: 12px;
+      border-bottom-right-radius: 12px;
       font-size: 0.8rem;
       font-weight: bold;
       cursor: pointer;
