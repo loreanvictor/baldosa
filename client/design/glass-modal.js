@@ -18,10 +18,10 @@ define('glass-modal', () => {
       warmup = setTimeout(() => opened = true, 50)
     },
     close: () => {
-      dialog.current.close()
       closepin.current.blur()
       clearTimeout(warmup)
       opened = false
+      dialog.current.close()
     },
     isOpen: () => opened,
   }
@@ -57,12 +57,18 @@ define('glass-modal', () => {
     const dragmove = lastpos - dragstart[1]
     if (dragmove > 0 && (Math.abs(lastvel > 10) || moved)) {
       moved = true
+      dialog.current.style.transition = ''
       dialog.current.style.transform = `translateY(${dragmove}px)`
+      const rate = Math.min(1, 200 / dragmove)
+      dialog.current.style.setProperty('--backdrop-blur', `${Math.floor(5 * rate)}px`)
+      dialog.current.style.setProperty('--backdrop-opacity', `${rate / 1.5}`)
     }
-  })
+  }, { passive: true })
   observe(dialog, 'touchend', event => {
     moved = false
     dialog.current.style.transform = ''
+    dialog.current.style.setProperty('--backdrop-blur', '5px')
+    dialog.current.style.setProperty('--backdrop-opacity', '1')
     dialog.current.style.transition = 'transform 0.2s ease'
     setTimeout(() => dialog.current.style.transition = '', 200)
     const dragend = [event.changedTouches[0].clientX, event.changedTouches[0].clientY]
@@ -71,7 +77,7 @@ define('glass-modal', () => {
     if (lastvel > 10 && Math.abs(dx) < 100 && dy > 100) {
       controls.close()
     }
-  })
+  }, { passive: true })
 
   return html`
     <link rel="stylesheet" href="./client/design/glass-modal.css" />
