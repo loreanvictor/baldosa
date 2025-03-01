@@ -32,6 +32,7 @@ define('pan-indicator', ({ camera }) => {
 
   const go = () => {
     const target = coord.current.value
+    coord.current.controls.reset()
     if (target.x !== NaN && target.y !== NaN) {
       onPan(target)
       modal.current.controls.close()
@@ -67,8 +68,9 @@ define('pan-indicator', ({ camera }) => {
       }
     </style>
     <glass-pane onclick=${() => {
-      coord.current.setAttribute('value', `${x.current.textContent},${y.current.textContent}`)
+      coord.current.setAttribute('placeholder', `${x.current.textContent},${y.current.textContent}`)
       modal.current.controls.open()
+      coord.current.controls.reset()
       coord.current.focus()
     }}>
       <span ref=${x}>0</span> , <span ref=${y}>0</span>
@@ -76,8 +78,8 @@ define('pan-indicator', ({ camera }) => {
     <glass-modal ref=${modal}>
       <p>
         <coord-input ref=${coord} oncomplete=${go}></coord-input>
-        <primary-button onclick=${go}>Jump to Location</primary-button>
       </p>
+      <secondary-button onclick=${go}>Jump to Location</secondary-button>
     </glass-modal>
   `
 })

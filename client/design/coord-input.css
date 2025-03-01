@@ -1,0 +1,57 @@
+:host {
+  outline: none;
+}
+
+#input {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  height: 3ch;
+  color: white;
+  transition: color 1s;
+
+  &.placeholder {
+    color: #424242;
+  }
+}
+
+#keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin: 2ch 0;
+  outline: none;
+
+  button {
+    background: #31313144;
+    border: none;
+    color: #ffffff;
+    padding: 8px;
+    outline: none;
+    border-radius: 5px;
+    height: calc(min(100vw, 512px)  / 6);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background .15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+
+    &[sym] {
+      font-size: 2rem;
+    }
+
+    &:hover {
+      background: #31313166;
+    }
+
+    &:empty {
+      opacity: 0;
+    }
+  }
+}

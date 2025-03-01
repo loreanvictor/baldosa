@@ -27,6 +27,12 @@
       <dev-mode-indicator></dev-mode-indicator>
     </footer>
     <script type="module">
+      // disable double click zooming
+      document.addEventListener("dblclick", (event) => {
+        event.preventDefault()
+      })
+    </script>
+    <script type="module">
       import './client/render/grid.js'
       import './client/control/camera-control.js'
       import './client/control/pan-indicator.js'

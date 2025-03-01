@@ -119,7 +119,7 @@ define('dev-mode-indicator', () => {
           <ul ref=${env}>
           </ul>
         </p>
-        <secondary-button onclick=${() => setDevMode(false)}>Turn Off Dev Mode</secondary-button>
+        <primary-button onclick=${() => setDevMode(false)}>Turn Off Dev Mode</primary-button>
       </div>
     </glass-modal>
   `
