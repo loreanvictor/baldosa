@@ -8,6 +8,8 @@ import './touch-pan.js'
 import './tap-zoom.js'
 
 
+const MAXPOS = 100_000
+
 define('camera-control', ({ target,
     friction = 0.035, 
     camx = 0, camy = 0,
@@ -20,9 +22,8 @@ define('camera-control', ({ target,
   let camera = { x: parseFloat(camx), y: parseFloat(camy) }
   let _zoom = zoom
 
-  const boundZoom = zoom => {
-    return Math.max(minzoom ?? 100, Math.min(maxzoom ?? 300, zoom ?? 200))
-  }
+  const boundZoom = zoom => Math.max(minzoom ?? 100, Math.min(maxzoom ?? 300, zoom ?? 200))
+  const boundPos = value => Math.max(-MAXPOS, Math.min(MAXPOS, value))
 
   onAttribute('camx', value => (camera.x = parseFloat(value), onPan({ camera, velocity: { x: 0, y: 0 } })))
   onAttribute('camy', value => (camera.y = parseFloat(value), onPan({ camera, velocity: { x: 0, y: 0 } })))
@@ -41,8 +42,8 @@ define('camera-control', ({ target,
 
   const listeners = {
     drag: ({ detail }) => {
-      camera.x += detail.x / _zoom
-      camera.y += detail.y / _zoom
+      camera.x = boundPos(camera.x + detail.x / _zoom)
+      camera.y = boundPos(camera.y + detail.y / _zoom)
       onPan({ camera, velocity: detail })
     },
     pinch: ({ detail }) => {
@@ -53,8 +54,8 @@ define('camera-control', ({ target,
       }
     },
     wheelpan: ({ detail }) => {
-      camera.x += detail.x / _zoom
-      camera.y += detail.y / _zoom
+      camera.x = boundPos(camera.x + detail.x / _zoom)
+      camera.y = boundPos(camera.y + detail.y / _zoom)
       onPan({ camera, velocity: detail })
     },
     wheelzoom: ({ detail }) => {
@@ -65,8 +66,8 @@ define('camera-control', ({ target,
       }
     },
     touchpan: ({ detail }) => {
-      camera.x += detail.x / _zoom
-      camera.y += detail.y / _zoom
+      camera.x = boundPos(camera.x + detail.x / _zoom)
+      camera.y = boundPos(camera.y + detail.y / _zoom)
       onPan({ camera, velocity :detail })
     },
     tapzoom: ({ detail }) => {

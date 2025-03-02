@@ -72,11 +72,30 @@ dialog {
     top: auto;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    padding-top: 4ch;
   
+    &::before {
+      content: ' ';
+      display: block;
+      background: linear-gradient(180deg, #00000066, #9e9e9e44);;
+      width: 6ch;
+      margin: 2ch auto;
+      margin-top: -2ch;
+      height: 6px;
+      border-radius: 3px;
+    }
+
     header > button {
       width: 36px;
       height: 36px;
       border-radius: 20px;
+      position: absolute;
+      right: 2ch;
+      top: 2ch;
+
+      &::before, &::after {
+        background: linear-gradient(180deg, #212121, #000000);
+      }
     }
   }
 }
