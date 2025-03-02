@@ -1,6 +1,6 @@
 import { IMG_SIZES } from './constants.js'
 import { fetchImage } from './fetch.js'
-import { createTopic } from '../../util/topic.js'
+import { createTopic } from '../../../util/topic.js'
 
 
 // TODO: use Quick-LRU here instead of manually implementing

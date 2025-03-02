@@ -1,0 +1,31 @@
+img {
+  width: calc(100% + 4ch);
+  margin-left: -2ch;
+  margin-top: -8.5ch;
+  height: 320px;
+  object-fit: cover;
+  object-position: center top;
+  animation: pan 16s infinite alternate;
+}
+
+h1 {
+  margin-bottom: 0;
+}
+
+sub {
+  opacity: .5;
+}
+
+[role=group] {
+  display: flex;
+  gap: 1ch;
+
+  > primary-button {
+    flex: 1;
+  }
+}
+
+@keyframes pan {
+  from { object-position: center top; }
+  to   { object-position: center bottom; }
+}

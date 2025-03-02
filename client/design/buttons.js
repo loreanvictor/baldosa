@@ -35,3 +35,10 @@ define('secondary-button', () => {
     <button onclick=${onclick}><slot></slot></button>
   `
 })
+
+define('action-list', () => html`
+  <link rel="stylesheet" href="./client/design/button.css" />
+  <div class="action-list">
+    <slot></slot>
+  </div>
+`)

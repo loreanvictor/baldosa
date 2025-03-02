@@ -1,6 +1,6 @@
 import Cache from 'https://esm.sh/quick-lru'
 
-import { createTopic } from '../util/topic.js'
+import { createTopic } from '../../util/topic.js'
 
 
 export const createGridMaskFromBucket = (options) => {

@@ -11,7 +11,16 @@ const query = selector => {
     const inroot = root.querySelector(selector)
     if (inroot) { return inroot }
 
-    root = root.getRootNode()
+    const newroot = root.getRootNode()
+    if (newroot === root) {
+      if (root.host) {
+        root = root.host
+      } else {
+        return
+      }
+    } else {
+      root = newroot
+    }
   }
 }
 

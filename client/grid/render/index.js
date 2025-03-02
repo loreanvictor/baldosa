@@ -4,10 +4,10 @@ import {
 } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
+import { observe } from '../../util/observe.js'
+import { constantly } from '../util/constantly.js'
 import '../util/track-cursor.js'
 import '../control/click-control.js'
-import { constantly } from '../util/constantly.js'
-import { observe } from '../util/observe.js'
 import { createGallery } from './image/gallery.js'
 import { drawTile } from './tile.js'
 

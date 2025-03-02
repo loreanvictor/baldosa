@@ -1,7 +1,7 @@
 dialog {
   animation: grow-in .3s;
   width: 512px;
-  background: linear-gradient(180deg, #31313188, #2e2e2e88);
+  background: linear-gradient(180deg, #313131cc, #2e2e2ecc);
   border-radius: 16px;
   padding: 2ch;
   backdrop-filter: blur(16px);
@@ -24,6 +24,7 @@ dialog {
   header {
     display: flex;
     align-items: center;
+    margin-bottom: 3ch;
 
     h1 {
       margin: 0;
@@ -34,8 +35,9 @@ dialog {
     }
 
     button {
-      background: linear-gradient(180deg, #33333388, #61616188);
-      border: 1px solid #424242;
+      background: linear-gradient(180deg, #00000022, #bdbdbd22);
+      border: none;
+      box-shadow: 0 0px 0px 1px #bdbdbd22;
       color: white;
       cursor: pointer;
       /* outline: none; */
@@ -44,6 +46,8 @@ dialog {
       border-radius: 16px;
       overflow: hidden;
       position: relative;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
 
       &::before, &::after {
         content: '';
@@ -52,7 +56,7 @@ dialog {
         left: 50%;
         width: 50%;
         height: 2px;
-        background: linear-gradient(180deg, #eeeeee, #212121);
+        background: linear-gradient(180deg, #bdbdbd88, #eeeeee88);
         border-radius: 2px;
         transform: translate(-50%, -50%) rotate(45deg); 
       }
@@ -83,6 +87,10 @@ dialog {
       margin-top: -2ch;
       height: 6px;
       border-radius: 3px;
+      z-index: 2;
+      position: relative;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     header > button {
@@ -92,10 +100,6 @@ dialog {
       position: absolute;
       right: 2ch;
       top: 2ch;
-
-      &::before, &::after {
-        background: linear-gradient(180deg, #212121, #000000);
-      }
     }
   }
 }
@@ -121,7 +125,7 @@ dialog {
 @keyframes come-up {
   from {
     opacity: 0;
-    transform: translateY(5vh);
+    transform: translateY(15vh);
   }
 
   to {

@@ -1,6 +1,6 @@
 import { define, useDispatch } from 'https://esm.sh/minicomp'
 
-import { observe } from '../util/observe.js'
+import { observe } from '../../util/observe.js'
 import { slipperyVector } from '../util/slipper.js'
 
 

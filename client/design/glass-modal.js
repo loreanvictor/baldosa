@@ -4,7 +4,7 @@ import { ref, html } from 'https://esm.sh/rehtm'
 import { observe } from '../util/observe.js'
 
 
-define('glass-modal', () => {
+define('glass-modal', ({ noheader }) => {
   const dialog = ref()
   const closepin = ref()
   let opened = false
@@ -82,7 +82,7 @@ define('glass-modal', () => {
   return html`
     <link rel="stylesheet" href="./client/design/glass-modal.css" />
     <dialog ref=${dialog}>
-      <header>
+      <header style=${noheader ? 'display: none' : ''}>
         <h1><slot name="title"></slot></h1>
         <button ref=${closepin} onclick=${() => controls.close()}></button>
       </header>

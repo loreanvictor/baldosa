@@ -1,11 +1,11 @@
 import { define, useDispatch, onAttribute, currentNode } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import '../design/glass-pane.js'
-import '../design/glass-modal.js'
-import '../design/coord-input.js'
-import '../design/buttons.js'
-import { observe } from '../util/observe.js'
+import '../../design/glass-pane.js'
+import '../../design/glass-modal.js'
+import '../../design/coord-input.js'
+import '../../design/buttons.js'
+import { observe } from '../../util/observe.js'
 
 
 define('pan-indicator', ({ camera }) => {

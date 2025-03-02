@@ -1,6 +1,6 @@
 import { define, useDispatch } from 'https://esm.sh/minicomp'
 
-import { observe } from './observe.js'
+import { observe } from '../../util/observe.js'
 
 
 define('track-cursor', () => {

@@ -1,18 +1,53 @@
 button {
   display: block;
   width: 100%;
-  background: linear-gradient(180deg, var(--button-shade-dark), var(--button-shade-light));
-  color: var(--button-text-color);
-  border: 1px solid var(--button-botder-color);
-  border-radius: 8px;
+  background: var(--btn-bg, linear-gradient(180deg, var(--button-shade-dark), var(--button-shade-light)));
+  color: var(--btn-txt, var(--button-text-color));
+  border: 1px solid var(--button-border-color);
+  border-top-color: var(--btn-border-top, var(--button-border-color));
+  border-bottom-color: var(--btn-border-bot, var(--button-border-color));
+  border-left-color: var(--btn-border-left, var(--button-border-color));
+  border-right-color: var(--btn-border-right, var(--button-border-color));
+  border-top-left-radius: var(--btn-top-rad, 8px);
+  border-top-right-radius: var(--btn-top-rad, 8px);
+  border-bottom-left-radius: var(--btn-bot-rad, 8px);
+  border-bottom-right-radius: var(--btn-bot-rad, 8px);
   font-size: .9rem;
   font-weight: bold;
   padding: 4px 8px;
   height: 52px;
+  min-width: 52px;
   cursor: pointer;
   transition: filter 0.15s;
 
   &:hover {
     filter: brightness(1.1);
+  }
+}
+
+
+.action-list {
+  ::slotted(*) {
+    --btn-txt: #fff;
+    --btn-bg: transparent;
+    --btn-border-top: transparent;
+    --btn-border-bot: #424242;
+    --btn-border-left: transparent;
+    --btn-border-right: transparent;
+    --btn-top-rad: 0;
+    --btn-bot-rad: 0;
+  }
+
+  ::slotted(:hover) {
+    --btn-bg: #ffffff08;
+  }
+
+  ::slotted(:first-child) {
+    --btn-top-rad: 8px;
+  }
+
+  ::slotted(:last-child) {
+    --btn-bot-rad: 8px;
+    --btn-border-bot: transparent;
   }
 }
