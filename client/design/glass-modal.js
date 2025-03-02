@@ -45,18 +45,19 @@ define('glass-modal', ({ noheader }) => {
   let dragstart
   let lastpos
   let lastvel
-  let moved = false
+  let dragging = false
   observe(dialog, 'touchstart', event => {
     dragstart = [event.touches[0].clientX, event.touches[0].clientY]
-    moved = false
     lastpos = event.touches[0].clientY
+    const rect = dialog.current.getBoundingClientRect()
+    dragging = dragstart[1] < rect.top + rect.height / 4 ||
+      dragstart[1] < window.innerHeight / 2
   }, { passive: true })
   observe(dialog, 'touchmove', event => {
     lastvel = event.touches[0].clientY - lastpos
     lastpos = event.touches[0].clientY
     const dragmove = lastpos - dragstart[1]
-    if (dragmove > 0 && (Math.abs(lastvel > 10) || moved)) {
-      moved = true
+    if (dragging && dragmove > 0) {
       dialog.current.style.transition = ''
       dialog.current.style.transform = `translateY(${dragmove}px)`
       const rate = Math.min(1, 200 / dragmove)
@@ -65,17 +66,18 @@ define('glass-modal', ({ noheader }) => {
     }
   }, { passive: true })
   observe(dialog, 'touchend', event => {
-    moved = false
-    dialog.current.style.transform = ''
-    dialog.current.style.setProperty('--backdrop-blur', '5px')
-    dialog.current.style.setProperty('--backdrop-opacity', '1')
-    dialog.current.style.transition = 'transform 0.2s ease'
-    setTimeout(() => dialog.current.style.transition = '', 200)
-    const dragend = [event.changedTouches[0].clientX, event.changedTouches[0].clientY]
-    const dx = dragend[0] - dragstart[0]
-    const dy = dragend[1] - dragstart[1]
-    if (lastvel > 10 && Math.abs(dx) < 100 && dy > 100) {
-      controls.close()
+    if (dragging) {
+      dialog.current.style.transform = ''
+      dialog.current.style.setProperty('--backdrop-blur', '5px')
+      dialog.current.style.setProperty('--backdrop-opacity', '1')
+      dialog.current.style.transition = 'transform 0.2s ease'
+      setTimeout(() => dialog.current.style.transition = '', 200)
+      const dragend = [event.changedTouches[0].clientX, event.changedTouches[0].clientY]
+      const dx = dragend[0] - dragstart[0]
+      const dy = dragend[1] - dragstart[1]
+      if (lastvel > 5 && Math.abs(dx) < 100 && dy > 75) {
+        controls.close()
+      }
     }
   }, { passive: true })
 

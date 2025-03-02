@@ -41,11 +41,12 @@ define('tile-preview', () => {
   return html`
     <link rel="stylesheet" href="./client/grid/tile/preview.css" />
     <glass-modal ref=${modal}>
-      <img ref=${img} />
-      <h1 ref=${title}></h1>
-      <span ref=${subtitle}></span><br/>
-      <sub ref=${pos}></sub>
-      <br/><br/>
+      <article>
+        <img ref=${img} />
+        <h1 ref=${title}></h1>
+        <span ref=${subtitle}></span><br/>
+        <sub ref=${pos}></sub>
+      </article>
       <div role="group">
         <primary-button onclick=${open}>Open</primary-button>
         <secondary-button onclick=${() => opts.current.controls.open()}>…</secondary-button>

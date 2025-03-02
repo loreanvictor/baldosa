@@ -79,7 +79,7 @@ define('pan-indicator', ({ camera }) => {
       <p>
         <coord-input ref=${coord} oncomplete=${go}></coord-input>
       </p>
-      <secondary-button onclick=${go}>Jump to Location</secondary-button>
+      <primary-button onclick=${go}>Jump to Location</primary-button>
     </glass-modal>
   `
 })

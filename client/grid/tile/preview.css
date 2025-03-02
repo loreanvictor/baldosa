@@ -12,6 +12,21 @@ h1 {
   margin-bottom: 0;
 }
 
+article {
+  max-height: 65vh;
+  overflow: scroll;
+  overscroll-behavior: none;
+  margin-left: -2ch;
+  margin-right: -2ch;
+  margin-top: -8.5ch;
+  margin-bottom: 2ch;
+  padding: 2ch;
+}
+
+span {
+  white-space: pre-line;
+}
+
 sub {
   opacity: .5;
 }
