@@ -1,4 +1,4 @@
-import { define, onAttribute } from 'https://esm.sh/minicomp'
+import { define, onAttribute, onConnected } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
 import './render/index.js'
@@ -75,6 +75,14 @@ define('controlled-grid', () => {
     grid.current.addEventListener('tile-click', ({ detail }) => {
       prev.current.setProperty('tile', detail)
     })
+
+    const goto = URL.parse(window.location).searchParams.get('tile')
+    if (goto) {
+      const [x, y] = goto.split(',')
+      console.log('going to ', x, y)
+      camera.current.setAttribute('camx', (parseInt(x) ?? 0) + .5)
+      camera.current.setAttribute('camy', (parseInt(y) ?? 0) + .5)
+    }
   })
 
   return html`

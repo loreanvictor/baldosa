@@ -1,10 +1,8 @@
-import { define, useDispatch } from 'https://esm.sh/minicomp'
+import { define } from 'https://esm.sh/minicomp'
 import { html } from 'https://esm.sh/rehtm'
 
 
-define('primary-button', () => {
-  const onclick = useDispatch('click')
-
+define('primary-button', ({ row = false }) => {
   return html`
     <link rel="stylesheet" href="./client/design/button.css" />
     <style>
@@ -15,13 +13,11 @@ define('primary-button', () => {
         --button-border-color: #F2EAD3;
       }
     </style>
-    <button onclick=${onclick}><slot></slot></button>
+    <button class=${row ? 'row' : ''}><slot></slot><slot name='icon'></slot></button>
   `
 })
 
-define('secondary-button', () => {
-  const onclick = useDispatch('click')
-
+define('secondary-button', ({ row = false }) => {
   return html`
     <link rel="stylesheet" href="./client/design/button.css" />
     <style>
@@ -32,7 +28,7 @@ define('secondary-button', () => {
         --button-border-color: #272829;
       }
     </style>
-    <button onclick=${onclick}><slot></slot></button>
+    <button class=${row ? 'row' : ''}><slot></slot><slot name='icon'></slot></button>
   `
 })
 

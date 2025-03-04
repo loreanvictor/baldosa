@@ -1,5 +1,7 @@
 button {
-  display: block;
+  display: flex;
+  align-items: center;
+  place-content: center;
   width: 100%;
   background: var(--btn-bg, linear-gradient(180deg, var(--button-shade-dark), var(--button-shade-light)));
   color: var(--btn-txt, var(--button-text-color));
@@ -20,8 +22,17 @@ button {
   cursor: pointer;
   transition: filter 0.15s;
 
+  ::slotted([slot="icon"]) {
+    width: 32px;
+    height: 32px;
+  }
+
   &:hover {
     filter: brightness(1.1);
+  }
+
+  &.row {
+    place-content: space-between;
   }
 }
 
@@ -36,6 +47,10 @@ button {
     --btn-border-right: transparent;
     --btn-top-rad: 0;
     --btn-bot-rad: 0;
+  }
+
+  ::slotted([faded]) {
+    --btn-txt: #ffffff66;
   }
 
   ::slotted(:hover) {

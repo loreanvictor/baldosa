@@ -1,0 +1,45 @@
+output {
+  place-content: space-between;
+  align-items: center;
+  width: 400px;
+  padding: 2ch;
+  margin-top: 4ch;
+  height: calc(64px - 4ch);
+  border: none;
+  border-radius: 32px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: white;
+  overflow: hidden;
+  background: #31313166;
+  animation: drop .15s;
+  transition: opacity .15s, transform .15s;
+
+  &.closing {
+    opacity: 0;
+    transform: translateY(-32px);
+  }
+
+  &:popover-open {
+    display: flex;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  output {
+    left: 2ch;
+    width: calc(100% - 8ch);
+  }
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

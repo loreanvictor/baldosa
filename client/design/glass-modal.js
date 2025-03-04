@@ -1,12 +1,12 @@
 import { define, attachControls } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
+import './close-pin.js'
 import { observe } from '../util/observe.js'
 
 
 define('glass-modal', ({ noheader }) => {
   const dialog = ref()
-  const closepin = ref()
   let opened = false
   let warmup
 
@@ -18,7 +18,7 @@ define('glass-modal', ({ noheader }) => {
       warmup = setTimeout(() => opened = true, 50)
     },
     close: () => {
-      closepin.current.blur()
+      // closepin.current.blur()
       clearTimeout(warmup)
       opened = false
       dialog.current.close()
@@ -75,7 +75,7 @@ define('glass-modal', ({ noheader }) => {
       const dragend = [event.changedTouches[0].clientX, event.changedTouches[0].clientY]
       const dx = dragend[0] - dragstart[0]
       const dy = dragend[1] - dragstart[1]
-      if (lastvel > 5 && Math.abs(dx) < 100 && dy > 75) {
+      if ((lastvel > 5 || dy > 200) && Math.abs(dx) < 100 && dy > 75) {
         controls.close()
       }
     }
@@ -86,7 +86,7 @@ define('glass-modal', ({ noheader }) => {
     <dialog ref=${dialog}>
       <header style=${noheader ? 'display: none' : ''}>
         <h1><slot name="title"></slot></h1>
-        <button ref=${closepin} onclick=${() => controls.close()}></button>
+        <close-pin onclick=${() => controls.close()}></close-pin>
       </header>
       <slot></slot>
     </dialog>

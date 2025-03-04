@@ -33,38 +33,6 @@ dialog {
       font-size: 1.8rem;
       font-weight: 300;
     }
-
-    button {
-      background: linear-gradient(180deg, #00000022, #bdbdbd22);
-      border: none;
-      box-shadow: 0 0px 0px 1px #bdbdbd22;
-      color: white;
-      cursor: pointer;
-      /* outline: none; */
-      width: 32px;
-      height: 32px;
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-
-      &::before, &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 50%;
-        height: 2px;
-        background: linear-gradient(180deg, #bdbdbd88, #eeeeee88);
-        border-radius: 2px;
-        transform: translate(-50%, -50%) rotate(45deg); 
-      }
-
-      &::after {
-        transform: translate(-50%, -50%) rotate(-45deg); 
-      }
-    }
   }
 }
 
@@ -93,14 +61,11 @@ dialog {
       -webkit-backdrop-filter: blur(16px);
     }
 
-    header > button {
-      width: 36px;
-      height: 36px;
-      border-radius: 20px;
-      position: absolute;
-      right: 2ch;
-      top: 2ch;
-    }
+     header > close-pin {
+        position: absolute;
+        right: 2ch;
+        top: 2ch;
+     }
   }
 }
 

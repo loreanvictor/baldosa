@@ -1,7 +1,7 @@
-img {
+article > img {
   width: calc(100% + 4ch);
   margin-left: -2ch;
-  margin-top: -8.5ch;
+  margin-top: -2ch;
   height: 320px;
   object-fit: cover;
   object-position: center top;

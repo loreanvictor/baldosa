@@ -5,6 +5,7 @@ import '../../design/glass-pane.js'
 import '../../design/glass-modal.js'
 import '../../design/coord-input.js'
 import '../../design/buttons.js'
+import '../../design/icon.js'
 import { observe } from '../../util/observe.js'
 
 
@@ -79,7 +80,11 @@ define('pan-indicator', ({ camera }) => {
       <p>
         <coord-input ref=${coord} oncomplete=${go}></coord-input>
       </p>
-      <primary-button onclick=${go}>Jump to Location</primary-button>
+      <primary-button onclick=${go}>
+        <i-con src='arrow-right' thick slot='icon'></i-con>
+        <!-- <img slot='icon' src='./client/assets/icons/arrow-right-light-thick.svg'/> -->
+        Jump to Location
+      </primary-button>
     </glass-modal>
   `
 })
