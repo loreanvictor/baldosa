@@ -1,23 +1,41 @@
 output {
+  --width: 400px;
+  --padding: 10px;
+  --height: 52px;
+
+  gap: calc(var(--padding) * 4);
+  font-weight: 100;
+  font-size: .9rem;
   place-content: space-between;
   align-items: center;
-  width: 400px;
-  padding: 2ch;
-  margin-top: 4ch;
-  height: calc(64px - 4ch);
+  width: max-content;
+  padding: var(--padding);
+  padding-left: calc(var(--padding)* 1.5);
+  margin-top: calc(var(--padding) * 2);
+  height: calc(var(--height) - var(--padding) * 2);
   border: none;
-  border-radius: 32px;
+  border-radius: calc(var(--height) / 2);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  color: white;
+  color: #ffffffcc;
   overflow: hidden;
-  background: #31313166;
+  background: #313131aa;
   animation: drop .15s;
-  transition: opacity .15s, transform .15s;
+  transition: opacity .2s, transform .2s;
+
+  circle-progress {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+  }
+
+  close-pin {
+    margin-top: 2px;
+  }
 
   &.closing {
     opacity: 0;
-    transform: translateY(-32px);
+    transform: translateY(-16px);
   }
 
   &:popover-open {
@@ -27,15 +45,22 @@ output {
 
 @media screen and (max-width: 600px) {
   output {
-    left: 2ch;
-    width: calc(100% - 8ch);
+    max-width: calc(100% - var(--padding) * 4);
+
+    circle-progress {
+      right: 6px;
+    }
+
+    close-pin {
+      margin-top: 0;
+    }
   }
 }
 
 @keyframes drop {
   from {
     opacity: 0;
-    transform: translateY(-32px);
+    transform: translateY(-16px);
   }
   to {
     opacity: 1;

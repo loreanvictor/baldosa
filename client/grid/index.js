@@ -79,7 +79,6 @@ define('controlled-grid', () => {
     const goto = URL.parse(window.location).searchParams.get('tile')
     if (goto) {
       const [x, y] = goto.split(',')
-      console.log('going to ', x, y)
       camera.current.setAttribute('camx', (parseInt(x) ?? 0) + .5)
       camera.current.setAttribute('camy', (parseInt(y) ?? 0) + .5)
     }

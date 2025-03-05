@@ -87,8 +87,13 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
           ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (camera.v * 64)))})`
           ctx.font = `${camera.zoom / 16}px "Open Sans"`
           ctx.textAlign = 'left'
+
+          const MAX_TEXT_LENGTH = 32
+          const truncated = img.meta.subtitle.length > MAX_TEXT_LENGTH ?
+            img.meta.subtitle.slice(0, MAX_TEXT_LENGTH - 3) + '…' : img.meta.subtitle
+ 
           ctx.fillText(
-            img.meta.subtitle,
+            truncated,
             rx + SPACING * 2 * camera.zoom,
             ry + size - SPACING * 4 * camera.zoom,
           )

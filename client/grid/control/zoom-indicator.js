@@ -3,7 +3,7 @@ import { ref, html } from 'https://esm.sh/rehtm'
 
 import '../../design/glass-pane.js'
 import { observe } from '../../util/observe.js'
-import { constantly } from '../util/constantly.js'
+import { constantly } from '../../util/constantly.js'
 
 
 define('zoom-indicator', ({ camera, initial = 200, min = 100, max = 300 }) => {

@@ -46,7 +46,7 @@ define('tile-preview', () => {
     }
   }
   const copytilelink = () => navigator.clipboard?.writeText(
-    `${window.location.origin}?tile=${tile.current.x},${tile.current.y}`)
+    `${window.location.origin}${window.location.pathname}?tile=${tile.current.x},${tile.current.y}`)
       .then(() => copytoast.current.controls.open())
 
   return html`
@@ -60,7 +60,7 @@ define('tile-preview', () => {
       </article>
       <div role="group">
         <primary-button onclick=${open}>Open</primary-button>
-        <secondary-button onclick=${() => opts.current.controls.open()}>
+        <secondary-button onclick=${() => opts.current.controls.open(modal.current)}>
           <i-con src='ellipsis' dark thick slot='icon'></i-con>
         </secondary-button>
       </div>

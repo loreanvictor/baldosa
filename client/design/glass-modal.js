@@ -1,4 +1,4 @@
-import { define, attachControls } from 'https://esm.sh/minicomp'
+import { define, attachControls, useDispatch } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
 import './close-pin.js'
@@ -6,22 +6,46 @@ import { observe } from '../util/observe.js'
 
 
 define('glass-modal', ({ noheader }) => {
+  const onclose = useDispatch('close')
   const dialog = ref()
   let opened = false
   let warmup
+  let parent
 
   const controls = {
-    open: () => {
+    open: (p) => {
       dialog.current.showModal()
       dialog.current.focus()
       clearTimeout(warmup)
       warmup = setTimeout(() => opened = true, 50)
+
+      parent = p
+      parent && parent.addEventListener && parent.addEventListener('close', controls.close)
     },
     close: () => {
-      // closepin.current.blur()
       clearTimeout(warmup)
       opened = false
-      dialog.current.close()
+      onclose()
+
+      if (parent && parent.addEventListener) {
+        parent.removeEventListener('close', controls.close)
+        parent = undefined
+      }
+
+      dialog.current.classList.add('closing')
+
+      const height = dialog.current.getBoundingClientRect().height
+      window.innerWidth < 512 && (dialog.current.style.transform = `translateY(${height}px)`)
+      dialog.current.style.setProperty('--backdrop-blur', '0')
+      dialog.current.style.setProperty('--backdrop-opacity', '0')
+
+      setTimeout(() => {
+        dialog.current.classList.remove('closing')
+        dialog.current.style.transform = ''
+        dialog.current.style.setProperty('--backdrop-blur', '')
+        dialog.current.style.setProperty('--backdrop-opacity', '')
+        dialog.current.close()
+      }, 200)
     },
     isOpen: () => opened,
   }
@@ -58,7 +82,7 @@ define('glass-modal', ({ noheader }) => {
     lastpos = event.touches[0].clientY
     const dragmove = lastpos - dragstart[1]
     if (dragging && dragmove > 0) {
-      dialog.current.style.transition = ''
+      dialog.current.style.transition = 'none'
       dialog.current.style.transform = `translateY(${dragmove}px)`
       const rate = Math.min(1, 200 / dragmove)
       dialog.current.style.setProperty('--backdrop-blur', `${Math.floor(5 * rate)}px`)
@@ -67,16 +91,17 @@ define('glass-modal', ({ noheader }) => {
   }, { passive: true })
   observe(dialog, 'touchend', event => {
     if (dragging) {
-      dialog.current.style.transform = ''
-      dialog.current.style.setProperty('--backdrop-blur', '5px')
-      dialog.current.style.setProperty('--backdrop-opacity', '1')
-      dialog.current.style.transition = 'transform 0.2s ease'
-      setTimeout(() => dialog.current.style.transition = '', 200)
+      dialog.current.style.transition = ''
+      const rect = dialog.current.getBoundingClientRect()
       const dragend = [event.changedTouches[0].clientX, event.changedTouches[0].clientY]
       const dx = dragend[0] - dragstart[0]
       const dy = dragend[1] - dragstart[1]
-      if ((lastvel > 5 || dy > 200) && Math.abs(dx) < 100 && dy > 75) {
+      if ((lastvel > 5 || dy > rect.height * .6) && Math.abs(dx) / dy < .5 && dy > 75) {
         controls.close()
+      } else {
+        dialog.current.style.setProperty('--backdrop-blur', '')
+        dialog.current.style.setProperty('--backdrop-opacity', '')
+        dialog.current.style.transform = ''
       }
     }
   }, { passive: true })

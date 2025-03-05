@@ -5,7 +5,7 @@ import {
 import { html, ref } from 'https://esm.sh/rehtm'
 
 import { observe } from '../../util/observe.js'
-import { constantly } from '../util/constantly.js'
+import { constantly } from '../../util/constantly.js'
 import '../util/track-cursor.js'
 import '../control/click-control.js'
 import { createGallery } from './image/gallery.js'
