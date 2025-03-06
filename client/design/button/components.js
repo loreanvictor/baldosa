@@ -1,10 +1,12 @@
 import { define } from 'https://esm.sh/minicomp'
 import { html } from 'https://esm.sh/rehtm'
 
+import { composeclass } from '../../util/compose-class.js'
 
-define('primary-button', ({ row = false }) => {
+
+define('primary-button', ({ row = false, warn = false }) => {
   return html`
-    <link rel="stylesheet" href="./client/design/button.css" />
+    <link rel="stylesheet" href="./client/design/button/styles.css" />
     <style>
       button {
         --button-shade-dark: #F2EAD3;
@@ -13,13 +15,13 @@ define('primary-button', ({ row = false }) => {
         --button-border-color: #F2EAD3;
       }
     </style>
-    <button class=${row ? 'row' : ''}><slot></slot><slot name='icon'></slot></button>
+    <button class=${composeclass({ row, warn })}><slot></slot><slot name='icon'></slot></button>
   `
 })
 
-define('secondary-button', ({ row = false }) => {
+define('secondary-button', ({ row = false, warn = false }) => {
   return html`
-    <link rel="stylesheet" href="./client/design/button.css" />
+    <link rel="stylesheet" href="./client/design/button/styles.css" />
     <style>
       button {
         --button-shade-dark: #2E3031;
@@ -28,12 +30,12 @@ define('secondary-button', ({ row = false }) => {
         --button-border-color: #272829;
       }
     </style>
-    <button class=${row ? 'row' : ''}><slot></slot><slot name='icon'></slot></button>
+    <button class=${composeclass({ row, warn })}><slot></slot><slot name='icon'></slot></button>
   `
 })
 
 define('action-list', () => html`
-  <link rel="stylesheet" href="./client/design/button.css" />
+  <link rel="stylesheet" href="./client/design/button/styles.css" />
   <div class="action-list">
     <slot></slot>
   </div>

@@ -1,0 +1,28 @@
+:host {
+  --progress: 1;
+  --size: 44px;
+  --color: #ffffff24;
+  --half-size: calc(var(--size) / 2);
+  --stroke-width: 4px;
+  --radius: calc(var(--size) / 2 - var(--stroke-width));
+  --circumference: calc(var(--radius) * 2 * pi);
+  --dash: calc(var(--progress) * var(--circumference));
+}
+
+svg {
+  width: var(--size);
+  height: var(--size);
+  transform: rotate(-90deg);
+
+  circle {
+    cx: var(--half-size);
+    cy: var(--half-size);
+    r: var(--radius);
+    stroke-width: var(--stroke-width);
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: var(--dash) calc(var(--circumference) - var(--dash));
+    transition: stroke-dasharray .2s linear 0s;
+    stroke: var(--color);
+  }
+}

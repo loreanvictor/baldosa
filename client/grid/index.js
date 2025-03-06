@@ -1,11 +1,11 @@
 import { define, onAttribute, onConnected } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
+import '../tile/preview/component.js'
 import './render/index.js'
 import './control/camera-control.js'
 import './control/pan-indicator.js'
 import './control/zoom-indicator.js'
-import './tile/preview.js'
 import { createGridMask } from './mask/index.js'
 
 

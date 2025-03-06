@@ -8,7 +8,7 @@ define('i-con', ({ src, dark, thick, fill }) => {
   const img = ref()
 
   const update = () => {
-    img.current.src = `${BASE}${src}-${dark ? 'dark' : 'light'}${thick ? '-thick' : fill ? '-fill' : ''}.svg`
+    img.current.src = `${BASE}${src}-${dark ? 'dark' : 'light'}${fill ? '-fill' : thick ? '-thick' : ''}.svg`
   }
 
   onAttribute('src', s => { src = s; update() })

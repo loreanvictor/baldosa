@@ -1,7 +1,7 @@
 import { define, useDispatch, currentNode, onAttribute, attachControls } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import { observe } from '../util/observe.js'
+import { observe } from '../../../util/observe.js'
 
 
 const SPECIAL_KEYS = { ERASE: '⌫', RESET: '↺' }
@@ -118,7 +118,7 @@ define('coord-input', () => {
   })
 
   return html`
-    <link rel="stylesheet" href="./client/design/coord-input.css" />
+    <link rel="stylesheet" href="./client/design/input/coord/styles.css" />
     <div id="input">
       <span ref=${inputx}>0</span><span ref=${inputc}>,</span><span ref=${inputy}>0</span>
     </div>

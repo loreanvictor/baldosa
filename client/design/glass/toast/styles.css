@@ -21,7 +21,7 @@ output {
   overflow: hidden;
   background: #313131aa;
   animation: drop .15s;
-  transition: opacity .2s, transform .2s;
+  transition: opacity .6s, transform .3s;
 
   circle-progress {
     position: absolute;
@@ -35,7 +35,7 @@ output {
 
   &.closing {
     opacity: 0;
-    transform: translateY(-16px);
+    transform: translateY(-96px);
   }
 
   &:popover-open {
@@ -60,7 +60,7 @@ output {
 @keyframes drop {
   from {
     opacity: 0;
-    transform: translateY(-16px);
+    transform: translateY(-96px);
   }
   to {
     opacity: 1;

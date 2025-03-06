@@ -4,9 +4,10 @@ import copy from 'https://esm.sh/copy-to-clipboard'
 
 window.c = copy
 
-import '../../design/glass-modal.js'
-import '../../design/glass-toast.js'
-import '../../design/buttons.js'
+import '../../design/glass/modal/component.js'
+import '../../design/glass/toast/component.js'
+import '../../design/button/components.js'
+import '../../bookmark/button/components.js'
 import '../../design/icon.js'
 
 
@@ -22,12 +23,14 @@ define('tile-preview', () => {
   const title = ref()
   const subtitle = ref()
   const pos = ref()
+  const bookmark = ref()
   const opts = ref()
 
   onAttribute('base-url', url => baseURL.current = url)
   onProperty('mask', m => mask.current = m)
   onProperty('tile', t => {
     tile.current = t
+    bookmark.current.setProperty('tile', t)
     if (t?.meta && mask.current?.has(t.x, t.y)) {
       title.current.textContent = t.meta?.title ?? ''
       subtitle.current.textContent = t.meta?.subtitle ?? ''
@@ -50,7 +53,7 @@ define('tile-preview', () => {
       .then(() => copytoast.current.controls.open())
 
   return html`
-    <link rel="stylesheet" href="./client/grid/tile/preview.css" />
+    <link rel="stylesheet" href="./client/tile/preview/styles.css" />
     <glass-modal ref=${modal}>
       <article>
         <img ref=${img} />
@@ -60,7 +63,7 @@ define('tile-preview', () => {
       </article>
       <div role="group">
         <primary-button onclick=${open}>Open</primary-button>
-        <secondary-button onclick=${() => opts.current.controls.open(modal.current)}>
+        <secondary-button onclick=${() => opts.current.controls.open()}>
           <i-con src='ellipsis' dark thick slot='icon'></i-con>
         </secondary-button>
       </div>
@@ -79,11 +82,8 @@ define('tile-preview', () => {
           <i-con src='pin' dark thick slot='icon'></i-con>
           Copy Tile Link
         </secondary-button>
-        <secondary-button row>
-          <i-con src='bookmark' dark thick slot='icon'></i-con>
-          Save to Bookmarks
-        </secondary-button>
-        <secondary-button row>
+        <bookmark-button ref=${bookmark}></bookmark-button>
+        <secondary-button row warn>
           <i-con src='flag' dark thick slot='icon'></i-con>
           Report Content
         </secondary-button>

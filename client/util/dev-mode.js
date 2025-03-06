@@ -2,8 +2,9 @@ import { parse } from 'https://esm.sh/envfile'
 import { define, attachControls } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import '../design/glass-modal.js'
-import '../design/buttons.js'
+import '../design/glass/pane.js'
+import '../design/glass/modal/component.js'
+import '../design/button/components.js'
 
 
 let devModeAlert = false

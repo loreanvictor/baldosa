@@ -1,36 +1,30 @@
-import { define, attachControls, useDispatch } from 'https://esm.sh/minicomp'
+import { define, attachControls, useDispatch, currentNode } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import './close-pin.js'
-import { observe } from '../util/observe.js'
+import '../../close-pin/component.js'
+import { observe } from '../../../util/observe.js'
+import { push } from './context.js'
 
 
 define('glass-modal', ({ noheader }) => {
+  const self = currentNode()
   const onclose = useDispatch('close')
   const dialog = ref()
   let opened = false
   let warmup
-  let parent
 
   const controls = {
-    open: (p) => {
+    open: () => {
       dialog.current.showModal()
       dialog.current.focus()
       clearTimeout(warmup)
       warmup = setTimeout(() => opened = true, 50)
-
-      parent = p
-      parent && parent.addEventListener && parent.addEventListener('close', controls.close)
+      push(self)
     },
     close: () => {
       clearTimeout(warmup)
       opened = false
       onclose()
-
-      if (parent && parent.addEventListener) {
-        parent.removeEventListener('close', controls.close)
-        parent = undefined
-      }
 
       dialog.current.classList.add('closing')
 
@@ -107,7 +101,7 @@ define('glass-modal', ({ noheader }) => {
   }, { passive: true })
 
   return html`
-    <link rel="stylesheet" href="./client/design/glass-modal.css" />
+    <link rel="stylesheet" href="./client/design/glass/modal/styles.css" />
     <dialog ref=${dialog}>
       <header style=${noheader ? 'display: none' : ''}>
         <h1><slot name="title"></slot></h1>

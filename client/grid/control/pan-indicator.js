@@ -1,10 +1,10 @@
 import { define, useDispatch, onAttribute, currentNode } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import '../../design/glass-pane.js'
-import '../../design/glass-modal.js'
-import '../../design/coord-input.js'
-import '../../design/buttons.js'
+import '../../design/glass/pane.js'
+import '../../design/glass/modal/component.js'
+import '../../design/input/coord/component.js'
+import '../../design/button/components.js'
 import '../../design/icon.js'
 import { observe } from '../../util/observe.js'
 
@@ -82,7 +82,6 @@ define('pan-indicator', ({ camera }) => {
       </p>
       <primary-button onclick=${go}>
         <i-con src='arrow-right' thick slot='icon'></i-con>
-        <!-- <img slot='icon' src='./client/assets/icons/arrow-right-light-thick.svg'/> -->
         Jump to Location
       </primary-button>
     </glass-modal>

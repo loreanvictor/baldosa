@@ -28,11 +28,27 @@ button {
   }
 
   &:hover {
-    filter: brightness(1.1);
+    @media screen and (min-width: 600px) {
+      filter: brightness(1.1);
+    }
   }
 
   &.row {
     place-content: space-between;
+  }
+
+  &.warn {
+    color: #ff4f6a;
+
+    ::slotted([slot="icon"]) {
+      filter: invert(50%) sepia(100%) saturate(1000%) hue-rotate(-45deg) brightness(100%) contrast(100%);
+
+      &:hover {
+        @media screen and (min-width: 600px) {
+          filter: invert(50%) sepia(100%) saturate(1000%) hue-rotate(-45deg) brightness(120%) contrast(100%);
+        }
+      }
+    }
   }
 }
 
@@ -54,7 +70,9 @@ button {
   }
 
   ::slotted(:hover) {
-    --btn-bg: #ffffff08;
+    @media screen and (min-width: 600px) {
+      --btn-bg: #ffffff08;
+    }
   }
 
   ::slotted(:first-child) {
