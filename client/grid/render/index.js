@@ -100,7 +100,20 @@ define('infinite-grid', () => {
   onAttribute('camx', x => (camera.x = valid(parseFloat(x), camera.x), draw()))
   onAttribute('camy', y => (camera.y = valid(parseFloat(y), camera.y), draw()))
   onAttribute('zoom', zoom => (camera.zoom = valid(parseFloat(zoom), camera.zoom), draw()))
-  onAttribute('panv', v => (camera.v = valid(parseFloat(v), camera.v), draw()))
+
+  let speedytimer
+  let toofast = false
+  const SPEED_LIMIT = 0.001
+  onAttribute('panv', v => {
+    camera.v = valid(parseFloat(v), camera.v)
+    if (camera.v > SPEED_LIMIT) {
+      toofast = true
+      clearTimeout(speedytimer)
+      speedytimer = setTimeout(() => toofast = false, 500)
+    }
+
+    draw()
+  })
 
   onProperty('mask', m => m && (mask.current = m, m.listen(draw), draw()))
   onAttribute('src', src => {
@@ -124,7 +137,7 @@ define('infinite-grid', () => {
       }
     </style>
     <canvas ref=${canvas}></canvas>
-    <click-control target="canvas" onclick=${() => onClick(_last_hovered_tile)}></click-control>
+    <click-control target="canvas" onclick=${() => !toofast && onClick(_last_hovered_tile)}></click-control>
     <track-cursor onmove=${({ detail }) => (mouse.x = detail.x, mouse.y = detail.y, draw())}></track-cursor>
   `
 })

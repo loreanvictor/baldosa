@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>check-dark-thick</title>
+    <g id="check-dark-thick" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="frame" stroke-opacity="0.01" stroke="#979797" stroke-width="0.1" x="0.05" y="0.05" width="47.9" height="47.9"></rect>
+        <path d="M29.8125,9.1875 C30.5373737,9.1875 31.125,9.77512627 31.125,10.5 L31.125,28.6875 C31.125,31.1727814 29.1102814,33.1875 26.625,33.1875 L19.5,33.1875 C18.6715729,33.1875 18,32.5159271 18,31.6875 C18,30.8590729 18.6715729,30.1875 19.5,30.1875 L27,30.1875 C27.8284271,30.1875 28.5,29.5159271 28.5,28.6875 L28.5,10.5 C28.5,9.77512627 29.0876263,9.1875 29.8125,9.1875 Z" id="thick" fill="#FFFFFF" fill-rule="nonzero" transform="translate(24.5625, 21.1875) rotate(45) translate(-24.5625, -21.1875)"></path>
+    </g>
+</svg>

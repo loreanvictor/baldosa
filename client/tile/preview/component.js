@@ -1,21 +1,22 @@
 import { define, onProperty, onAttribute } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
-import copy from 'https://esm.sh/copy-to-clipboard'
-
-window.c = copy
 
 import '../../design/glass/modal/component.js'
 import '../../design/glass/toast/component.js'
 import '../../design/button/components.js'
-import '../../bookmark/button/components.js'
+import '../../bookmark/button.js'
 import '../../design/icon.js'
+
+import { tilelink } from '../util/tile-link.js'
+import '../util/copy-button.js'
+import '../bid/button.js'
 
 
 define('tile-preview', () => {
   const mask = ref()
   const baseURL = ref()
 
-  const tile = ref()
+  let tile
 
   const modal = ref()
   const copytoast = ref()
@@ -24,13 +25,18 @@ define('tile-preview', () => {
   const subtitle = ref()
   const pos = ref()
   const bookmark = ref()
+  const link = ref()
+  const tlink = ref()
   const opts = ref()
 
   onAttribute('base-url', url => baseURL.current = url)
   onProperty('mask', m => mask.current = m)
   onProperty('tile', t => {
-    tile.current = t
+    tile = t
     bookmark.current.setProperty('tile', t)
+    link.current.setAttribute('content', t?.meta?.link)
+    tlink.current.setAttribute('content', tilelink(t))
+
     if (t?.meta && mask.current?.has(t.x, t.y)) {
       title.current.textContent = t.meta?.title ?? ''
       subtitle.current.textContent = t.meta?.subtitle ?? ''
@@ -41,16 +47,7 @@ define('tile-preview', () => {
     }
   })
 
-  const open = () => tile.current.meta?.link && window.open(tile.current.meta?.link, '_blank')
-  const copylink = () => {
-    if (tile.current.meta?.link) {
-      navigator.clipboard?.writeText(tile.current.meta.link)
-        .then(() => copytoast.current.controls.open())
-    }
-  }
-  const copytilelink = () => navigator.clipboard?.writeText(
-    `${window.location.origin}${window.location.pathname}?tile=${tile.current.x},${tile.current.y}`)
-      .then(() => copytoast.current.controls.open())
+  const open = () => tile?.meta?.link && window.open(tile?.meta?.link, '_blank')
 
   return html`
     <link rel="stylesheet" href="./client/tile/preview/styles.css" />
@@ -70,18 +67,19 @@ define('tile-preview', () => {
     </glass-modal>
     <glass-modal ref=${opts} noheader>
       <action-list>
-        <secondary-button row>
-          <i-con src='bid' dark thick slot='icon'></i-con>
-          Bid on Tile
-        </secondary-button>
-        <secondary-button row onclick=${copylink}>
-          <i-con src='link' dark thick slot='icon'></i-con>
-          Copy Link
-        </secondary-button>
-        <secondary-button row onclick=${copytilelink}>
-          <i-con src='pin' dark thick slot='icon'></i-con>
-          Copy Tile Link
-        </secondary-button>
+        <bid-button></bid-button>
+        <copy-button ref=${link}>
+          <secondary-button row>
+            <i-con src='link' dark thick slot='icon'></i-con>
+            Copy Link
+          </secondary-button>
+        </copy-button>
+        <copy-button ref=${tlink} toast='Tile link copied to clipboard!'>
+          <secondary-button row>
+            <i-con src='pin' dark thick slot='icon'></i-con>
+            Copy Tile Link
+          </secondary-button>
+        </copy-button>
         <bookmark-button ref=${bookmark}></bookmark-button>
         <secondary-button row warn>
           <i-con src='flag' dark thick slot='icon'></i-con>

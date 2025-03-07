@@ -1,8 +1,8 @@
 import { define, onProperty } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
-import '../../design/glass/toast/component.js'
-import { add, remove, is } from '../db.js'
+import '../design/glass/toast/component.js'
+import { add, remove, is } from './db.js'
 
 
 define('bookmark-button', () => {

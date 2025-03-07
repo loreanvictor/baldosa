@@ -36,6 +36,7 @@ define('glass-toast', ({ time = 3_000 }) => {
 
   const controls = {
     open: () => {
+      self.setAttribute('open', '')
       clearTimeout(timeout)
       holder.current.showPopover()
       timeout = setTimeout(() => controls.close(), time)
@@ -43,6 +44,7 @@ define('glass-toast', ({ time = 3_000 }) => {
       push(self, false)
     },
     close: (dir) => {
+      self.removeAttribute('open')
       onclose()
       timer = 0
 
@@ -64,7 +66,6 @@ define('glass-toast', ({ time = 3_000 }) => {
     }
   }
 
-  // const closer = () => controls.close()
   attachControls(controls)
 
   let dragstart

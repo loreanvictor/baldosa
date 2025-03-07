@@ -1,5 +1,5 @@
 export const composeclass = map => Object.entries(map)
-  .filter(([key, value]) => value)
-  .map(([key, value]) => key)
+  .filter(([_, value]) => value)
+  .map(([key, _]) => key)
   .join(' ')
   

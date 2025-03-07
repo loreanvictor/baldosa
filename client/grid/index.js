@@ -2,10 +2,13 @@ import { define, onAttribute, onConnected } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
 import '../tile/preview/component.js'
+import '../tile/empty.js'
+
 import './render/index.js'
 import './control/camera-control.js'
 import './control/pan-indicator.js'
 import './control/zoom-indicator.js'
+
 import { createGridMask } from './mask/index.js'
 
 
@@ -21,6 +24,7 @@ define('controlled-grid', () => {
   const camera = ref()
   const panind = ref()
   const prev = ref()
+  const empty = ref()
 
   let scale = SMALL_DEVICE ? Math.min(WMIN / 2.5, MAX_SCALE) : Math.min(WMIN / 3.5, MAX_SCALE)
 
@@ -73,7 +77,11 @@ define('controlled-grid', () => {
     prev.current.setAttribute('base-url', baseURL)
     prev.current.setProperty('mask', mask)
     grid.current.addEventListener('tile-click', ({ detail }) => {
-      prev.current.setProperty('tile', detail)
+      if (mask.has(detail.x, detail.y)) {
+        prev.current.setProperty('tile', detail)
+      } else {
+        empty.current.setProperty('tile', detail)
+      }
     })
 
     const goto = URL.parse(window.location).searchParams.get('tile')
@@ -87,6 +95,7 @@ define('controlled-grid', () => {
   return html`
     <infinite-grid ref=${grid}></infinite-grid>
     <tile-preview ref=${prev}></tile-preview>
+    <empty-tile-actions ref=${empty}></empty-tile-actions>
     <camera-control target=${grid} ref=${camera}></camera-control>
     <pan-indicator camera=${camera} ref=${panind}></pan-indicator>
     <zoom-indicator camera=${camera}></zoom-indicator>
