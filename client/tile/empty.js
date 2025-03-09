@@ -31,11 +31,13 @@ define('empty-tile-actions', () => {
     <glass-modal noheader ref=${modal}>
       <action-list>
         <bid-button></bid-button>
-        <!-- <tile-link-button ref=${link}></tile-link-button> -->
         <copy-button ref=${link}>
           <secondary-button row>
             Copy Tile Link
-            <i-con src='pin' dark thick slot='icon'></i-con>
+            <toggle-icon slot='icon'>
+              <i-con src='pin' dark thick></i-con>
+              <i-con src='check' dark thick slot='alt'></i-con>
+            </toggle-icon>
           </secondary-button>
         </copy-button>
         <bookmark-button ref=${bookmark}></bookmark-button>

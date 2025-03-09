@@ -82,7 +82,7 @@ export const modal = singleton('bookmark-modal', () => {
               </div>
               <div slot='left'>Remove <i-con src='trash-can' dark thick></i-con></div>
               <div slot='right'>
-                ${!empty ? 'Open' : 'Go to tile'}
+                ${!empty ? 'Open' : 'Go To Tile'}
                 <i-con src=${!empty ? 'square-arrow' : 'arrow-right'} dark thick></i-con>
               </div>
             </swipe-card>
@@ -99,7 +99,7 @@ export const modal = singleton('bookmark-modal', () => {
       <action-list>
         <secondary-button onclick=${() => open(selected)} row>
           Open
-          <i-con src='link' dark thick slot='icon'></i-con>
+          <i-con src='square-arrow' dark thick slot='icon'></i-con>
         </secondary-button>
         <secondary-button onclick=${() => goto(selected)} row>
           Go to tile
