@@ -6,14 +6,21 @@
     <title>Baldosa: the cloud city</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@300..800&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --red-bg: #C7253E;
+        --red-fg: #F72C5B;
+      }
       html, body {
         margin:0; padding:0; overflow:hidden; height:100%; width:100%;
         background: #000; color: #fff;
         * {
           font-family: "Open Sans", sans-serif;
+        }
+
+        *:not(:defined) {
+          visibility: hidden;
         }
       }
     </style>
@@ -21,6 +28,7 @@
   <body>
     <controlled-grid></controlled-grid>
     <dev-mode-indicator></dev-mode-indicator>
+    <main-nav></main-nav>
     <script type="module">
       // disable double click zooming
       document.addEventListener("dblclick", (event) => {
@@ -29,6 +37,7 @@
     </script>
     <script type="module">
       import './client/grid/index.js'
+      import './client/nav/index.js'
       import { setDevMode, isDevMode, loadDevEnv } from './client/util/dev-mode.js'
 
 

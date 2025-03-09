@@ -1,0 +1,40 @@
+.list {
+  overflow: auto;
+  max-height: 50vh;
+
+  swipe-card {
+    --left-background: var(--red-bg, red);
+    margin-bottom: 1ch;
+    i-con {
+      vertical-align: middle;
+      width: 32px;
+    }
+  }
+
+  h1 {
+    font-size: 1.2rem;
+    padding: 0;
+    margin: 0;
+
+    &.empty {
+      color: #616161;
+      font-weight: 100;
+    }
+
+    small {
+      font-size: .7rem;
+      opacity: .5;
+    }
+
+    &.empty small {
+      opacity: 1;
+    }
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-size: .9rem;
+    font-weight: 100;
+  }
+}

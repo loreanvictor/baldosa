@@ -5,7 +5,7 @@ import '../../design/glass/pane.js'
 import '../../design/glass/modal/component.js'
 import '../../design/input/coord/component.js'
 import '../../design/button/components.js'
-import '../../design/icon.js'
+import '../../design/misc/icon/component.js'
 import { observe } from '../../util/observe.js'
 
 

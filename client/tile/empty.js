@@ -3,11 +3,11 @@ import { html, ref } from 'https://esm.sh/rehtm'
 
 import '../design/glass/modal/component.js'
 import '../design/button/components.js'
+import '../design/misc/icon/component.js'
+import '../design/button/copy-button.js'
 import '../bookmark/button.js'
 
-// import './util/tile-link-button.js'
 import { tilelink } from './util/tile-link.js'
-import './util/copy-button.js'
 import './bid/button.js'
 
 

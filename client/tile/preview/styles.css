@@ -33,7 +33,7 @@ sub {
 
 [role=group] {
   display: flex;
-  gap: 1ch;
+  gap: .5ch;
 
   > primary-button {
     flex: 1;

@@ -33,7 +33,7 @@ dialog {
       padding: 0;
       flex-grow: 1;
       font-size: 1.8rem;
-      font-weight: 300;
+      font-weight: bold;
     }
   }
 

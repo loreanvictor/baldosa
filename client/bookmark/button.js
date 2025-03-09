@@ -1,39 +1,36 @@
-import { define, onProperty } from 'https://esm.sh/minicomp'
+import { define, onProperty, onAttribute } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
 import '../design/glass/toast/component.js'
+import '../design/misc/icon/component.js'
+
+import { toast } from './toast.js'
 import { add, remove, is } from './db.js'
 
 
 define('bookmark-button', () => {
+  const btn = ref()
   const icon = ref()
   const text = ref()
-  const donetoast = ref()
-  const undonetoast = ref()
 
   let tile
   let bookmarked = false
+  let isicon = false
 
   const toggle = () => {
     bookmarked = !bookmarked
     update()
     
     if (bookmarked) {
-      undonetoast.current.controls.close()
-      add(tile).then(() => {
-        donetoast.current.controls.open()
-      })
+      add(tile).then(() => toast().controls.open())
     } else {
-      donetoast.current.controls.close()
-      remove(tile).then(() => {
-        undonetoast.current.controls.open()
-      })
+      remove(tile).then(() => toast().controls.open(true))
     }
   }
 
   const update = () => {
     text.current.textContent = bookmarked ? 'Remove from Bookmarks' : 'Save to Bookmarks'
-    icon.current.setAttribute('fill', bookmarked)
+    icon.current.setAttribute('alt', bookmarked)
   }
 
   onProperty('tile', t => {
@@ -45,12 +42,19 @@ define('bookmark-button', () => {
     })
   })
 
+  onAttribute('icon', i => {
+    isicon = !!i
+    btn.current.setAttribute('row', !isicon)
+    text.current.hidden = isicon
+  })
+
   return html`
-    <secondary-button row onclick=${toggle}>
-      <i-con ref=${icon} src='bookmark' dark thick slot='icon'></i-con>
+    <secondary-button ref=${btn} row onclick=${toggle}>
+      <toggle-icon ref=${icon} slot='icon'>
+        <i-con src='bookmark' dark thick></i-con>
+        <i-con src='bookmark' fill dark thick slot='alt'></i-con>
+      </toggle-icon>
       <span ref=${text}>Save to Bookmarks</span>
     </secondary-button>
-    <glass-toast ref=${donetoast}>Added to Bookmarks</glass-toast>
-    <glass-toast ref=${undonetoast}>Removed from Bookmarks</glass-toast>
   `
 })

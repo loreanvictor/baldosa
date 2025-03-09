@@ -36,3 +36,4 @@ export const observe = (target, event, callback, options) => {
     throw new Error(`target ${target} not found.`)
   }
 }
+

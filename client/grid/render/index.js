@@ -103,7 +103,7 @@ define('infinite-grid', () => {
 
   let speedytimer
   let toofast = false
-  const SPEED_LIMIT = 0.001
+  const SPEED_LIMIT = 0.003
   onAttribute('panv', v => {
     camera.v = valid(parseFloat(v), camera.v)
     if (camera.v > SPEED_LIMIT) {

@@ -1,0 +1,77 @@
+:host {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.holder {
+  display: flex;
+  position: relative;
+  padding: 1ch;
+  align-items: center;
+  gap: 1ch;
+  border-radius: 8px;
+  background: #313131;
+  cursor: pointer;
+  transition: background .2s, transform .2s, opacity .2s;
+
+  &:hover {
+    background: #363636;
+  }
+
+  .image {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+
+    ::slotted([slot="image"]) {
+      width: 100%;
+      border-radius: 3px;
+
+      &[src=""] {
+        opacity: 0;
+      }
+    }
+  }
+
+  .content {
+    flex-grow: 1;
+  }
+
+  ::slotted([slot="actions"]) {
+    display: flex;
+    --btn-bg: transparent;
+    --btn-border-top: transparent;
+    --btn-border-bot: transparent;
+    --btn-border-left: transparent;
+    --btn-border-right: transparent;
+  }
+}
+
+.left, .right {
+  position: absolute;
+  opacity: 0;
+  padding: 2ch;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: bold;
+  transition: opacity .2s;
+
+  &.left {
+    background: var(--left-background, #212121);
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  &.right {
+    background: var(--right-background, #212121);
+    justify-content: flex-start;
+    text-align: left;
+  }
+}

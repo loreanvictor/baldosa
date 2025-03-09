@@ -17,10 +17,12 @@ button {
   font-size: .9rem;
   font-weight: bold;
   padding: 4px 8px;
-  height: 52px;
-  min-width: 52px;
+  height: var(--width, 52px);
+  min-width: var(--height, 52px);
   cursor: pointer;
   transition: filter 0.15s;
+
+  -webkit-tap-highlight-color: transparent;
 
   ::slotted([slot="icon"]) {
     width: 32px;
@@ -38,16 +40,10 @@ button {
   }
 
   &.warn {
-    color: #ff4f6a;
+    color: var(--red-fg, red);
 
     ::slotted([slot="icon"]) {
-      filter: invert(50%) sepia(100%) saturate(1000%) hue-rotate(-45deg) brightness(100%) contrast(100%);
-
-      &:hover {
-        @media screen and (min-width: 600px) {
-          filter: invert(50%) sepia(100%) saturate(1000%) hue-rotate(-45deg) brightness(120%) contrast(100%);
-        }
-      }
+      --color: var(--red-fg, red);
     }
   }
 }

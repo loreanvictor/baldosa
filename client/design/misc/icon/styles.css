@@ -1,0 +1,32 @@
+:host{
+  --repl-bg: none;
+  --repl-opacity: 0;
+
+  display: inline-block;
+  position: relative;
+
+  --default-color: black;
+}
+
+:host([dark]) {
+  --default-color: white;
+}
+
+img {
+  width: 100%;
+  opacity: 0;
+}
+
+div {
+  position: absolute;
+  left: 0; top: 0; bottom: 0; right: 0;
+  background: var(--color, var(--default-color));
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+
+  will-change: mask-image, -webkit-mask-image;
+}

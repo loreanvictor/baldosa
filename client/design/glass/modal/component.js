@@ -15,6 +15,7 @@ define('glass-modal', ({ noheader }) => {
 
   const controls = {
     open: () => {
+      self.setAttribute('open', '')
       dialog.current.showModal()
       dialog.current.focus()
       clearTimeout(warmup)
@@ -22,6 +23,7 @@ define('glass-modal', ({ noheader }) => {
       push(self)
     },
     close: () => {
+      self.removeAttribute('open')
       clearTimeout(warmup)
       opened = false
       onclose()
@@ -40,8 +42,7 @@ define('glass-modal', ({ noheader }) => {
         dialog.current.style.setProperty('--backdrop-opacity', '')
         dialog.current.close()
       }, 200)
-    },
-    isOpen: () => opened,
+    }
   }
 
   attachControls(controls)
@@ -74,8 +75,9 @@ define('glass-modal', ({ noheader }) => {
   observe(dialog, 'touchmove', event => {
     lastvel = event.touches[0].clientY - lastpos
     lastpos = event.touches[0].clientY
+    const dx = event.touches[0].clientX - dragstart[0]
     const dragmove = lastpos - dragstart[1]
-    if (dragging && dragmove > 0) {
+    if (dragging && dragmove > 0 && dragmove > Math.abs(dx)) {
       dialog.current.style.transition = 'none'
       dialog.current.style.transform = `translateY(${dragmove}px)`
       const rate = Math.min(1, 200 / dragmove)
