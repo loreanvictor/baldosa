@@ -3,10 +3,9 @@ import { html, ref } from 'https://esm.sh/rehtm'
 
 import '../glass/toast/component.js'
 import '../misc/resizing-label.js'
-import { singleton } from '../../util/singleton.js'
 
 
-const toast = singleton('copy-toast', () => {
+define('copy-toast', () => {
   const toast = ref()
   const label = ref()
 
@@ -29,6 +28,7 @@ const toast = singleton('copy-toast', () => {
 
 define('copy-button', () => {
   const self = currentNode()
+  const toast = ref()
   let successtimeout
   let content
   let toastlabel
@@ -40,9 +40,8 @@ define('copy-button', () => {
     if (content) {
       navigator.clipboard?.writeText(content)
         .then(() => {
-          const t = toast()
-          t.setAttribute('label', toastlabel)
-          t.controls.open()
+          toast.current.setAttribute('label', toastlabel)
+          toast.current.controls.open()
 
           const icon = self.querySelector('toggle-icon')
 
@@ -55,5 +54,8 @@ define('copy-button', () => {
     }
   })
 
-  return '<slot></slot>'
+  return html`
+    <slot></slot>
+    <copy-toast ref=${toast}></copy-toast>
+  `
 })

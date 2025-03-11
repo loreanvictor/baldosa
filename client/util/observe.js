@@ -2,7 +2,7 @@ import { onDisconnected, onConnected, currentNode } from 'https://esm.sh/minicom
 import { isRef } from 'https://esm.sh/rehtm'
 
 
-const query = selector => {
+export const query = selector => {
   const indoc = document.querySelector(selector)
   if (indoc) { return indoc }
 

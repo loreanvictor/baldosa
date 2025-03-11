@@ -3,11 +3,15 @@
   max-height: 50vh;
 
   swipe-card {
-    --left-background: var(--red-bg, red);
     margin-bottom: 1ch;
     i-con {
       vertical-align: middle;
       width: 32px;
+    }
+
+    [slot=left] {
+      color: var(--red-fg, red);
+      --color: var(--red-fg, red);
     }
   }
 

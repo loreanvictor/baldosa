@@ -9,17 +9,21 @@ import '../../util/keyed-list.js'
 
 import { singleton } from '../../util/singleton.js'
 import { onBroadcast, broadcast } from '../../util/broadcast.js'
+import { tilelink } from '../../tile/util/tile-link.js'
 
 import '../button.js'
-import { toast } from '../toast.js'
+import '../toast.js'
 import { all, remove } from '../db.js'
 
 
 export const modal = singleton('bookmark-modal', () => {
+  const toast = ref()
   const modal = ref()
   const opts = ref()
   const list = ref()
   const bmbutton = ref()
+  const link = ref()
+  const tlink = ref()
 
   let needupdate = false
   let selected
@@ -48,11 +52,14 @@ export const modal = singleton('bookmark-modal', () => {
     selected = bookmark
     bmbutton.current.setProperty('tile', bookmark)
     opts.current.controls.open()
+    link.current.setAttribute('content', bookmark.meta?.link)
+    !bookmark.meta ? link.current.setAttribute('hidden', '') : link.current.removeAttribute('hidden')
+    tlink.current.setAttribute('content', tilelink(bookmark))
   }
   const del = async bookmark => {
     await list.current.controls.collapse(key(bookmark))
     await remove(bookmark)
-    toast().controls.open(true)
+    toast.current.controls.open(true)
   }
 
   return html`
@@ -70,8 +77,8 @@ export const modal = singleton('bookmark-modal', () => {
             <swipe-card key=${key(bookmark)}
               left="slide" right="sticky"
               onswipeleft=${() => del(bookmark)}
-              onswiperight=${() => open(bookmark)}
-              onaction=${() => goto(bookmark)}>
+              onswiperight=${() => goto(bookmark)}
+              onaction=${() => open(bookmark)}>
               <img src=${bookmark.img ?? ''} slot='image'/>
               <h1 class=${empty ? 'empty' : ''}>${title} <small>${pos}</small></h1>
               <p>${sub.length > 52 ? sub.slice(0, 52) + '…' : sub}</p>
@@ -81,10 +88,7 @@ export const modal = singleton('bookmark-modal', () => {
                 </secondary-button>
               </div>
               <div slot='left'>Remove <i-con src='trash-can' dark thick></i-con></div>
-              <div slot='right'>
-                ${!empty ? 'Open' : 'Go To Tile'}
-                <i-con src=${!empty ? 'square-arrow' : 'arrow-right'} dark thick></i-con>
-              </div>
+              <div slot='right'>Go to Tile <i-con src='arrow-right' dark thick></i-con></div>
             </swipe-card>
           `
         }}></keyed-list>
@@ -93,6 +97,7 @@ export const modal = singleton('bookmark-modal', () => {
           using the bookmark <i-con src=bookmark dark style='width: 2.5ch; vertical-align: middle'></i-con> button.
         </small>
       </div>
+      <bookmark-toast ref=${toast}></bookmark-toast>
     </glass-modal>
 
     <glass-modal noheader ref=${opts}>
@@ -102,10 +107,28 @@ export const modal = singleton('bookmark-modal', () => {
           <i-con src='square-arrow' dark thick slot='icon'></i-con>
         </secondary-button>
         <secondary-button onclick=${() => goto(selected)} row>
-          Go to tile
+          Go to Tile
           <i-con src='arrow-right' dark thick slot='icon'></i-con>
         </secondary-button>
         <bookmark-button ref=${bmbutton}></bookmark-button>
+        <copy-button ref=${link}>
+          <secondary-button row>
+            <toggle-icon slot='icon'>
+              <i-con src='link' dark thick></i-con>
+              <i-con src='check' dark thick slot='alt'></i-con>
+            </toggle-icon>
+            Copy Link
+          </secondary-button>
+        </copy-button>
+        <copy-button ref=${tlink} toast='Tile link copied to clipboard!'>
+          <secondary-button row>
+            <toggle-icon slot='icon'>
+              <i-con src='pin' dark thick></i-con>
+              <i-con src='check' dark thick slot='alt'></i-con>
+            </toggle-icon>
+            Copy Tile Link
+          </secondary-button>
+        </copy-button>
         <secondary-button row faded onclick=${() => opts.current.controls.close()}>
           Cancel
         </secondary-button>

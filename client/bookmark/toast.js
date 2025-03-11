@@ -1,10 +1,8 @@
-import { attachControls } from 'https://esm.sh/minicomp'
+import { define, attachControls } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import { singleton } from '../util/singleton.js'
 
-
-export const toast = singleton('bookmark-toast', () => {
+define('bookmark-toast', () => {
   const toast = ref()
   const label = ref()
 

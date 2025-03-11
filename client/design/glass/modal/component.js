@@ -1,8 +1,10 @@
 import { define, attachControls, useDispatch, currentNode } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
-import '../../close-pin/component.js'
+import '../../../util/swipe-control.js'
 import { observe } from '../../../util/observe.js'
+
+import '../../close-pin/component.js'
 import { push } from './context.js'
 
 
@@ -49,58 +51,43 @@ define('glass-modal', ({ noheader }) => {
   observe(document, 'click', event => {
     if (opened) {
       const rect = dialog.current?.getBoundingClientRect()
-      if (!(
-        rect &&
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom
-      )) {
+      if (!(rect && event.clientX >= rect.left && event.clientX <= rect.right &&
+        event.clientY >= rect.top && event.clientY <= rect.bottom)) {
         controls.close()
       }
     }
   })
 
-  let dragstart
-  let lastpos
-  let lastvel
-  let dragging = false
-  observe(dialog, 'touchstart', event => {
-    dragstart = [event.touches[0].clientX, event.touches[0].clientY]
-    lastpos = event.touches[0].clientY
+  const onswipestart = ({ detail }) => {
     const rect = dialog.current.getBoundingClientRect()
-    dragging = dragstart[1] < rect.top + rect.height / 4 ||
-      dragstart[1] < window.innerHeight / 2
-  }, { passive: true })
-  observe(dialog, 'touchmove', event => {
-    lastvel = event.touches[0].clientY - lastpos
-    lastpos = event.touches[0].clientY
-    const dx = event.touches[0].clientX - dragstart[0]
-    const dragmove = lastpos - dragstart[1]
-    if (dragging && dragmove > 0 && dragmove > Math.abs(dx)) {
-      dialog.current.style.transition = 'none'
-      dialog.current.style.transform = `translateY(${dragmove}px)`
-      const rate = Math.min(1, 200 / dragmove)
-      dialog.current.style.setProperty('--backdrop-blur', `${Math.floor(5 * rate)}px`)
-      dialog.current.style.setProperty('--backdrop-opacity', `${rate / 1.5}`)
+    if (detail.start.y > rect.top + rect.height / 4 && detail.start.y > window.innerHeight / 2) {
+      detail.disqualify()
     }
-  }, { passive: true })
-  observe(dialog, 'touchend', event => {
-    if (dragging) {
+  }
+  const onswipe = ({ detail }) => {
+    const dy = Math.max(0, detail.d.y)
+
+    dialog.current.style.transition = 'none'
+    dialog.current.style.transform = `translateY(${dy}px)`
+    const rate = Math.min(1, 200 / dy)
+    dialog.current.style.setProperty('--backdrop-blur', `${Math.floor(5 * rate)}px`)
+    dialog.current.style.setProperty('--backdrop-opacity', `${rate / 1.5}`)
+  }
+  const onrelease = ({ detail }) => {
       dialog.current.style.transition = ''
+
       const rect = dialog.current.getBoundingClientRect()
-      const dragend = [event.changedTouches[0].clientX, event.changedTouches[0].clientY]
-      const dx = dragend[0] - dragstart[0]
-      const dy = dragend[1] - dragstart[1]
-      if ((lastvel > 5 || dy > rect.height * .6) && Math.abs(dx) / dy < .5 && dy > 75) {
+      const dy = detail.d.y
+      const vy = detail.velocity.y
+
+      if ((vy > 5 || dy > rect.height * .6) && detail.aligned && dy > 75 && vy > 0) {
         controls.close()
       } else {
         dialog.current.style.setProperty('--backdrop-blur', '')
         dialog.current.style.setProperty('--backdrop-opacity', '')
         dialog.current.style.transform = ''
       }
-    }
-  }, { passive: true })
+  }
 
   return html`
     <link rel="stylesheet" href="./client/design/glass/modal/styles.css" />
@@ -111,5 +98,7 @@ define('glass-modal', ({ noheader }) => {
       </header>
       <slot></slot>
     </dialog>
+    <swipe-control direction='vertical' target=${dialog} nopropagate='false'
+      onstart=${onswipestart} onswipe=${onswipe} onrelease=${onrelease}></swipe-control>
   `
 })

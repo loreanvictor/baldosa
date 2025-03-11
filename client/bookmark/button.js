@@ -4,11 +4,12 @@ import { html, ref } from 'https://esm.sh/rehtm'
 import '../design/glass/toast/component.js'
 import '../design/misc/icon/component.js'
 
-import { toast } from './toast.js'
+import './toast.js'
 import { add, remove, is } from './db.js'
 
 
 define('bookmark-button', () => {
+  const toast = ref()
   const btn = ref()
   const icon = ref()
   const text = ref()
@@ -22,9 +23,9 @@ define('bookmark-button', () => {
     update()
     
     if (bookmarked) {
-      add(tile).then(() => toast().controls.open())
+      add(tile).then(() => toast.current.controls.open())
     } else {
-      remove(tile).then(() => toast().controls.open(true))
+      remove(tile).then(() => toast.current.controls.open(true))
     }
   }
 
@@ -56,5 +57,6 @@ define('bookmark-button', () => {
       </toggle-icon>
       <span ref=${text}>Save to Bookmarks</span>
     </secondary-button>
+    <bookmark-toast ref=${toast}></bookmark-toast>
   `
 })

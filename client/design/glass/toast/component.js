@@ -1,7 +1,7 @@
 import { define, onAttribute, attachControls, useDispatch, currentNode } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
-import { observe } from '../../../util/observe.js'
+import '../../../util/swipe-control.js'
 import { constantly } from '../../../util/constantly.js'
 
 import '../../close-pin/component.js'
@@ -68,31 +68,18 @@ define('glass-toast', ({ time = 3_000 }) => {
 
   attachControls(controls)
 
-  let dragstart
-  let lastpos
-  let lastvel
-  observe(holder, 'touchstart', event => {
-    dragstart = [event.touches[0].clientX, event.touches[0].clientY]
-    lastpos = event.touches[0].clientY
-  }, { passive: true })
-  observe(holder, 'touchmove', event => {
-    event.stopPropagation()
-
-    lastvel = event.touches[0].clientX - lastpos
-    lastpos = event.touches[0].clientX
-    const dx = lastpos - dragstart[0]
-
+  const onswipe = ({ detail }) => {
     holder.current.style.transition = 'none'
-    holder.current.style.transform = `translateX(${dx}px)`
-  }, { passive: true })
-  observe(holder, 'touchend', () => {
-    if (Math.abs(lastvel) > 5) {
-      controls.close(lastvel > 5 ? 'right' : lastvel < -5 ? 'left' : undefined)
+    holder.current.style.transform = `translateX(${detail.d.x}px)`
+  }
+  const onrelease = ({ detail }) => {
+    if (Math.abs(detail.velocity.x) > 5) {
+      controls.close(detail.velocity.x > 5 ? 'right' : detail.velocity.x < -5 ? 'left' : undefined)
     } else {
       holder.current.style.transition = ''
       holder.current.style.transform = ''
     }
-  }, { passive: true })
+  }
 
   return html`
     <link rel="stylesheet" href="./client/design/glass/toast/styles.css" />
@@ -101,5 +88,7 @@ define('glass-toast', ({ time = 3_000 }) => {
       <circle-progress ref=${progress} progress="0"></circle-progress>
       <close-pin onclick=${() => controls.close()}></close-pin>
     </output>
+    <swipe-control target=${holder} direction='horizontal'
+      onswipe=${onswipe} onrelease=${onrelease}></swipe-control>
   `
 })

@@ -1,7 +1,7 @@
 import { define, useDispatch, onAttribute } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
-import { observe } from '../../../util/observe.js'
+import '../../../util/swipe-control.js'
 
 
 define('swipe-card', () => {
@@ -20,48 +20,26 @@ define('swipe-card', () => {
   onAttribute('left', v => leftresponse = v)
   onAttribute('right', v => rightresponse = v)
 
-  let sx, sy
-  let dragging = false
-  let draglock = false
-  observe(holder, 'touchstart', event => {
-    sx = event.touches[0].clientX
-    sy = event.touches[0].clientY
-    dragging = true
+  const onswipe = ({ detail }) => {
+    const width = holder.current.getBoundingClientRect().width
+    const dx = detail.d.x
+
     holder.current.style.transition = 'none'
-  }, { passive: true })
-  observe(holder, 'touchmove', event => {
-    const dx = event.touches[0].clientX - sx
-    const dy = event.touches[0].clientY - sy
-    dragging && (draglock || Math.abs(dx) > Math.abs(dy)) && event.preventDefault()    
-  })
-  observe(document, 'touchmove', event => {
-    if (!dragging) return
+    holder.current.style.transform = `translateX(${dx}px)`
+    left.current.style.transition = 'none'
+    right.current.style.transition = 'none'
+    left.current.style.opacity = Math.max(0, -dx / width * 2)
+    right.current.style.opacity = Math.max(0, dx / width * 2)
+  }
 
-    const width = holder.current.getBoundingClientRect().width
-    const dx = event.touches[0].clientX - sx
-    const dy = event.touches[0].clientY - sy
-
-    if ((Math.abs(dy) < Math.abs(dx)) || draglock) {
-      draglock = dx > 50 || draglock
-      holder.current.style.transform = `translateX(${dx}px)`
-      left.current.style.transition = 'none'
-      right.current.style.transition = 'none'
-      left.current.style.opacity = Math.max(0, -dx / width * 3)
-      right.current.style.opacity = Math.max(0, dx / width * 3)
-    }
-  }, { passive: true })
-  observe(document, 'touchend', event => {
-    if (!dragging) return
-
-    dragging = false
-    draglock = false
-    const width = holder.current.getBoundingClientRect().width
-    const dx = event.changedTouches[0].clientX - sx
-    const dy = event.changedTouches[0].clientY - sy
+  const onrelease = ({ detail }) => {
     holder.current.style.transition = ''
     holder.current.style.transform = ''
 
-    if (Math.abs(dy) < Math.abs(dx)) {
+    if (detail.aligned) {
+      const width = holder.current.getBoundingClientRect().width
+      const dx = detail.d.x
+
       if (dx < -width / 3) {
         if (leftresponse === 'slide') {
           holder.current.style.transform = `translateX(${-width}px)`
@@ -100,7 +78,7 @@ define('swipe-card', () => {
       left.current.style = ''
       right.current.style = ''
     }
-  }, { passive: true })
+  }
 
   return html`
     <style>:host { display: none }</style>
@@ -118,5 +96,7 @@ define('swipe-card', () => {
         <slot name='actions'></slot>
       </div>
     </div>
+    <swipe-control target=${holder} direction='horizontal'
+      onswipe=${onswipe} onrelease=${onrelease}></swipe-control>
   `
 })
