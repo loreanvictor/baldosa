@@ -14,7 +14,8 @@ h1 {
 
 article {
   max-height: 65vh;
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: none;
   margin-left: -2ch;
   margin-right: -2ch;

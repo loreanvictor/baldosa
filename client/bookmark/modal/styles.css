@@ -15,6 +15,17 @@
     }
   }
 
+  small {
+    display: none;
+  }
+  [src=''] + small {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    opacity: .15;
+    font-size: 1rem;
+  }
+
   h1 {
     font-size: 1.2rem;
     padding: 0;
@@ -24,21 +35,12 @@
       color: #616161;
       font-weight: 100;
     }
-
-    small {
-      font-size: .7rem;
-      opacity: .5;
-    }
-
-    &.empty small {
-      opacity: 1;
-    }
   }
 
   p {
     margin: 0;
     padding: 0;
-    font-size: .9rem;
+    font-size: .8rem;
     font-weight: 100;
   }
 }

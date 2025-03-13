@@ -15,7 +15,7 @@ define('resizing-label', () => {
     if (locked) {
       label.current.textContent = next
     } else if (curr !== next) {
-      label.current.style = 'opacity: .5'
+      label.current.style = 'filter: blur(2px)'
       clearInterval(animation)
       let iter = curr.split('')
       let index = 0
@@ -41,7 +41,7 @@ define('resizing-label', () => {
     <style>
       span {
         width: auto;
-        transition: opacity .1s;
+        transition: opacity .1s, filter .1s;
         overflow: hidden;
         display: inline-block;
         white-space: nowrap;

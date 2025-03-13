@@ -41,10 +41,14 @@ define('zoom-indicator', ({ camera, initial = 200, min = 100, max = 300 }) => {
       glass-pane {
         position: fixed;
         bottom: calc(5vh - 10px);
-        left: calc(50vw - 40px);
+        left: calc(50vw - 48px);
         width: 64px;
         padding: 8px 16px;
         border-radius: 16px;
+
+        @media screen and (max-width: 600px) {
+          bottom: calc(4ch + 48px);
+        }
       }
       .holder {
           display: flex;

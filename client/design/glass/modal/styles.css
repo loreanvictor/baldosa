@@ -43,7 +43,7 @@ dialog {
   }
 }
 
-@media (max-width: 512px) {
+@media (max-width: 600px) {
   dialog {
     width: 100vw;
     animation: come-up .2s;

@@ -16,6 +16,8 @@ import '../toast.js'
 import { all, remove } from '../db.js'
 
 
+const trim = (msg, length) => msg.length > length ? msg.slice(0, length) + '…' : msg
+
 export const modal = singleton('bookmark-modal', () => {
   const toast = ref()
   const modal = ref()
@@ -70,7 +72,7 @@ export const modal = singleton('bookmark-modal', () => {
         <keyed-list ref=${list} each=${bookmark => {
           const empty = bookmark.meta === undefined
           const title = bookmark.meta?.title ?? 'empty tile'
-          const pos = `${bookmark.x},${bookmark.y}`
+          const pos = `${bookmark.x}, ${bookmark.y}`
           const sub = bookmark.meta?.subtitle ?? ''
 
           return html`
@@ -80,8 +82,9 @@ export const modal = singleton('bookmark-modal', () => {
               onswiperight=${() => goto(bookmark)}
               onaction=${() => open(bookmark)}>
               <img src=${bookmark.img ?? ''} slot='image'/>
-              <h1 class=${empty ? 'empty' : ''}>${title} <small>${pos}</small></h1>
-              <p>${sub.length > 52 ? sub.slice(0, 52) + '…' : sub}</p>
+              <small slot='image'>${pos}</small>
+              <h1 class=${empty ? 'empty' : ''}>${trim(title, 32)}</h1>
+              <p>${trim(sub, 64)}</p>
               <div slot='actions'>
                 <secondary-button onclick=${() => select(bookmark)}>
                   <i-con src='ellipsis' dark thick slot='icon'></i-con>

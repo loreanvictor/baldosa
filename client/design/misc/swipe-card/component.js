@@ -36,11 +36,11 @@ define('swipe-card', () => {
     holder.current.style.transition = ''
     holder.current.style.transform = ''
 
-    if (detail.aligned) {
-      const width = holder.current.getBoundingClientRect().width
-      const dx = detail.d.x
+    const dx = detail.d.x
+    const width = holder.current.getBoundingClientRect().width
 
-      if (dx < -width / 3) {
+    if (detail.aligned && Math.abs(dx) > width * .4) {
+      if (dx < 0) {
         if (leftresponse === 'slide') {
           holder.current.style.transform = `translateX(${-width}px)`
           holder.current.style.opacity = 0
@@ -56,7 +56,7 @@ define('swipe-card', () => {
           swipeleft()
           swipe(dx)
         }
-      } else if (dx > width / 3) {
+      } else if (dx > 0) {
         if (rightresponse === 'slide') {
           holder.current.style.transform = `translateX(${width}px)`
           holder.current.style.opacity = 0
@@ -80,6 +80,7 @@ define('swipe-card', () => {
     }
   }
 
+  // TODO: dissassociate inner card from swiping
   return html`
     <style>:host { display: none }</style>
     <link rel="stylesheet" href="./client/design/misc/swipe-card/styles.css" />

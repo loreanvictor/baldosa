@@ -1,16 +1,18 @@
-import { define, onAttribute } from 'https://esm.sh/minicomp'
+import { define, onAttribute, useDispatch } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
 
 const BASE = `${window.location}/client/assets/icons/`
 
 define('i-con', ({ src, dark, thick, fill }) => {
+  const load = useDispatch('load')
   const holder = ref()
   const img = ref()
 
   const calcsrc = () => `${BASE}${src}-${dark ? 'dark' : 'light'}${fill ? '-fill' : thick ? '-thick' : ''}.svg`
   const update = () => {
     img.current.src = calcsrc()
+    img.current.setAttribute('alt', src)
     holder.current.style.setProperty('mask-image', `url('${calcsrc()}')`)
     holder.current.style.setProperty('-webkit-mask-image', `url('${calcsrc()}')`)
   }
@@ -23,7 +25,7 @@ define('i-con', ({ src, dark, thick, fill }) => {
   return html`
     <link rel="stylesheet" href="./client/design/misc/icon/styles.css" />
     <div ref=${holder}></div>
-    <img ref=${img} />
+    <img ref=${img} onload=${() => load({ url: calcsrc(), src, dark, thick, fill })} />
   `
 })
 

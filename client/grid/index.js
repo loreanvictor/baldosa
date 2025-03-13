@@ -1,7 +1,7 @@
 import { define, onAttribute } from 'https://esm.sh/minicomp'
 import { html, ref } from 'https://esm.sh/rehtm'
 
-import { onBroadcast } from '../util/broadcast.js'
+import { onBroadcast, broadcast } from '../util/broadcast.js'
 
 import '../tile/preview/component.js'
 import '../tile/empty.js'
@@ -86,14 +86,14 @@ define('controlled-grid', () => {
       }
     })
 
-    // TODO: listen on global events for navigation as well
-
-    const goto = URL.parse(window.location).searchParams.get('tile')
+    const goto = new URL(window.location).searchParams.get('tile')
     if (goto) {
       const [x, y] = goto.split(',')
       camera.current.setAttribute('camx', (parseInt(x) ?? 0) + .5)
       camera.current.setAttribute('camy', (parseInt(y) ?? 0) + .5)
     }
+
+    broadcast('grid:connected')
   })
 
   onBroadcast('tile:goto', ({ x, y }) => {

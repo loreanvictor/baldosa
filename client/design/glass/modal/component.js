@@ -33,7 +33,7 @@ define('glass-modal', ({ noheader }) => {
       dialog.current.classList.add('closing')
 
       const height = dialog.current.getBoundingClientRect().height
-      window.innerWidth < 512 && (dialog.current.style.transform = `translateY(${height}px)`)
+      window.innerWidth < 600 && (dialog.current.style.transform = `translateY(${height}px)`)
       dialog.current.style.setProperty('--backdrop-blur', '0')
       dialog.current.style.setProperty('--backdrop-opacity', '0')
 

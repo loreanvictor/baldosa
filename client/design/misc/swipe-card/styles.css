@@ -9,9 +9,9 @@
   position: relative;
   padding: 1ch;
   align-items: center;
-  gap: 1ch;
+  gap: 1.5ch;
   border-radius: 8px;
-  background: #313131;
+  background: #31313133;
   cursor: pointer;
   transition: background .2s, transform .2s, opacity .2s;
 

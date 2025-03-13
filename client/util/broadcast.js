@@ -10,3 +10,9 @@ export const onBroadcast = (event, listener) => {
   onConnected(() => document.addEventListener(event, wrapped))
   onDisconnected(() => document.removeEventListener(event, wrapped))
 }
+
+export const listenToBroadcast = (event, listener) => {
+  const wrapped = event => listener(event.detail)
+  document.addEventListener(event, wrapped)
+  return () => document.removeEventListener(event, wrapped)
+}
