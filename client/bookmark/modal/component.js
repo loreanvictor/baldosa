@@ -24,6 +24,7 @@ export const modal = singleton('bookmark-modal', () => {
   const opts = ref()
   const list = ref()
   const bmbutton = ref()
+  const openbtn = ref()
   const link = ref()
   const tlink = ref()
 
@@ -39,7 +40,7 @@ export const modal = singleton('bookmark-modal', () => {
  
   const close = () => needupdate && setTimeout(() => update(), 200)
   const open = bookmark => {
-    if (bookmark.meta) {
+    if (bookmark.meta?.link) {
       const opened = window.open(bookmark.meta.link, '_blank')
       !opened && (location.href = bookmark.meta.link)
     } else {
@@ -50,11 +51,12 @@ export const modal = singleton('bookmark-modal', () => {
     modal.current.controls.close()
     broadcast('tile:goto', bookmark)
   }
-  const select = bookmark => {
+  const select = (bookmark, element) => {
     selected = bookmark
     bmbutton.current.setProperty('tile', bookmark)
-    opts.current.controls.open()
-    link.current.setAttribute('content', bookmark.meta?.link)
+    openbtn.current.style = bookmark.meta?.link ? '' : 'display: none'
+    opts.current.controls.open({ anchor: element })
+    link.current.setAttribute('content', bookmark.meta?.link ?? '')
     !bookmark.meta ? link.current.setAttribute('hidden', '') : link.current.removeAttribute('hidden')
     tlink.current.setAttribute('content', tilelink(bookmark))
   }
@@ -66,12 +68,12 @@ export const modal = singleton('bookmark-modal', () => {
 
   return html`
     <link rel="stylesheet" href="./client/bookmark/modal/styles.css" />
-    <glass-modal ref=${modal} onclose=${close}>
+    <glass-modal ref=${modal} onclose=${close} aside>
       <span slot='title'>Bookmarks</span>
       <div class='list'>
         <keyed-list ref=${list} each=${bookmark => {
           const empty = bookmark.meta === undefined
-          const title = bookmark.meta?.title ?? 'empty tile'
+          const title = bookmark.meta?.title ?? 'no title'
           const pos = `${bookmark.x}, ${bookmark.y}`
           const sub = bookmark.meta?.subtitle ?? ''
 
@@ -86,7 +88,7 @@ export const modal = singleton('bookmark-modal', () => {
               <h1 class=${empty ? 'empty' : ''}>${trim(title, 32)}</h1>
               <p>${trim(sub, 64)}</p>
               <div slot='actions'>
-                <secondary-button onclick=${() => select(bookmark)}>
+                <secondary-button onclick=${(e) => select(bookmark, e.target.closest('secondary-button'))}>
                   <i-con src='ellipsis' dark thick slot='icon'></i-con>
                 </secondary-button>
               </div>
@@ -95,9 +97,10 @@ export const modal = singleton('bookmark-modal', () => {
             </swipe-card>
           `
         }}></keyed-list>
-        <small style='font-weight: 100; opacity: .5'>
+        <small style='font-weight: 100; opacity: .5; display: block'>
           Your bookmarks appear here. You can bookmark content you want to revisit later
           using the bookmark <i-con src=bookmark dark style='width: 2.5ch; vertical-align: middle'></i-con> button.
+          Note that your bookmarks aren't synced by your account and are stored locally.
         </small>
       </div>
       <bookmark-toast ref=${toast}></bookmark-toast>
@@ -105,7 +108,7 @@ export const modal = singleton('bookmark-modal', () => {
 
     <glass-modal noheader ref=${opts}>
       <action-list>
-        <secondary-button onclick=${() => open(selected)} row>
+        <secondary-button onclick=${() => open(selected)} row ref=${openbtn}>
           Open
           <i-con src='square-arrow' dark thick slot='icon'></i-con>
         </secondary-button>

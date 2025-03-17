@@ -1,6 +1,7 @@
 import { define, onProperty, onAttribute } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
+import '../../util/show-only.js'
 import '../../design/glass/modal/component.js'
 import '../../design/glass/toast/component.js'
 import '../../design/button/components.js'
@@ -21,9 +22,12 @@ define('tile-preview', () => {
   const modal = ref()
   const copytoast = ref()
   const img = ref()
+  const article = ref()
   const title = ref()
   const subtitle = ref()
+  const deets = ref()
   const pos = ref()
+  const prim = ref()
   const bookmark = ref()
   const link = ref()
   const tlink = ref()
@@ -34,15 +38,19 @@ define('tile-preview', () => {
   onProperty('tile', t => {
     tile = t
     bookmark.current.setProperty('tile', t)
-    link.current.setAttribute('content', t?.meta?.link)
+    link.current.setAttribute('content', t?.meta?.link ?? '')
     tlink.current.setAttribute('content', tilelink(t))
 
     if (t?.meta && mask.current?.has(t.x, t.y)) {
+      article.current.classList.toggle('empty', !t.meta.title && !t.meta.subtitle)
       t.img = `${baseURL.current}/tile-${t.x}-${t.y}.jpg`
       title.current.textContent = t.meta?.title ?? ''
-      subtitle.current.textContent = t.meta?.subtitle ?? ''
+      title.current.style = t.meta?.title ? '' : 'display: none'
       img.current.src = tile.img
+      deets.current.setAttribute('when', t.meta?.subtitle)
+      subtitle.current.textContent = t.meta?.subtitle ?? ''
       pos.current.textContent = `tile position: ${t.x}, ${t.y}`
+      prim.current.setAttribute('when', t?.meta?.link)
 
       modal.current.controls.open()
     }
@@ -54,21 +62,26 @@ define('tile-preview', () => {
     <link rel="stylesheet" href="./client/tile/preview/styles.css" />
 
     <glass-modal ref=${modal}>
-      <article>
+      <article ref=${article}>
         <img ref=${img} />
         <h1 ref=${title}></h1>
-        <span ref=${subtitle}></span><br/>
-        <sub ref=${pos}></sub>
+        <show-only ref=${deets}>
+          <span ref=${subtitle}></span><br/>
+          <sub ref=${pos}></sub>
+        </show-only>
       </article>
       <div role="group">
-        <secondary-button onclick=${() => opts.current.controls.open()}>
+        <secondary-button
+          onclick=${e => opts.current.controls.open({ anchor: e.target.closest('secondary-button') })}>
           <i-con src='ellipsis' dark thick slot='icon'></i-con>
         </secondary-button>
         <bookmark-button icon ref=${bookmark}></bookmark-button>
-        <primary-button onclick=${open}>
-          Open
-          <i-con src='square-arrow' light thick slot='icon'></i-con>
-        </primary-button>
+        <show-only ref=${prim}>
+          <primary-button onclick=${open}>
+            Open
+            <i-con src='square-arrow' light thick slot='icon'></i-con>
+          </primary-button>
+        </show-only>
       </div>
     </glass-modal>
 

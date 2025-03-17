@@ -46,10 +46,16 @@ button {
       --color: var(--red-fg, red);
     }
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    filter: invert(1) saturate(0) contrast(0.5);
+  }
 }
 
 
 .action-list {
+  
   ::slotted(*) {
     --btn-txt: #fff;
     --btn-bg: transparent;
@@ -63,6 +69,12 @@ button {
 
   ::slotted([faded]) {
     --btn-txt: #ffffff66;
+    --color: #ffffff66;
+  }
+
+  ::slotted([faded]:hover) {
+    --btn-txt: #ffffff;
+    --color: #ffffff;
   }
 
   ::slotted(:hover) {
@@ -79,4 +91,11 @@ button {
     --btn-bot-rad: 8px;
     --btn-border-bot: transparent;
   }
+}
+
+:host(action-list[island]) .action-list {
+  background: #11111144;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
 }

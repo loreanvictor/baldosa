@@ -7,6 +7,7 @@ import '../design/button/components.js'
 import { broadcast } from '../util/broadcast.js'
 import { loader } from '../util/loader.js'
 import { modal as bookmarks } from '../bookmark/modal/component.js'
+import { modal as account } from '../account/modal.js'
 
 
 define('main-nav', () => {
@@ -23,7 +24,7 @@ define('main-nav', () => {
         <i-con src='bookmark' dark thick slot='icon'
           onload=${() => load('bookmarks')}></i-con>
       </secondary-button>
-      <secondary-button>
+      <secondary-button onclick=${account().controls.open}>
         <i-con src='person' dark thick slot='icon'
           onload=${() => load('account')}></i-con>
       </secondary-button>

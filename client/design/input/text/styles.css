@@ -1,0 +1,91 @@
+:host {
+  position: relative;
+  display: block;
+  padding-top: 3ex;
+}
+
+input {
+  display: block;
+  width: calc(100% - 2ch);
+  background: #08080844;
+  border: 1px solid #61616188;
+  outline: none;
+  height: calc(40px - 2ch);
+  font-size: 1rem;
+  color: white;
+  padding: 1ch;
+  border-radius: 8px;
+  transition: border-color .3s;
+
+  &:focus {
+    border-color: var(--blue-fg, blue);
+  }
+
+  &.touched:invalid:not(:focus),
+  &:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: var(--red-fg, red);
+  }
+
+  &:autofill, &:-webkit-autofill {
+    background: #212121;
+    box-shadow: 0 0 0 32px #212121 inset;
+    color: var(--blue-fg, blue);
+    -webkit-text-fill-color: var(--blue-fg, blue);
+    border-color: var(--blue-fg, blue);
+  }
+}
+
+input::placeholder {
+  opacity: 0;
+}
+
+label {
+  position: absolute;
+  top: calc(3ex + 1ch);
+  opacity: .5;
+  left: 1ch;
+  transition: transform .3s, color .3s, opacity .3s;
+  transform-origin: left;
+  pointer-events: none;
+
+  input:required + & {
+    &::after {
+      content: ' *';
+    }
+  }
+
+  input:focus + &,
+  input:not(:placeholder-shown) + & {
+    transform: translateY(-2rem) scale(0.8);
+  }
+
+  input:focus + & {
+    color: var(--blue-fg, blue);
+    opacity: 1;
+  }
+
+  input.touched:invalid:not(:focus) ~ &,
+  input:invalid:not(:focus):not(:placeholder-shown) ~ & {
+    color: var(--red-fg, red);
+    opacity: 1;
+  }
+}
+
+slot[name='hint'] {
+  font-size: .7rem;
+  color: #bdbdbd88;
+  transition: color .3s;
+
+  input.touched:invalid:not(:focus) ~ &,
+  input:invalid:not(:focus):not(:placeholder-shown) ~ & {
+    color: var(--red-fg, red);
+  }
+}
+
+::slotted([slot='hint']) {
+  display: block;
+  margin: 1ch 0;
+  text-align: right;
+}
+
+

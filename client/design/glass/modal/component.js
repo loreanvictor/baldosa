@@ -1,9 +1,7 @@
-import { define, attachControls, useDispatch, currentNode } from 'https://esm.sh/minicomp'
+import { define, attachControls, useDispatch, currentNode, on } from 'https://esm.sh/minicomp'
 import { ref, html } from 'https://esm.sh/rehtm'
 
 import '../../../util/swipe-control.js'
-import { observe } from '../../../util/observe.js'
-
 import '../../close-pin/component.js'
 import { push } from './context.js'
 
@@ -16,7 +14,28 @@ define('glass-modal', ({ noheader }) => {
   let warmup
 
   const controls = {
-    open: () => {
+    open: (opts) => {
+      if (opts?.anchor && window.innerWidth > 600) {
+        const rect = opts.anchor.getBoundingClientRect()
+        dialog.current.classList.add('anchored')
+        if (rect.left > window.innerWidth / 2) {
+          dialog.current.style.marginRight = `${window.innerWidth - rect.right}px`
+        } else {
+          dialog.current.style.marginLeft = `${rect.left}px`
+        }
+        if (rect.top > window.innerHeight / 2) {
+          dialog.current.classList.add('bottom')
+          dialog.current.style.marginBottom = `calc(${window.innerHeight - rect.top}px + 1ch)`
+        } else {
+          dialog.current.classList.remove('bottom')
+          dialog.current.style.marginTop = `calc(${rect.bottom}px + 1ch)`
+        }
+      } else {
+        dialog.current.style = ''
+        dialog.current.classList.remove('anchored')
+        dialog.current.classList.remove('bottom')
+      }
+
       self.setAttribute('open', '')
       dialog.current.showModal()
       dialog.current.focus()
@@ -48,8 +67,9 @@ define('glass-modal', ({ noheader }) => {
   }
 
   attachControls(controls)
-  observe(document, 'click', event => {
+  on('click', event => {
     if (opened) {
+      event.stopPropagation()
       const rect = dialog.current?.getBoundingClientRect()
       if (!(rect && event.clientX >= rect.left && event.clientX <= rect.right &&
         event.clientY >= rect.top && event.clientY <= rect.bottom)) {
@@ -88,6 +108,12 @@ define('glass-modal', ({ noheader }) => {
         dialog.current.style.transform = ''
       }
   }
+
+  on('keydown', event => {
+    if (event.key === 'Enter' && opened) {
+      self.querySelector('[primary-modal-action]')?.click()
+    }
+  })
 
   return html`
     <link rel="stylesheet" href="./client/design/glass/modal/styles.css" />

@@ -2,6 +2,10 @@
   overflow: auto;
   max-height: 50vh;
 
+  @media screen and (min-width: 600px) {
+    max-height: calc(100vh - 7ch - 3rem);
+  }
+
   swipe-card {
     margin-bottom: 1ch;
     i-con {

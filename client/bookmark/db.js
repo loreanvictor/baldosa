@@ -1,4 +1,4 @@
-import { Dexie } from 'https://unpkg.com/dexie/dist/modern/dexie.min.mjs'
+import { Dexie } from 'https://esm.sh/dexie'
 
 import { broadcast } from '../util/broadcast.js'
 

@@ -1,10 +1,21 @@
-import { define } from 'https://esm.sh/minicomp'
-import { html } from 'https://esm.sh/rehtm'
+import { define, onAttribute, on, ATTRIBUTE_REMOVED } from 'https://esm.sh/minicomp'
+import { html, ref } from 'https://esm.sh/rehtm'
 
 import { composeclass } from '../../util/compose-class.js'
 
 
-define('primary-button', ({ row = false, warn = false }) => {
+define('primary-button', ({ row = false, warn = false, type = 'button' }) => {
+  const btn = ref()
+
+  onAttribute('disabled', d => d !== undefined && d !== ATTRIBUTE_REMOVED ?
+    btn.current.setAttribute('disabled', '') : btn.current.removeAttribute('disabled'))
+  on('click', event => {
+    if (btn.current.disabled) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  })
+
   return html`
     <link rel="stylesheet" href="./client/design/button/styles.css" />
     <style>
@@ -15,11 +26,24 @@ define('primary-button', ({ row = false, warn = false }) => {
         --button-border-color: #F2EAD3;
       }
     </style>
-    <button class=${composeclass({ row, warn })}><slot></slot><slot name='icon'></slot></button>
+    <button ref=${btn} class=${composeclass({ row, warn })} type=${type}>
+      <slot></slot><slot name='icon'></slot>
+    </button>
   `
 })
 
-define('secondary-button', ({ row = false, warn = false }) => {
+define('secondary-button', ({ row = false, warn = false, type = 'button' }) => {
+  const btn = ref()
+
+  onAttribute('disabled', d => d !== undefined && d !== ATTRIBUTE_REMOVED ?
+    btn.current.setAttribute('disabled', '') : btn.current.removeAttribute('disabled'))
+  on('click', event => {
+    if (btn.current.disabled) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  })
+
   return html`
     <link rel="stylesheet" href="./client/design/button/styles.css" />
     <style>
@@ -30,7 +54,9 @@ define('secondary-button', ({ row = false, warn = false }) => {
         --button-border-color: #272829;
       }
     </style>
-    <button class=${composeclass({ row, warn })}><slot></slot><slot name='icon'></slot></button>
+    <button ref=${btn} class=${composeclass({ row, warn })} type=${type}>
+      <slot></slot><slot name='icon'></slot>
+    </button>
   `
 })
 

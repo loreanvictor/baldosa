@@ -28,5 +28,19 @@ div {
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
 
-  will-change: mask-image, -webkit-mask-image;
+  will-change: mask-image, -webkit-mask-image, background;
+  transition: background .15s;
+}
+
+sup {
+  position: absolute;
+  right: -1.5ch;
+  top: -1.5ch;
+  padding: .35ch;
+  background: var(--blue-bg, blue);
+  border-radius: 1rem;
+  color: white;
+  min-width: calc(1em + .5ch);
+  text-align: center;
+  color: black;
 }

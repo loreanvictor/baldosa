@@ -4,10 +4,11 @@ import { html, ref } from 'https://esm.sh/rehtm'
 
 const BASE = `${window.location}/client/assets/icons/`
 
-define('i-con', ({ src, dark, thick, fill }) => {
+define('i-con', ({ src, dark, thick, fill, notifications }) => {
   const load = useDispatch('load')
   const holder = ref()
   const img = ref()
+  const notif = ref()
 
   const calcsrc = () => `${BASE}${src}-${dark ? 'dark' : 'light'}${fill ? '-fill' : thick ? '-thick' : ''}.svg`
   const update = () => {
@@ -17,15 +18,29 @@ define('i-con', ({ src, dark, thick, fill }) => {
     holder.current.style.setProperty('-webkit-mask-image', `url('${calcsrc()}')`)
   }
 
+  const shownotif = () => {
+    const n = parseInt(notifications, 10) ?? 0
+
+    if (n > 0 && n !== NaN) {
+      notif.current.textContent = n > 99 ? '∞' : n
+      notif.current.style.display = ''
+    } else {
+      notif.current.style.display = 'none'
+      notif.current.textContent = ''
+    }
+  }
+
   onAttribute('src', s => { src = s; update() })
   onAttribute('dark', d => { dark = d; update() })
   onAttribute('thick', t => { thick = t; update() })
   onAttribute('fill', f => { fill = f; update() })
+  onAttribute('notifications', n => { notifications = n; shownotif() })
 
   return html`
     <link rel="stylesheet" href="./client/design/misc/icon/styles.css" />
     <div ref=${holder}></div>
     <img ref=${img} onload=${() => load({ url: calcsrc(), src, dark, thick, fill })} />
+    <sup ref=${notif}>0</sup>
   `
 })
 

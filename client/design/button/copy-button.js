@@ -55,6 +55,11 @@ define('copy-button', () => {
   })
 
   return html`
+    <style>
+      :host([content='']) {
+        display: none;
+      }
+    </style>
     <slot></slot>
     <copy-toast ref=${toast}></copy-toast>
   `

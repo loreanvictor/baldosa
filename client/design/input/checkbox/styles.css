@@ -1,0 +1,45 @@
+:host {
+  font-size: .9rem;
+  color: #bdbdbd;
+  cursor: pointer;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  position: relative;
+  cursor: pointer;
+}
+
+input {
+  border: none;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #08080844;
+  border: 1px solid #61616188;
+  outline: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 12px;
+  transition: background .15s, border-color .15s;
+
+  &:checked {
+    background: var(--blue-fg, blue);
+    border-color: var(--blue-fg, blue);
+  }
+}
+
+img {
+  position: absolute;
+  left: 0;
+  width: 24px;
+  transform: scale(0);
+  transition: opacity .3s, transform .3s;
+
+  input:checked + & {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

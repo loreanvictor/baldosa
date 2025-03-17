@@ -22,6 +22,15 @@ article {
   margin-top: -8.5ch;
   margin-bottom: 2ch;
   padding: 2ch;
+
+  &.empty {
+    padding: 0;
+
+    img {
+      margin: 0;
+      width: 100%;
+    }
+  }
 }
 
 span {
@@ -36,7 +45,7 @@ sub {
   display: flex;
   gap: .5ch;
 
-  > primary-button {
+  > primary-button, :has(primary-button) {
     flex: 1;
   }
 }
