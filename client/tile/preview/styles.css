@@ -6,6 +6,10 @@ article > img {
   object-fit: cover;
   object-position: center top;
   animation: pan 16s infinite alternate;
+
+  @media screen and (max-width: 600px) {
+    margin-top: initial;
+  }
 }
 
 h1 {
@@ -22,6 +26,10 @@ article {
   margin-top: -8.5ch;
   margin-bottom: 2ch;
   padding: 2ch;
+
+  @media screen and (max-width: 600px) {
+    margin-top: -7ch;
+  }
 
   &.empty {
     padding: 0;
