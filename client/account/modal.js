@@ -8,6 +8,7 @@ import '../design/misc/icon/component.js'
 import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
 import { init, login, register, logout, user } from './auth/index.js'
+import { modal as terms } from './terms.js'
 
 
 export const modal = singleton('account-modal', () => {
@@ -92,7 +93,7 @@ export const modal = singleton('account-modal', () => {
           <i-con src='baldosa' dark fill slot='icon'></i-con>
           About Baldosa
         </secondary-button>
-        <secondary-button row faded onclick=${() => window.open('./terms.md', '_blank')}>
+        <secondary-button row faded onclick=${() => terms().controls.open()}>
           <i-con src='scroll' dark thick slot='icon'></i-con>
           Terms and Conditions
         </secondary-button>

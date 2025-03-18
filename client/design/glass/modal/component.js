@@ -3,7 +3,10 @@ import { ref, html } from 'https://esm.sh/rehtm'
 
 import '../../../util/swipe-control.js'
 import '../../close-pin/component.js'
+
 import { push } from './context.js'
+import { anchor, unanchor } from './anchor.js'
+import { onClickOut, triggerPrimaryActionOnEnter } from './util.js'
 
 
 define('glass-modal', ({ noheader }) => {
@@ -16,24 +19,9 @@ define('glass-modal', ({ noheader }) => {
   const controls = {
     open: (opts) => {
       if (opts?.anchor && window.innerWidth > 600) {
-        const rect = opts.anchor.getBoundingClientRect()
-        dialog.current.classList.add('anchored')
-        if (rect.left > window.innerWidth / 2) {
-          dialog.current.style.marginRight = `${window.innerWidth - rect.right}px`
-        } else {
-          dialog.current.style.marginLeft = `${rect.left}px`
-        }
-        if (rect.top > window.innerHeight / 2) {
-          dialog.current.classList.add('bottom')
-          dialog.current.style.marginBottom = `calc(${window.innerHeight - rect.top}px + 1ch)`
-        } else {
-          dialog.current.classList.remove('bottom')
-          dialog.current.style.marginTop = `calc(${rect.bottom}px + 1ch)`
-        }
+        anchor(dialog.current, opts.anchor)
       } else {
-        dialog.current.style = ''
-        dialog.current.classList.remove('anchored')
-        dialog.current.classList.remove('bottom')
+        unanchor(dialog.current)
       }
 
       self.setAttribute('open', '')
@@ -67,16 +55,8 @@ define('glass-modal', ({ noheader }) => {
   }
 
   attachControls(controls)
-  on('click', event => {
-    if (opened) {
-      event.stopPropagation()
-      const rect = dialog.current?.getBoundingClientRect()
-      if (!(rect && event.clientX >= rect.left && event.clientX <= rect.right &&
-        event.clientY >= rect.top && event.clientY <= rect.bottom)) {
-        controls.close()
-      }
-    }
-  })
+  onClickOut(dialog, () => opened, controls.close)
+  triggerPrimaryActionOnEnter()
 
   const onswipestart = ({ detail }) => {
     const rect = dialog.current.getBoundingClientRect()
@@ -108,12 +88,6 @@ define('glass-modal', ({ noheader }) => {
         dialog.current.style.transform = ''
       }
   }
-
-  on('keydown', event => {
-    if (event.key === 'Enter' && opened) {
-      self.querySelector('[primary-modal-action]')?.click()
-    }
-  })
 
   return html`
     <link rel="stylesheet" href="./client/design/glass/modal/styles.css" />

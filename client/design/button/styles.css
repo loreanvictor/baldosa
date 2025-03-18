@@ -1,4 +1,10 @@
 button {
+  @property --btn-bg {
+    syntax: '<color>';
+    initial-value: linear-gradient(180deg, var(--button-shade-dark), var(--button-shade-light));
+    inherits: false;
+  }
+
   display: flex;
   align-items: center;
   place-content: center;
@@ -20,7 +26,7 @@ button {
   height: var(--width, 52px);
   min-width: var(--height, 52px);
   cursor: pointer;
-  transition: filter 0.15s;
+  transition: filter .15s, background .15s, color .15s;
 
   -webkit-tap-highlight-color: transparent;
 
@@ -72,15 +78,10 @@ button {
     --color: #ffffff66;
   }
 
-  ::slotted([faded]:hover) {
+  ::slotted(:hover) {
     --btn-txt: #ffffff;
     --color: #ffffff;
-  }
-
-  ::slotted(:hover) {
-    @media screen and (min-width: 600px) {
-      --btn-bg: #ffffff08;
-    }
+    --btn-bg: #ffffff08;
   }
 
   ::slotted(:first-child) {

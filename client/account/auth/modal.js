@@ -6,6 +6,7 @@ import '../../design/glass/modal/component.js'
 import '../../design/button/components.js'
 import '../../design/input/text/component.js'
 import '../../design/input/checkbox/component.js'
+import { modal as termsmodal } from '../terms.js'
 
 
 export const modal = singleton('register-modal', () => {
@@ -84,7 +85,7 @@ export const modal = singleton('register-modal', () => {
           </span>
         </text-input>
         <check-box ref=${terms} oncheck=${check}>
-          I've read and accept the <a href='./terms.md' target='_blank'>terms and conditions</a>.
+          I've read and accept the <a href='javascript:void(0)' onclick=${() => termsmodal().controls.open()}>terms and conditions</a>.
         </check-box>
         <br/><br/>
         <primary-button ref=${btn} onclick=${done} primary-modal-action>
