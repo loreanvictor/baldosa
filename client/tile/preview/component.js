@@ -7,6 +7,7 @@ import '../../design/glass/toast/component.js'
 import '../../design/button/components.js'
 import '../../design/misc/icon/component.js'
 import '../../design/button/copy-button.js'
+import '../../design/misc/mark-down/component.js'
 import '../../bookmark/button.js'
 
 import { tilelink } from '../util/tile-link.js'
@@ -25,6 +26,7 @@ define('tile-preview', () => {
   const article = ref()
   const title = ref()
   const subtitle = ref()
+  const description = ref()
   const deets = ref()
   const pos = ref()
   const prim = ref()
@@ -47,8 +49,9 @@ define('tile-preview', () => {
       title.current.textContent = t.meta?.title ?? ''
       title.current.style = t.meta?.title ? '' : 'display: none'
       img.current.src = tile.img
-      deets.current.setAttribute('when', t.meta?.subtitle)
+      deets.current.setAttribute('when', t.meta?.subtitle || t.meta?.description)
       subtitle.current.textContent = t.meta?.subtitle ?? ''
+      description.current.setAttribute('content', t.meta?.description)
       pos.current.textContent = `tile position: ${t.x}, ${t.y}`
       prim.current.setAttribute('when', t?.meta?.link)
 
@@ -66,7 +69,8 @@ define('tile-preview', () => {
         <img ref=${img} />
         <h1 ref=${title}></h1>
         <show-only ref=${deets}>
-          <span ref=${subtitle}></span><br/>
+          <span ref=${subtitle}></span>
+          <mark-down ref=${description}></mark-down>
           <sub ref=${pos}></sub>
         </show-only>
       </article>

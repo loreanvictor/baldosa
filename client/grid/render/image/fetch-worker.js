@@ -16,6 +16,7 @@ self.onmessage = async ({ data }) => {
       const meta = {
         title: response.headers.get('x-amz-meta-title'),
         subtitle: response.headers.get('x-amz-meta-subtitle'),
+        description: atob(response.headers.get('x-amz-meta-description') ?? ''),
         link: response.headers.get('x-amz-meta-link'),
       }
       const blob = await response.blob()

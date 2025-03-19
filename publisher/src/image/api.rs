@@ -22,6 +22,8 @@ pub struct PublishBody {
   title: Option<String>,
   /// The subtitle of the image.
   subtitle: Option<String>,
+  /// The description of the image.
+  description: Option<String>,
   /// The link of the produced tile.
   link: Option<String>,
 }
@@ -73,7 +75,7 @@ where
       info!("Publishing {} to ({}, {})", body.source, x, y);
       match publish(
         &body.source, x, y,
-        &body.title, &body.subtitle, &body.link,
+        &body.title, &body.subtitle, &body.description, &body.link,
         io,
         config
       ).await {

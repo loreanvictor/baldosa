@@ -40,6 +40,7 @@ pub async fn publish<P: Pixel + Send + Sync + 'static> (
   y: i32,
   title: &Option<String>,
   subtitle: &Option<String>,
+  description: &Option<String>,
   link: &Option<String>,
   io: Arc<dyn ImageInterface<Pixel = P>>,
   config: Arc<Config>,
@@ -51,6 +52,7 @@ where P::Subpixel: Send + Sync + Serialize {
   let meta = Metadata {
     title: title.clone(),
     subtitle: subtitle.clone(),
+    description: description.clone(),
     link: link.clone(),
   };
 

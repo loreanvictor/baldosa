@@ -6,13 +6,21 @@ import { micromark } from 'micromark'
 define('mark-down', ({ raw, safe }) => {
   const container = ref()
 
+  const setcontent = (text) => {
+    container.current.innerHTML = micromark(text, { allowDangerousHtml: safe })
+    container.current.querySelectorAll('a').forEach(link => {
+      link.setAttribute('target', '_blank')
+    })
+  }
+
   onAttribute('src', async (src) => {
     if (src) {
       const res = await fetch(src)
       const text = await res.text()
-      container.current.innerHTML = micromark(text, { allowDangerousHtml: safe })
+      setcontent(text)
     }
   })
+  onAttribute('content', content => content && setcontent(content))
 
   return html`
     <link rel='stylesheet' href='./client/design/misc/mark-down/styles.css' />

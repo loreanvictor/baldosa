@@ -88,7 +88,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
           ctx.font = `${camera.zoom / 16}px "Open Sans"`
           ctx.textAlign = 'left'
 
-          const MAX_TEXT_LENGTH = 32
+          const MAX_TEXT_LENGTH = 28
           const truncated = img.meta.subtitle.length > MAX_TEXT_LENGTH ?
             img.meta.subtitle.slice(0, MAX_TEXT_LENGTH - 3) + '…' : img.meta.subtitle
  

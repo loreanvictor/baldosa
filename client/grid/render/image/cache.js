@@ -40,6 +40,7 @@ export const createImageCache = (size, ttl = 10_000) => {
           record.meta ??= {}
           record.meta.title ??= img.meta.title
           record.meta.subtitle ??= img.meta.subtitle
+          record.meta.description ??= img.meta.description
           record.meta.link ??= img.meta.link
         }
         notify(record.key, size)

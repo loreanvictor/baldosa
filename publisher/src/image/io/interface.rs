@@ -13,6 +13,8 @@ pub struct Metadata {
   pub subtitle: Option<String>,
   /// the URL that corresponding tiles should point to.
   pub link: Option<String>,
+  /// Description of the image.
+  pub description: Option<String>,
 }
 
 

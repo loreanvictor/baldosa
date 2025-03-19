@@ -43,6 +43,8 @@ article {
 
 span {
   white-space: pre-line;
+  font-size: .9rem;
+  opacity: .5;
 }
 
 sub {
