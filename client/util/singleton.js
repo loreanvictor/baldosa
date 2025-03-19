@@ -1,4 +1,4 @@
-import { define } from 'https://esm.sh/minicomp'
+import { define } from 'minicomp'
 
 
 export const singleton = (name, fn, host = document.body) => {

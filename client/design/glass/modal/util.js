@@ -1,4 +1,4 @@
-import { on, currentNode } from 'https://esm.sh/minicomp'
+import { on, currentNode } from 'minicomp'
 
 
 export const onClickOut = (ref, flag, fn) => {

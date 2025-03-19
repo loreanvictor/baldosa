@@ -1,8 +1,8 @@
 import {
   define, useDispatch,
   onAttribute, onProperty, onConnected, onCleanup,
-} from 'https://esm.sh/minicomp'
-import { html, ref } from 'https://esm.sh/rehtm'
+} from 'minicomp'
+import { html, ref } from 'rehtm'
 
 import { observe } from '../../util/observe.js'
 import { constantly } from '../../util/constantly.js'

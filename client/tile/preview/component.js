@@ -1,5 +1,5 @@
-import { define, onProperty, onAttribute } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, onProperty, onAttribute } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../../util/show-only.js'
 import '../../design/glass/modal/component.js'

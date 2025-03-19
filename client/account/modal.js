@@ -1,5 +1,5 @@
-import { onConnected, attachControls } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { onConnected, attachControls } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../design/glass/modal/component.js'
 import '../design/button/components.js'
@@ -9,6 +9,7 @@ import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
 import { init, login, register, logout, user } from './auth/index.js'
 import { modal as terms } from './terms.js'
+import { modal as about } from './about.js'
 
 
 export const modal = singleton('account-modal', () => {
@@ -89,7 +90,7 @@ export const modal = singleton('account-modal', () => {
       </action-list>
       <br/>
       <action-list island>
-        <secondary-button row faded onclick=${() => window.open('https://github.com/loreanvictor/baldosa', '_blank')}>
+        <secondary-button row faded onclick=${() => about().controls.open()}>
           <i-con src='baldosa' dark fill slot='icon'></i-con>
           About Baldosa
         </secondary-button>
@@ -99,7 +100,7 @@ export const modal = singleton('account-modal', () => {
         </secondary-button>
       </action-list>
       <br/>
-      <small style='text-align: right; opacity: .5; display: block'>
+      <small style='text-align: right; opacity: .35; display: block'>
         © 2024 - 2025 Baldosa. All rights reserved.
       </small>
     </glass-modal>

@@ -1,6 +1,6 @@
-import { parse } from 'https://esm.sh/envfile'
-import { define, attachControls } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { parse } from 'envfile'
+import { define, attachControls } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../design/glass/pane.js'
 import '../design/glass/modal/component.js'

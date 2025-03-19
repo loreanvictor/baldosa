@@ -74,7 +74,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
     
         if (img.meta.title) {
           ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (camera.v * 64)))})`
-          ctx.font = `bold ${camera.zoom / 14}px "Montserrat"`
+          ctx.font = `bold ${camera.zoom / 12}px "Open Sans"`
           ctx.textAlign = 'left'
           ctx.fillText(
             img.meta.title,

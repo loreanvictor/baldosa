@@ -25,6 +25,18 @@
         }
       }
     </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "minicomp": "https://esm.sh/minicomp@0.4?bundle",
+          "rehtm": "https://esm.sh/rehtm@0.5?bundle",
+          "idb": "https://esm.sh/idb@8?bundle",
+          "quick-lru": "https://esm.sh/quick-lru@7?bundle",
+          "envfile": "https://esm.sh/envfile@7?bundle",
+          "micromark": "https://esm.sh/micromark@4?bundle"
+        }
+      }
+    </script>
   </head>
   <body>
     <controlled-grid></controlled-grid>
@@ -104,7 +116,7 @@
 
       const font = document.createElement('link')
       font.rel = 'stylesheet'
-      font.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@300..800&display=swap'
+      font.href = 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap'
       font.onload = () => load('font', 1, 'fonts loaded')
       document.head.appendChild(font)
     </script>

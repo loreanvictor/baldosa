@@ -1,5 +1,5 @@
-import { define, attachControls } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, attachControls } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 
 define('bookmark-toast', () => {

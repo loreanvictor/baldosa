@@ -1,5 +1,5 @@
-import { define, useDispatch, onAttribute, currentNode } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, useDispatch, onAttribute, currentNode } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../../design/glass/pane.js'
 import '../../design/glass/modal/component.js'

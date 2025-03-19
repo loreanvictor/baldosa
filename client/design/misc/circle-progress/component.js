@@ -1,4 +1,4 @@
-import { define, onAttribute, currentNode } from 'https://esm.sh/minicomp'
+import { define, onAttribute, currentNode } from 'minicomp'
 
 
 define('circle-progress', () => {

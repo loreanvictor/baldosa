@@ -1,5 +1,5 @@
-import { define } from 'https://esm.sh/minicomp'
-import { html } from 'https://esm.sh/rehtm'
+import { define } from 'minicomp'
+import { html } from 'rehtm'
 
 
 define('close-pin', () => html`

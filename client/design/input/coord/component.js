@@ -1,5 +1,5 @@
-import { define, useDispatch, currentNode, onAttribute, attachControls } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, useDispatch, currentNode, onAttribute, attachControls } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import { observe } from '../../../util/observe.js'
 

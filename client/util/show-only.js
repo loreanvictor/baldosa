@@ -1,4 +1,4 @@
-import { define, currentNode, onAttribute } from 'https://esm.sh/minicomp'
+import { define, currentNode, onAttribute } from 'minicomp'
 
 
 define('show-only', () => {

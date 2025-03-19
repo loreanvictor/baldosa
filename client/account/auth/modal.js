@@ -1,5 +1,5 @@
-import { useDispatch, attachControls } from 'https://esm.sh/minicomp'
-import { html, ref } from 'https://esm.sh/rehtm'
+import { useDispatch, attachControls } from 'minicomp'
+import { html, ref } from 'rehtm'
 
 import { singleton } from '../../util/singleton.js'
 import '../../design/glass/modal/component.js'

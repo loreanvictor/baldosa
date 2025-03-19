@@ -1,5 +1,5 @@
-import { attachControls, onConnected } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { attachControls, onConnected } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../../design/button/components.js'
 import '../../design/misc/icon/component.js'

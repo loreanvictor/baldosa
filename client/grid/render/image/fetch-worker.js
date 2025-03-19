@@ -1,4 +1,4 @@
-import createError from 'https://esm.sh/http-errors'
+import createError from 'https://esm.sh/http-errors@2?bundle'
 
 
 self.onmessage = async ({ data }) => {

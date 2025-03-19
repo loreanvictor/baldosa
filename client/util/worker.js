@@ -1,4 +1,4 @@
-import { onCleanup } from 'https://esm.sh/minicomp'
+import { onCleanup } from 'minicomp'
 
 
 export const useWorker = (script) => {

@@ -1,29 +1,43 @@
-import { Dexie } from 'https://esm.sh/dexie'
+import { openDB } from 'idb'
 
 import { broadcast } from '../util/broadcast.js'
 
 
-const db = new Dexie('bookmarks')
-db.version(1).stores({ bookmarks: '++id, [x+y]' })
+const dbPromise = openDB('bookmarks', 10, {
+  upgrade(db) {
+    const store = db.createObjectStore('bookmarks', { keyPath: 'id', autoIncrement: true });
+    store.createIndex('[x+y]', ['x', 'y'], { unique: true });
+  },
+})
 
 export const add = async tile => {
-  await db.bookmarks.add(tile)
+  const db = await dbPromise
+  await db.add('bookmarks', tile)
   broadcast('bookmark:added', tile)
 }
 
 export const all = async () => {
-  return await db.bookmarks.toArray()
+  const db = await dbPromise
+  return await db.getAll('bookmarks')
 }
 
 export const is = async tile => {
-  try {
-    return await db.bookmarks.where({ x: tile.x, y: tile.y }).first() !== undefined
-  } catch (e) {
-    throw e
-  }
+  const db = await dbPromise
+  const result = await db.getFromIndex('bookmarks', '[x+y]', IDBKeyRange.only([tile.x, tile.y]))
+  return result !== undefined
 }
 
 export const remove = async tile => {
-  await db.bookmarks.where({ x: tile.x, y: tile.y }).delete()
-  broadcast('bookmark:removed', tile)
+  const db = await dbPromise
+  const tx = db.transaction('bookmarks', 'readwrite')
+  const store = tx.objectStore('bookmarks')
+  const index = store.index('[x+y]')
+  const key = await index.getKey([tile.x, tile.y])
+
+  if (key !== undefined) {
+    await store.delete(key)
+    broadcast('bookmark:removed', tile)
+  }
+
+  await tx.done
 }

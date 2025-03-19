@@ -1,4 +1,4 @@
-import { define } from 'https://esm.sh/minicomp'
+import { define } from 'minicomp'
 
 
 define('glass-pane', () => `

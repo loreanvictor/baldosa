@@ -1,5 +1,5 @@
-import { define, useDispatch, onConnected, onCleanup, onAttribute } from 'https://esm.sh/minicomp'
-import { template, ref } from 'https://esm.sh/rehtm'
+import { define, useDispatch, onConnected, onCleanup, onAttribute } from 'minicomp'
+import { template, ref } from 'rehtm'
 
 import './drag-pan.js'
 import './pinch-zoom.js'

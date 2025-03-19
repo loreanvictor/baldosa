@@ -1,5 +1,5 @@
-import { define, onAttribute } from 'https://esm.sh/minicomp'
-import { html, ref } from 'https://esm.sh/rehtm'
+import { define, onAttribute } from 'minicomp'
+import { html, ref } from 'rehtm'
 
 import { onBroadcast, broadcast } from '../util/broadcast.js'
 

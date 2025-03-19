@@ -1,5 +1,5 @@
-import { onDisconnected, onConnected, currentNode } from 'https://esm.sh/minicomp'
-import { isRef } from 'https://esm.sh/rehtm'
+import { onDisconnected, onConnected, currentNode } from 'minicomp'
+import { isRef } from 'rehtm'
 
 
 export const query = selector => {

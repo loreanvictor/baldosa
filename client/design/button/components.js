@@ -1,5 +1,5 @@
-import { define, onAttribute, on, ATTRIBUTE_REMOVED } from 'https://esm.sh/minicomp'
-import { html, ref } from 'https://esm.sh/rehtm'
+import { define, onAttribute, on, ATTRIBUTE_REMOVED } from 'minicomp'
+import { html, ref } from 'rehtm'
 
 import { composeclass } from '../../util/compose-class.js'
 

@@ -1,4 +1,4 @@
-import { define, currentNode, onProperty, attachControls } from 'https://esm.sh/minicomp'
+import { define, currentNode, onProperty, attachControls } from 'minicomp'
 
 
 define('keyed-list', () => {

@@ -1,5 +1,5 @@
-import { define, currentNode, onAttribute, useDispatch, onConnected, ATTRIBUTE_REMOVED } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, currentNode, onAttribute, useDispatch, onConnected, ATTRIBUTE_REMOVED } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 
 define('text-input', () => {

@@ -1,4 +1,4 @@
-import { define, useDispatch } from 'https://esm.sh/minicomp'
+import { define, useDispatch } from 'minicomp'
 
 import { observe } from '../../util/observe.js'
 

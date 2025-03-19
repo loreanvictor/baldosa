@@ -1,5 +1,5 @@
-import { define, currentNode } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, currentNode } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../../design/glass/pane.js'
 import { observe } from '../../util/observe.js'

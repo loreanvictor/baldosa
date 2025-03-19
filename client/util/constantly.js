@@ -1,4 +1,4 @@
-import { onConnected, onDisconnected } from 'https://esm.sh/minicomp'
+import { onConnected, onDisconnected } from 'minicomp'
 
 
 export const constantly = (fn, schedule = requestAnimationFrame) => {

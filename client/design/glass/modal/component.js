@@ -1,5 +1,5 @@
-import { define, attachControls, useDispatch, currentNode, on } from 'https://esm.sh/minicomp'
-import { ref, html } from 'https://esm.sh/rehtm'
+import { define, attachControls, useDispatch, currentNode, on } from 'minicomp'
+import { ref, html } from 'rehtm'
 
 import '../../../util/swipe-control.js'
 import '../../close-pin/component.js'

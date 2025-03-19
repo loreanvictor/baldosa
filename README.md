@@ -5,7 +5,8 @@
 
 <br>
 
-Baldosa is an infinite (well, max int) grid of tiles, where tile content is submitted by users and selected through a bidding mechanism.
+**Baldosa** is an infinite community-driven canvas, where tiles are submitted by the community,
+and selected through an auction process.
 
 > [!WARNING]
 > This project is under active development and quite unstable.
@@ -44,7 +45,8 @@ DATABASE_URL=sqlite://tiles.db
 
 > [!NOTE]
 >
-> The AWS key provided for `publisher` must be able to read from `S3_SUBMIT_BUCKET` and write to `S3_PUBLISH_BUCKET`.
+> The AWS key provided for `publisher` must be able to read
+> from `S3_SUBMIT_BUCKET` and write to `S3_PUBLISH_BUCKET`.
 
 Run all services and serve the web app:
 

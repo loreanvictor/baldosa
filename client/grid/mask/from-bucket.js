@@ -1,4 +1,4 @@
-import Cache from 'https://esm.sh/quick-lru'
+import Cache from 'quick-lru'
 
 import { createTopic } from '../../util/topic.js'
 

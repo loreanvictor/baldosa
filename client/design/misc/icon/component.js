@@ -1,5 +1,5 @@
-import { define, onAttribute, useDispatch } from 'https://esm.sh/minicomp'
-import { html, ref } from 'https://esm.sh/rehtm'
+import { define, onAttribute, useDispatch } from 'minicomp'
+import { html, ref } from 'rehtm'
 
 
 const BASE = `${window.location}/client/assets/icons/`
