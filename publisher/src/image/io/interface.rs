@@ -15,6 +15,8 @@ pub struct Metadata {
   pub link: Option<String>,
   /// Description of the image.
   pub description: Option<String>,
+  /// Details of the image.
+  pub details: Option<serde_json::Value>,
 }
 
 

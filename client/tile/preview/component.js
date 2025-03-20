@@ -34,6 +34,7 @@ define('tile-preview', () => {
   const link = ref()
   const tlink = ref()
   const opts = ref()
+  const bid = ref()
 
   onAttribute('base-url', url => baseURL.current = url)
   onProperty('mask', m => mask.current = m)
@@ -54,6 +55,7 @@ define('tile-preview', () => {
       description.current.setAttribute('content', t.meta?.description)
       pos.current.textContent = `tile position: ${t.x}, ${t.y}`
       prim.current.setAttribute('when', t?.meta?.link)
+      bid.current.style.display = (t?.meta?.details?.bid === false) ? 'none' : ''
 
       modal.current.controls.open()
     }
@@ -91,7 +93,7 @@ define('tile-preview', () => {
 
     <glass-modal ref=${opts} noheader>
       <action-list>
-        <bid-button></bid-button>
+        <bid-button ref=${bid}></bid-button>
         <copy-button ref=${link}>
           <secondary-button row>
             <toggle-icon slot='icon'>

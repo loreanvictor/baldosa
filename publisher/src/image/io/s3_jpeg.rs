@@ -77,6 +77,7 @@ impl ImageInterface for S3JpegInterface {
     match self.client.put_object()
       .bucket(&self.target_bucket)
       .key(&key)
+      .cache_control("max-age=600")
       .set_metadata(metadata_to_hashmap(meta))
       .body(buffer.to_vec().into())
       .send()

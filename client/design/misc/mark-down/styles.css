@@ -1,8 +1,22 @@
 :host {
   --link: #48A1D8;
 
-  a {
-    color: var(--link);
+  a { color: var(--link); }
+  img {
+    max-width: 100%;
+    &[src$='#gh-dark-mode-only'] {
+      display: none;
+      @media (prefers-color-scheme: dark) {
+        display: block;
+      }
+    }
+
+    &[src$='#gh-light-mode-only'] {
+      display: none;
+      @media (prefers-color-scheme: light) {
+        display: block;
+      }
+    }
   }
 }
 
@@ -71,25 +85,6 @@ div.raw {
     &:before { content: '```'; display: block; }
     &:after { content: '```'; display: block; }
   }
-  
-
-  img {
-    max-width: 100%;
-
-    &[src$='#gh-dark-mode-only'] {
-      display: none;
-      @media (prefers-color-scheme: dark) {
-        display: block;
-      }
-    }
-
-    &[src$='#gh-light-mode-only'] {
-      display: none;
-      @media (prefers-color-scheme: light) {
-        display: block;
-      }
-    }
-  }
 
   blockquote {
     color: #757575;
@@ -109,7 +104,10 @@ div.raw {
 
 div:not(.raw) {
   font-weight: 100;
-  ul {
-    padding: 0 1rem;
+  ul { padding: 0 1rem; }
+  hr {
+    border: none;
+    border-bottom: 1px solid #424242;
+    margin: 2ch;
   }
 }

@@ -40,6 +40,7 @@ impl BitmaskTarget for S3BitmaskTarget {
       .put_object()
       .bucket(&self.bucket)
       .key(key)
+      .cache_control("max-age=600")
       .body(bitmask.to_vec().into())
       .send()
       .await {

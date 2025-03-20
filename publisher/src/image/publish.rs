@@ -1,7 +1,7 @@
 use serde::Serialize;
-use std::{ sync::Arc, collections::HashMap, error::Error, sync::Mutex as MX };
+use std::{ sync::Arc, collections::HashMap, error::Error };
 use tokio::{ task::{ spawn, spawn_blocking }, sync::Mutex };
-use futures::{ future::join_all, executor::block_on };
+use futures::future::try_join_all;
 use image::{ Rgb, Pixel, imageops::{ resize, fast_blur, FilterType }};
 
 use super::util::crop_to_square;
@@ -42,76 +42,102 @@ pub async fn publish<P: Pixel + Send + Sync + 'static> (
   subtitle: &Option<String>,
   description: &Option<String>,
   link: &Option<String>,
+  details: &Option<serde_json::Value>,
   io: Arc<dyn ImageInterface<Pixel = P>>,
   config: Arc<Config>,
 ) -> Result<PublishResult<P>, Box<dyn Error + Send + Sync>>
 where P::Subpixel: Send + Sync + Serialize {
-  let image = io.load(&source).await?;
+  // Load and crop the image once
+  let image = io.load(source).await?;
   let square = Arc::new(crop_to_square(&image));
+
+  // Shared state for results
   let published_shared = Arc::new(Mutex::new(HashMap::<u32, String>::new()));
-  let meta = Metadata {
-    title: title.clone(),
-    subtitle: subtitle.clone(),
-    description: description.clone(),
-    link: link.clone(),
-  };
+  let color_shared = Arc::new(Mutex::new(None::<Rgb<P::Subpixel>>));
 
-  let color: Arc<MX<Option<Rgb<P::Subpixel>>>> = Arc::new(MX::new(None));
+  // Share metadata across tasks without cloning per task
+  let meta = Arc::new(Metadata {
+      title: title.clone(),
+      subtitle: subtitle.clone(),
+      description: description.clone(),
+      link: link.clone(),
+      details: details.clone(),
+  });
 
-  // define one task for resizing and potentially blurring
-  // for each defined size.
-  let mut tasks: Vec<_> = config.sizes.iter().map(|size| {
+  let mut handles = Vec::new();
+
+  // Process each size: CPU-bound work in spawn_blocking, I/O in async
+  for size in &config.sizes {
     let square = Arc::clone(&square);
     let target = format!("tile-{}-{}-{}", x, y, size);
-    let blur_amount = match config.blur.get(size) {
-      Some(amount) => *amount,
-      None => 0.0,
-    };
+    let blur_amount = config.blur.get(size).cloned().unwrap_or(0.0);
     let size = *size;
-    let published = Arc::clone(&published_shared);
     let io = Arc::clone(&io);
-    let meta = meta.clone();
+    let meta = Arc::clone(&meta);
+    let published = Arc::clone(&published_shared);
+    let color_shared = Arc::clone(&color_shared);
 
-    let color = Arc::clone(&color);
-
-    spawn_blocking(move || {
+    let handle = spawn_blocking(move || {
       let resized = resize(&*square, size, size, FilterType::Lanczos3);
       let blurred = if blur_amount > 0.0 { fast_blur(&resized, blur_amount) } else { resized };
-      let saved = block_on(io.save(&blurred, &meta, &target)).unwrap();
+      let color = if size == 1 {
+          Some(blurred.get_pixel(0, 0).to_rgb())
+      } else {
+          None
+      };
+      (blurred, target, meta, color)
+    });
 
-      if size == 1 {
-        let mut color = color.lock().unwrap();
-        *color = Some(blurred.get_pixel(0, 0).to_rgb());
+    handles.push(spawn(async move {
+      let (image, target, meta, color) = handle.await.unwrap();
+      if let Some(color) = color {
+        *color_shared.lock().await = Some(color);
       }
 
-      let mut published = published.blocking_lock();
-      published.insert(size, saved);
-    })
-  }).collect();
+      match io.save(&image, &meta, &target).await {
+        Ok(saved) => {
+          published.lock().await.insert(size, saved);
+          Ok(())
+        },
+        Err(e) => Err(e)
+      }
+    }));
+  }
 
-  let published = Arc::clone(&published_shared);
+  // Handle the original square image asynchronously
+  let target = format!("tile-{}-{}", x, y);
   let io = Arc::clone(&io);
+  let meta = Arc::clone(&meta);
+  let published = Arc::clone(&published_shared);
+  let original_handle = spawn(async move {
+    match io.save(&square, &meta, &target).await {
+      Ok(saved) => {
+        published.lock().await.insert(0, saved);
+        Ok(())
+      },
+      Err(e) => Err(e)
+    }
+  });
+  handles.push(original_handle);
 
-  // also add one task for the original size (cropped to square)
-  tasks.push(spawn(async move {
-    let target = format!("tile-{}-{}", x, y);
-    let saved = io.save(&square, &meta, &target).await.unwrap();
+  // Wait for all tasks to complete
+  match try_join_all(handles).await {
+    Ok(res) => {
+      // Check for errors
+      for r in res { r?; }
+      // Prepare the result
+      let color = color_shared.lock().await;
+      let color = match &*color {
+        Some(color) => Some(vec![color.0[0], color.0[1], color.0[2]]),
+        None => None,
+      };
+      let published = published_shared.lock().await;
 
-    let mut published = published.lock().await;
-    published.insert(0, saved);
-  }));
-
-  // TODO: better error handling here
-  join_all(tasks).await;
-
-  let color = match &*color.lock().unwrap() {
-    Some(color) => Some(vec![color.0[0], color.0[1], color.0[2]]),
-    None => None,
-  };
-
-  let published = published_shared.lock().await;
-  Ok(PublishResult {
-    color: color,
-    images: published.clone(),
-  })
+      Ok(PublishResult {
+        color,
+        images: published.clone(),
+      })
+    },
+    Err(e) => Err(e.into())
+  }
 }

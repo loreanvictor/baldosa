@@ -1,6 +1,14 @@
 import createError from 'https://esm.sh/http-errors@2?bundle'
 
 
+const parseDetails = encoded => {
+  try {
+    return JSON.parse(atob(encoded))
+  } catch (error) {
+    return undefined
+  }
+}
+
 self.onmessage = async ({ data }) => {
   const { url } = data
 
@@ -18,6 +26,7 @@ self.onmessage = async ({ data }) => {
         subtitle: response.headers.get('x-amz-meta-subtitle'),
         description: atob(response.headers.get('x-amz-meta-description') ?? ''),
         link: response.headers.get('x-amz-meta-link'),
+        details: parseDetails(response.headers.get('x-amz-meta-details') ?? ''),
       }
       const blob = await response.blob()
       const bitmap = await createImageBitmap(blob)

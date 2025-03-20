@@ -13,6 +13,7 @@ import './bid/button.js'
 
 define('empty-tile-actions', () => {
   const modal = ref()
+  const bid = ref()
   const bookmark = ref()
   const link = ref()
 
@@ -24,13 +25,14 @@ define('empty-tile-actions', () => {
       modal.current.controls.open()
       bookmark.current.setProperty('tile', tile)
       link.current.setAttribute('content', tilelink(tile))
+      bid.current.style.display = (tile.meta?.details?.bid === false) ? 'none' : ''
     }
   })
 
   return html`
     <glass-modal noheader ref=${modal}>
       <action-list>
-        <bid-button></bid-button>
+        <bid-button ref=${bid}></bid-button>
         <copy-button ref=${link}>
           <secondary-button row>
             Copy Tile Link

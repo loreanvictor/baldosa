@@ -79,7 +79,7 @@ define('controlled-grid', () => {
     prev.current.setAttribute('base-url', baseURL)
     prev.current.setProperty('mask', mask)
     grid.current.addEventListener('tile-click', ({ detail }) => {
-      if (mask.has(detail.x, detail.y)) {
+      if (mask.has(detail.x, detail.y) && detail.meta?.details?.preview !== false) {
         prev.current.setProperty('tile', detail)
       } else {
         empty.current.setProperty('tile', detail)

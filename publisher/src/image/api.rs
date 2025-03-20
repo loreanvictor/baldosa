@@ -1,8 +1,8 @@
 
-use serde::Serialize;
+use aws_sdk_s3::error::BuildError;
+use serde::{ Serialize, Deserialize };
 use std::{ io::{ Error as IOError, ErrorKind }, sync::Arc };
 use axum::{ extract::{ Path, Json }, http::StatusCode, response::IntoResponse, Extension };
-use serde::Deserialize;
 use image::Pixel;
 use log::{ info, error };
 
@@ -26,6 +26,8 @@ pub struct PublishBody {
   description: Option<String>,
   /// The link of the produced tile.
   link: Option<String>,
+  /// Any additional details about the image.
+  details: Option<serde_json::Value>,
 }
 
 
@@ -65,7 +67,7 @@ pub async fn publish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageInt
   Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
   Json(body): Json<PublishBody>,
-) -> Result<impl IntoResponse, (StatusCode, &'static str)>
+) -> Result<impl IntoResponse, (StatusCode, String)>
 where
   IO: 'static,
   <IO as ImageInterface>::Pixel: 'static,
@@ -75,7 +77,11 @@ where
       info!("Publishing {} to ({}, {})", body.source, x, y);
       match publish(
         &body.source, x, y,
-        &body.title, &body.subtitle, &body.description, &body.link,
+        &body.title,
+        &body.subtitle,
+        &body.description,
+        &body.link,
+        &body.details,
         io,
         config
       ).await {
@@ -96,15 +102,29 @@ where
           error!("Failed to publish {}, {}", body.source, err);
           match err.downcast_ref::<IOError>() {
             Some(err) if err.kind() == ErrorKind::NotFound =>
-              Err((StatusCode::NOT_FOUND, "Image not found")),
+              Err((StatusCode::NOT_FOUND, "Image not found".to_string())),
             Some(err) if err.kind() == ErrorKind::InvalidInput =>
-              Err((StatusCode::BAD_REQUEST, "Invalid file format")),
-            _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong")),
+              Err((StatusCode::BAD_REQUEST, "Invalid file format".to_string())),
+            _ => {
+              match err.source() {
+                Some(src) => {
+                  if let Some(err) = src.downcast_ref::<BuildError>() {
+                    Err((StatusCode::BAD_REQUEST, format!("Bad metadata: {}", err)))
+                  } else {
+                    error!("Failed to publish {}, {}", body.source, err);
+                    Err((StatusCode::INTERNAL_SERVER_ERROR,
+                      "Something went wrong".to_string()))
+                  }
+                },
+                _ => Err((StatusCode::INTERNAL_SERVER_ERROR,
+                    "Something went wrong".to_string()))
+              }
+            },
           }
         }
       }
     },
-    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates"))
+    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates".to_string()))
   }
 }
 
@@ -133,7 +153,7 @@ pub async fn unpublish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageI
   Extension(io): Extension<Arc<IO>>,
   Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
-) -> Result<impl IntoResponse, (StatusCode, &'static str)>
+) -> Result<impl IntoResponse, (StatusCode, String)>
   where
     IO: 'static,
     <IO as ImageInterface>::Pixel: 'static,
@@ -151,9 +171,9 @@ pub async fn unpublish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageI
           Ok((StatusCode::OK, Json(result)))
         },
         // TODO: improve error handling here
-        _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong")),
+        _ => Err((StatusCode::INTERNAL_SERVER_ERROR, "Something went wrong".to_string())),
       }
     },
-    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates"))
+    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates".to_string()))
   }
 }
