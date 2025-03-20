@@ -76,6 +76,7 @@ define('controlled-grid', () => {
       grid.current.setAttribute('y', detail.y)
     })
   
+    empty.current.setAttribute('base-url', baseURL)
     prev.current.setAttribute('base-url', baseURL)
     prev.current.setProperty('mask', mask)
     grid.current.addEventListener('tile-click', ({ detail }) => {

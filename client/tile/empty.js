@@ -1,4 +1,4 @@
-import { define, onProperty } from 'minicomp'
+import { define, onProperty, onAttribute } from 'minicomp'
 import { html, ref } from 'rehtm'
 
 import '../design/glass/modal/component.js'
@@ -12,6 +12,7 @@ import './bid/button.js'
 
 
 define('empty-tile-actions', () => {
+  const baseURL = ref()
   const modal = ref()
   const bid = ref()
   const bookmark = ref()
@@ -19,9 +20,11 @@ define('empty-tile-actions', () => {
 
   let tile
 
+  onAttribute('base-url', url => baseURL.current = url)
   onProperty('tile', t => {
     tile = t
     if (tile) {
+      tile.meta && (tile.img = `${baseURL.current}/tile-${t.x}-${t.y}.jpg`)
       modal.current.controls.open()
       bookmark.current.setProperty('tile', tile)
       link.current.setAttribute('content', tilelink(tile))
