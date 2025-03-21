@@ -15,6 +15,14 @@ run_publisher() {
   ) &
 }
 
+run_bank () {
+  (
+    cd bank
+    cargo watch -x run
+  ) &
+}
+
 run_publisher
+run_bank
 serve_client
 wait

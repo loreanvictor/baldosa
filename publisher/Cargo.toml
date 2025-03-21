@@ -5,18 +5,18 @@ edition = "2021"
 
 [dependencies]
 tower = "0.5.2"
-axum = { version = "0.8.1", features = ["macros"] }
-log = "0.4.26"
-tokio = { version = "1", features = ["full"] }
+axum = { version = "0.8", features = ["macros"] }
+log = "0.4"
+tokio = { version = "1.44", features = ["full"] }
 jsonwebtoken = "9.3.1"
-serde = { version = "1.0.218", features = ["derive"] }
-toml = "0.8.20"
-image = "0.25.5"
-futures = "0.3.31"
-aws-config = "1.5.17"
-aws-sdk-s3 = "1.77.0"
-env_logger = "0.11.6"
-async-trait = "0.1.86"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+image = "0.25"
+futures = "0.3"
+aws-config = "1.6"
+aws-sdk-s3 = "1.79"
+env_logger = "0.11.7"
+async-trait = "0.1.88"
 url = "2.5.4"
 sqlx = { version = "0.8.3", features = ["sqlite", "runtime-tokio"] }
 hex = "0.4.3"

@@ -87,6 +87,10 @@ export const modal = singleton('account-modal', () => {
           <i-con src='person-plus' dark thick slot='icon'></i-con>
           Create New Account
         </secondary-button>
+        <!-- <secondary-button row>
+          <i-con src='envelop' dark thick slot='icon'></i-con>
+          Sign in with Email
+        </secondary-button> -->
       </action-list>
       <br/>
       <action-list island>

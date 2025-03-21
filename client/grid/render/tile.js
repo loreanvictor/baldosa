@@ -101,7 +101,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
       }
     }
   }
-  
+
   if (hover) {
     ctx.fillStyle = `rgba(255, 255, 255, ${hoverK * (zoomedOut ? .5 : .25) })`
     ctx.globalCompositeOperation = 'overlay'

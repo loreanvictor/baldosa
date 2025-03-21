@@ -80,8 +80,8 @@ export const modal = singleton('register-modal', () => {
         <text-input ref=${email} name='email' label='Email'
           required type='email' oncheck=${check}>
           <span slot='hint'>
-            Make sure you enter a valid email address that is unique. <br/>
-            If your email is not verifiable, your account will be purged.
+            Make sure you enter your correct email address. <br/>
+            You'll only be able to recover your account via this email address.
           </span>
         </text-input>
         <check-box ref=${terms} oncheck=${check}>
