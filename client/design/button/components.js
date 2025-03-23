@@ -66,3 +66,11 @@ define('action-list', () => html`
     <slot></slot>
   </div>
 `)
+
+
+define('btn-group', () => html`
+  <link rel="stylesheet" href="./client/design/button/styles.css" />
+  <div class="btn-group">
+    <slot></slot>
+  </div>
+`)

@@ -59,9 +59,7 @@ button {
   }
 }
 
-
 .action-list {
-  
   ::slotted(*) {
     --btn-txt: #fff;
     --btn-bg: transparent;
@@ -99,4 +97,17 @@ button {
   display: block;
   border-radius: 8px;
   overflow: hidden;
+}
+
+.btn-group {
+  display: flex;
+  gap: .5ch;
+
+  ::slotted(primary-button) {
+    flex: 1;
+  }
+
+  ::slotted(:last-child) {
+    flex: 1;
+  }
 }

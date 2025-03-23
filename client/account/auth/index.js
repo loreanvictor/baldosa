@@ -1,7 +1,10 @@
 import { broadcast } from '../../util/broadcast.js'
 import { waitForOne } from '../../util/wait-for-one.js'
-import { startLogin, finishLogin, startRegister, finishRegister } from './backend.js'
+import { startAuthentication, finishAuthentication,
+    startRegistration, finishRegistration } from './backend.js'
 import { modal } from './modal.js'
+import { errmodal } from '../../design/misc/errmodal.js'
+
 
 let _token = undefined
 let _email = undefined
@@ -34,43 +37,28 @@ export const init = () => {
 }
 
 export const login = async () => {
-  const challenge = await startLogin()
-  const credentials = await navigator.credentials.get({
-    publicKey: {
-      challenge: Uint8Array.from(challenge, c => c.charCodeAt(0)),
-      rp: {name: 'Baldosa'},
-      userVerification: 'preferred'
-    }
-  })
+  const authOpts = await startAuthentication()
+  const credential = await navigator.credentials.get(authOpts)
 
-  const user = await finishLogin(credentials)
-  setaccount(user.email, user.name, user.token)
+  const user = await finishAuthentication(credential)
+  setaccount(user.email, `${user.firstname} ${user.lastname}`, user.token)
 }
 
 export const register = async () => {
-    modal().controls.open()
-    const { name, email } = await waitForOne(modal(), 'done', 'cancel')
-    const { challenge, userid } = await startRegister(email)
-    
-    const credential = await navigator.credentials.create({
-      publicKey: {
-        challenge: Uint8Array.from(challenge, c => c.charCodeAt(0)),
-        rp: {name: 'Baldosa'},
-        user: {
-          id: Uint8Array.from(userid, c => c.charCodeAt(0)),
-          name: email,
-          displayName: name,
-        },
-        pubKeyCredParams: [{alg: -7, type: "public-key"}],
-        authenticatorSelection: {
-          requireResidentKey: true,
-          userVerification: 'preferred',
-        },
-        timeout: 60000,
-        attestation: "direct"
-      }
-    })
+  modal().controls.open()
+  const { email, firstname, lastname } = await waitForOne(modal(), 'done', 'cancel')
 
-    const user = await finishRegister(email, name, credential)
-    setaccount(user.email, user.name, user.token)
+  try {
+    const createCredentialOptions = await startRegistration({ email, firstname, lastname })
+    const credential = await navigator.credentials.create(createCredentialOptions)
+
+    const user = await finishRegistration(credential)
+    setaccount(user.email, `${user.firstname} ${user.lastname}`, user.token)
+  } catch (error) {
+    errmodal().controls.open(
+      `Could not register new user with email ${email}, because of the following error:`,
+      error
+    )
+    errmodal().addEventListener('retry', register, { once: true })
+  }
 }

@@ -43,7 +43,8 @@ export const modal = singleton('register-modal', () => {
     if (valid) {
       ok({
         email: email.current.value,
-        name: `${firstname.current.value} ${lastname.current.value}`,
+        firstname: firstname.current.value,
+        lastname: lastname.current.value,
       })
       modal.current.controls.close()
     }
