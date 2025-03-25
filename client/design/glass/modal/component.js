@@ -31,11 +31,11 @@ define('glass-modal', ({ noheader }) => {
       warmup = setTimeout(() => opened = true, 50)
       push(self)
     },
-    close: () => {
+    close: (synthetic = true) => {
       self.removeAttribute('open')
       clearTimeout(warmup)
       opened = false
-      onclose()
+      onclose({ synthetic })
 
       dialog.current.classList.add('closing')
 
@@ -54,8 +54,12 @@ define('glass-modal', ({ noheader }) => {
     }
   }
 
-  attachControls(controls)
-  onClickOut(dialog, () => opened, controls.close)
+  attachControls({
+    open: controls.open,
+    close: () => controls.close(),
+  })
+
+  onClickOut(dialog, () => opened, () => controls.close(false))
   triggerPrimaryActionOnEnter()
 
   const onswipestart = ({ detail }) => {
@@ -81,7 +85,7 @@ define('glass-modal', ({ noheader }) => {
       const vy = detail.velocity.y
 
       if ((vy > 5 || dy > rect.height * .6) && detail.aligned && dy > 75 && vy > 0) {
-        controls.close()
+        controls.close(false)
       } else {
         dialog.current.style.setProperty('--backdrop-blur', '')
         dialog.current.style.setProperty('--backdrop-opacity', '')
@@ -94,7 +98,7 @@ define('glass-modal', ({ noheader }) => {
     <dialog ref=${dialog}>
       <header style=${noheader ? 'display: none' : ''}>
         <h1><slot name="title"></slot></h1>
-        <close-pin onclick=${() => controls.close()}></close-pin>
+        <close-pin onclick=${() => controls.close(false)}></close-pin>
       </header>
       <slot></slot>
     </dialog>

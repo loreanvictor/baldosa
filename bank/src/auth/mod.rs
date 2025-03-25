@@ -1,7 +1,11 @@
 use webauthn_rs::prelude::*;
 use std::{ env, sync::Arc };
 use sqlx::{ Pool, postgres::Postgres };
-use axum::{ http::{ header, HeaderValue, Method }, Router, routing::post, extract::Extension };
+use axum::{
+  http::{ header, HeaderValue, Method },
+  Router, routing::{ get, post, delete },
+  extract::Extension
+};
 use tower_sessions::{
   cookie::{ time::Duration, SameSite },
   Expiry, MemoryStore, SessionManagerLayer,
@@ -9,10 +13,14 @@ use tower_sessions::{
 use tower_http::cors::CorsLayer;
 
 pub mod error;
-mod user;
+pub mod user;
 mod storage;
 mod register;
 mod authenticate;
+mod passkeys;
+
+pub use user::AuthenticatedUser;
+pub use error::AuthError;
 
 
 pub fn router(db: &Pool<Postgres>) -> Router {
@@ -65,7 +73,7 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   // that browsers are satisfied.
   //
   let cors = CorsLayer::new()
-    .allow_methods([ Method::POST ])
+    .allow_methods([ Method::POST, Method::GET, Method::DELETE ])
     .allow_origin(HeaderValue::from_str(&client_url).unwrap())
     .allow_headers([
       header::CONTENT_TYPE,
@@ -83,6 +91,10 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     .route("/register/finish", post(register::finish))
     .route("/authenticate/start", post(authenticate::start))
     .route("/authenticate/finish", post(authenticate::finish))
+    .route("/passkeys", get(passkeys::all))
+    .route("/passkeys/start", post(passkeys::start_adding))
+    .route("/passkeys/finish", post(passkeys::finish_adding))
+    .route("/passkeys/{id}", delete(passkeys::remove))
     .layer(Extension(Arc::new(webauthn)))
     .layer(Extension(storage))
     .layer(session)

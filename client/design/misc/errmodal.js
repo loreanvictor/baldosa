@@ -33,6 +33,7 @@ export const errmodal = singleton('error-modal', () => {
         margin: 1ch 0;
         color: var(--red-fg);
         border-radius: 5px;
+        white-space: pre-wrap;
       }
       h1 {
         color: var(--red-fg);

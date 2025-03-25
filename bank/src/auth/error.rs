@@ -27,8 +27,8 @@ impl IntoResponse for AuthError {
         AuthError::Unknown => (StatusCode::INTERNAL_SERVER_ERROR, "Unknown error"),
         AuthError::UserHasNoCredentials => (StatusCode::UNAUTHORIZED, "User has no credentials"),
         AuthError::InvalidSessionState(_) => (StatusCode::BAD_REQUEST, "Deserialising session failed"),
-        AuthError::InvalidCredentials => (StatusCode::BAD_REQUEST, "Invalid credentials"),
-        AuthError::UserExists => (StatusCode::UNAUTHORIZED, "User already exists"),
+        AuthError::InvalidCredentials => (StatusCode::UNAUTHORIZED, "Invalid credentials"),
+        AuthError::UserExists => (StatusCode::CONFLICT, "User already exists"),
       }
     ).into_response()
   }

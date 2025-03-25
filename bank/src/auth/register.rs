@@ -89,7 +89,7 @@ pub async fn finish(
       }
 
       match storage.create_passkey(unique_user_id, &body.key_name, &passkey).await {
-          Ok(()) => Ok(Json(AuthenticatedUser::sign(unique_user_id, email, first_name, last_name))),
+          Ok(_) => Ok(Json(AuthenticatedUser::sign(unique_user_id, email, first_name, last_name))),
           Err(err) => {
             error!("Error creating passkey: {:?}", err);
             return Err(AuthError::Unknown);
@@ -102,4 +102,3 @@ pub async fn finish(
     },
   }
 }
-

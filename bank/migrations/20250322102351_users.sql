@@ -3,9 +3,9 @@ create table users (
   first_name            varchar(255) not null,
   last_name             varchar(255) not null,
   email                 varchar(255) unique not null,
-  email_verified_at     timestamp default null,
-  created_at            timestamp default now(),
-  updated_at            timestamp default now()
+  email_verified_at     timestamptz default null,
+  created_at            timestamptz not null default now(),
+  updated_at            timestamptz not null default now()
 );
 
 create table passkeys (
@@ -14,6 +14,6 @@ create table passkeys (
   user_id               uuid not null references users(id) on delete cascade,
   credential_id         bytea unique not null,
   passkey_data          jsonb not null,
-  created_at            timestamp default now(),
-  updated_at            timestamp default now()
+  created_at            timestamptz not null default now(),
+  updated_at            timestamptz not null default now()
 );

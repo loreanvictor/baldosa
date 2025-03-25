@@ -59,6 +59,15 @@ button {
   }
 }
 
+:host(primary-button[danger]) {
+  --btn-bg: linear-gradient(180deg, var(--red-bg), var(--red-fg));
+  --btn-border-top: var(--red-bg);
+  --btn-border-bot: var(--red-bg);
+  --btn-border-left: var(--red-bg);
+  --btn-border-right: var(--red-bg);
+  --btn-txt: white;
+}
+
 .action-list {
   ::slotted(*) {
     --btn-txt: #fff;

@@ -1,25 +1,28 @@
-export const niceKeyName = () => {
-  const ua = navigator.userAgent
+export const niceKeyName = async () => {
+  const { UAParser } = await import('ua-parser-js')
 
-  const os = (() => {
-    if (/Windows NT 10/.test(ua)) return 'Windows 10'
-    if (/Windows NT 6.3/.test(ua)) return 'Windows 8.1'
-    if (/Windows NT 6.1/.test(ua)) return 'Windows 7'
-    if (/Mac OS X 10[._]\d+/.test(ua)) return 'macOS'
-    if (/Android/.test(ua)) return 'Android'
-    if (/iPhone/.test(ua)) return 'iPhone'
-    if (/iPad/.test(ua)) return 'iPad'
-    if (/Linux/.test(ua)) return 'Linux'
-    return "Unknown OS"
-  })();
+  // Initialize the UAParser object
+  const parser = new UAParser()
+  const result = parser.getResult()
 
-  const browser = (() => {
-    if (/Chrome\/(\d+)/.test(ua)) return 'Chrome'
-    if (/Safari\/(\d+)/.test(ua) && /Version\/(\d+)/.test(ua)) return 'Safari'
-    if (/Firefox\/(\d+)/.test(ua)) return 'Firefox'
-    if (/Edg\/(\d+)/.test(ua)) return 'Edge'
-    return "Unknown Browser"
-  })();
+  // Extract relevant information
+  const browser = result.browser.name      // e.g., "Chrome", "Safari", "Firefox"
+  const os = result.os.name                // e.g., "Windows", "macOS", "iOS"
+  const deviceModel = result.device.model  // e.g., "iPhone", "Galaxy S9", undefined for desktops
+  const deviceType = result.device.type    // e.g., "mobile", "tablet", undefined for desktops
 
-  return `${browser} on ${os}`
+  // Construct the passkey name
+  let passkeyName
+  if (deviceModel) {
+      // Use device model for specific devices like phones or tablets
+      passkeyName = `${browser} on ${deviceModel}`
+  } else if (deviceType) {
+      // Use device type if model isn’t available but type is (less common)
+      passkeyName = `${browser} on ${deviceType}`
+  } else {
+      // Default to OS for desktops or when no device info is present
+      passkeyName = `${browser} on ${os}`
+  }
+
+  return passkeyName
 }

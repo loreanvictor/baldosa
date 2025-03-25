@@ -1,4 +1,4 @@
-import createError from 'https://esm.sh/http-errors@2?bundle'
+import createError from 'https://esm.run/http-errors@2'
 
 
 const parseDetails = encoded => {

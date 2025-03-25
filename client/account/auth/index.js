@@ -11,6 +11,7 @@ let _email = undefined
 let _name = undefined
 
 const setaccount = (email, name, token) => {
+  console.log('--- LOGIN! ---')
   _token = token
   _name = name
   _email = email
@@ -37,11 +38,19 @@ export const init = () => {
 }
 
 export const login = async () => {
-  const authOpts = await startAuthentication()
-  const credential = await navigator.credentials.get(authOpts)
-
-  const user = await finishAuthentication(credential)
-  setaccount(user.email, `${user.firstname} ${user.lastname}`, user.token)
+  try {
+    const authOpts = await startAuthentication()
+    const credential = await navigator.credentials.get(authOpts)
+  
+    const user = await finishAuthentication(credential)
+    setaccount(user.email, `${user.firstname} ${user.lastname}`, user.token)
+  } catch (error) {
+    errmodal().controls.open(
+      `Could not login, because of the following error:`,
+      error
+    )
+    errmodal().addEventListener('retry', login, { once: true })
+  }
 }
 
 export const register = async () => {
@@ -60,5 +69,16 @@ export const register = async () => {
       error
     )
     errmodal().addEventListener('retry', register, { once: true })
+  }
+}
+
+
+export const authenticated = (opts) => {
+  return {
+    ...opts,
+    headers: {
+      ...opts.headers,
+      'Authorization': `Bearer ${_token}`
+    }
   }
 }

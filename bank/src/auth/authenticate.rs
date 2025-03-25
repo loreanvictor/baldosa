@@ -51,17 +51,17 @@ pub async fn finish(
     Err(_) => { return Err(AuthError::UserNotFound); },
   };
 
-  let passkey = match passkeys.iter().find(|key| key.cred_id() == cred_id) {
+  let passkey = match passkeys.iter().find(|key| key.credential_id == cred_id) {
     Some(passkey) => passkey,
     None => { return Err(AuthError::InvalidCredentials); },
   };
 
-  let discoverable_keys = passkeys.iter().map(|key| DiscoverableKey::from(key)).collect::<Vec<_>>();
+  let discoverable_keys = passkeys.iter().map(|key| DiscoverableKey::from(&key.passkey_data)).collect::<Vec<_>>();
   match webauthn.finish_discoverable_authentication(&body.credential, reg_state, discoverable_keys.as_ref()) {
     Ok(auth_result) => {
       // TODO: also something about checking the counter should be done here?
       if auth_result.needs_update() {
-        let mut passkey = passkey.clone();
+        let mut passkey = passkey.passkey_data.clone();
         passkey.update_credential(&auth_result);
         let _ = storage.update_passkey(uuid, &passkey).await;
       }

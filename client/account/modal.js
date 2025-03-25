@@ -8,6 +8,7 @@ import '../design/misc/icon/component.js'
 import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
 import { init, login, register, logout, user } from './auth/index.js'
+import { modal as settings } from './settings/modal.js'
 import { modal as terms } from './terms.js'
 import { modal as about } from './about.js'
 
@@ -69,9 +70,9 @@ export const modal = singleton('account-modal', () => {
           <i-con src='bid' dark thick slot='icon'></i-con>
           Bids
         </secondary-button>
-        <secondary-button row>
+        <secondary-button row onclick=${() => settings().controls.open()}>
           <i-con src='gear' dark thick slot='icon'></i-con>
-          Account Settings
+          Settings
         </secondary-button>
         <secondary-button row onclick=${() => logout()}>
           <i-con src='circle-arrow' dark thick slot='icon'></i-con>

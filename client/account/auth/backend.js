@@ -1,13 +1,14 @@
 import createError from 'http-errors'
-import { Base64 } from 'js-base64'
 
 import { conf } from '../../config.js'
 import { niceKeyName } from './util.js'
 
 
-const backendURL = () => `${conf('BANK_URL') ?? 'https://bank.baldosa.city'}/auth`
+export const backendURL = () => `${conf('BANK_URL') ?? 'https://bank.baldosa.city'}/auth`
 
 export const startAuthentication = async () => {
+  const { Base64 } = await import('js-base64')
+
   const res = await fetch(`${backendURL()}/authenticate/start`, {
     method: 'POST',
     credentials: 'include',
@@ -26,6 +27,8 @@ export const startAuthentication = async () => {
 }
 
 export const finishAuthentication = async (credentials) => {
+  const { Base64 } = await import('js-base64')
+
   const res = await fetch(`${backendURL()}/authenticate/finish`, {
     method: 'POST',
     credentials: 'include',
@@ -64,6 +67,8 @@ export const finishAuthentication = async (credentials) => {
 }
 
 export const startRegistration = async (user) => {
+  const { Base64 } = await import('js-base64')
+
   const res = await fetch(`${backendURL()}/register/start`, {
     method: 'POST',
     credentials: 'include',
@@ -93,6 +98,8 @@ export const startRegistration = async (user) => {
 }
 
 export const finishRegistration = async (credential) => {
+  const { Base64 } = await import('js-base64')
+
   const res = await fetch(`${backendURL()}/register/finish`, {
     method: 'POST',
     credentials: 'include',
@@ -109,7 +116,7 @@ export const finishRegistration = async (credential) => {
           clientDataJSON: Base64.fromUint8Array(new Uint8Array(credential.response.clientDataJSON), true),
         },
       },
-      key_name: niceKeyName(),
+      key_name: await niceKeyName(),
     })
   })
 
