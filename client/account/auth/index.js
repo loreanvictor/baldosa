@@ -11,7 +11,6 @@ let _email = undefined
 let _name = undefined
 
 const setaccount = (email, name, token) => {
-  console.log('--- LOGIN! ---')
   _token = token
   _name = name
   _email = email

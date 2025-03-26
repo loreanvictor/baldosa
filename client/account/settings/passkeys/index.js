@@ -23,11 +23,14 @@ export const add = async () => {
 
     broadcast('passkey:added', key)
   } catch (error) {
-    errmodal().controls.open(
-      `Could not register new passkey, because of the following error:`,
-      error
-    )
-    errmodal().addEventListener('retry', add, { once: true })
+    if (!error.message.match(/timed out/)) {
+      errmodal().controls.open(
+        `Could not register new passkey, because of the following error:`,
+        error
+      )
+      errmodal().addEventListener('retry', add, { once: true })
+    }
+
     throw error
   }
 }

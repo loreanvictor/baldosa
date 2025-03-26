@@ -4,6 +4,7 @@ import { ref, html } from 'rehtm'
 import { singleton } from '../../../util/singleton.js'
 import '../../../design/glass/modal/component.js'
 import '../../../design/button/components.js'
+import '../../../design/confirm/component.js'
 
 export const modal = singleton('remove-passkey-modal', () => {
   const onconfirm = useDispatch('confirm')
@@ -22,12 +23,6 @@ export const modal = singleton('remove-passkey-modal', () => {
     close && modal.current.controls.close()
   }
 
-  // TODO:
-  // instead of a delete and a cancel button, use a "Confirm Button".
-  // A confirm button requires the user to type the label of the button, followed
-  // by a click, to confirm the action on desktop, and requires a sliding action on mobile.
-  // The determination is done based on media query for touch.
-  
   return html`
     <style>
       btn-group > * {
@@ -62,8 +57,7 @@ export const modal = singleton('remove-passkey-modal', () => {
         and <u>cannot be undone</u>. You also need to delete the passkey from your browser manually.
       </p>
       <btn-group>
-        <primary-button danger onclick=${confirm}>Delete Passkey</primary-button>
-        <secondary-button onclick=${cancel}>Cancel</secondary-button>
+        <confirm-button danger label='Delete Passkey' onconfirm=${confirm}></confirm-button>
       </btn-group>
     </glass-modal>
   `

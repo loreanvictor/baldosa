@@ -1,0 +1,85 @@
+:host {
+  position: relative;
+  overflow: hidden;
+  border-radius: 7px;
+  cursor: pointer;
+
+  --empty-background: linear-gradient(180deg, #08080866, #18181888);
+  --empty-color: #616161;
+  --filled-background: linear-gradient(180deg, var(--blue-bg, blue), var(--blue-fg, blue));
+  --filled-color: #fff;
+  --percentage: 0%;
+}
+
+:host([danger]) {
+  --empty-background: linear-gradient(180deg, #1a1a1a, #1e1e1e);
+  --empty-color: var(--red-fg, red);
+  --filled-background: linear-gradient(180deg, var(--red-bg, red), var(--red-fg, red));
+  --filled-color: #fff;
+}
+
+div {
+  display: grid;
+  place-content: center;
+  height: 52px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  overflow: hidden;
+
+  &.empty {
+    background: var(--empty-background);
+    color: var(--empty-color);
+  }
+
+  &.filled {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    background: var(--filled-background);
+    color: var(--filled-color);
+    clip-path: circle(var(--percentage));
+    -webkit-clip-path: circle(var(--percentage));
+
+    @media (pointer: coarse) {
+      clip-path: polygon(
+        0 0,
+        var(--percentage) 0,
+        var(--percentage) 100%,
+        0 100%
+      );
+      -webkit-clip-path: polygon(
+        0 0,
+        var(--percentage) 0,
+        var(--percentage) 100%,
+        0 100%
+      );
+    }
+
+    transition: clip-path 0.2s ease-in-out, -webkit-clip-path 0.2s ease-in-out;
+  }
+}
+
+.slide-indicator {
+  position: absolute;
+  top: 0; left: 0;
+  width: 32px;
+  height: 52px;
+  background-color: white;
+  filter: blur(16px);
+  -webkit-filter: blur(16px);
+  mix-blend-mode: overlay;
+  animation: slide 5s ease-in-out infinite;
+  display: none;
+
+  @media (pointer: coarse) {
+    display: initial;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(-50vw);
+  }
+  to {
+    transform: translateX(450vw);
+  }
+}
