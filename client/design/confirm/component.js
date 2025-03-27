@@ -10,8 +10,10 @@ define('confirm-button', () => {
   const self = currentNode()
   const empty = ref()
   const filled = ref()
+  let disabled = false
   let locked = false
 
+  onAttribute('disabled', d => disabled = d !== undefined && d !== ATTRIBUTE_REMOVED)
   onAttribute('locked', (value) => locked = value !== null && value !== undefined && value !== ATTRIBUTE_REMOVED)
   onAttribute('label', (label) => {
     if (label) {
@@ -23,7 +25,7 @@ define('confirm-button', () => {
 
   const swipestart = ({ detail }) => {
     const rect = self.getBoundingClientRect()
-    if (detail.start.x > rect.left + rect.width / 4) {
+    if (disabled || detail.start.x > rect.left + rect.width / 4) {
       detail.disqualify()
     }
   }
@@ -53,7 +55,7 @@ define('confirm-button', () => {
   let waited = 0
   const wait = 2000
   on('mousedown', (event) => {
-    if (touchdevice()) return
+    if (touchdevice() || disabled) return
 
     const rect = self.getBoundingClientRect()
     const x = event.clientX
@@ -63,6 +65,7 @@ define('confirm-button', () => {
       ${(x - rect.left) / rect.width * 100}% ${(y - rect.top) / rect.height * 100}%)`
     filled.current.style.clipPath = clippath
     filled.current.style.webkitClipPath = clippath
+    clearInterval(holdinterval)
     holdinterval = setInterval(() => {
       waited += 20
       filled.current.style.setProperty('--percentage', `${waited / wait * 100}%`)
@@ -74,7 +77,7 @@ define('confirm-button', () => {
     clearInterval(holdinterval)
     filled.current.style.setProperty('transition', '')
     
-    if (waited >= wait) {
+    if (waited >= wait * .8) {
       confirm()
       filled.current.style.setProperty('transition', '')
       clearInterval(holdinterval)
@@ -87,6 +90,13 @@ define('confirm-button', () => {
     }
 
     waited = 0
+  })
+
+  on('mouseleave', () => {
+    waited = 0
+    clearInterval(holdinterval)
+    filled.current.style.setProperty('transition', '')
+    filled.current.style.setProperty('--percentage', '')
   })
 
   return html`

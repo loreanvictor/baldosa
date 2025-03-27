@@ -1,14 +1,19 @@
 :host {
+  display: block;
   position: relative;
   overflow: hidden;
   border-radius: 7px;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 
   --empty-background: linear-gradient(180deg, #08080866, #18181888);
-  --empty-color: #616161;
-  --filled-background: linear-gradient(180deg, var(--blue-bg, blue), var(--blue-fg, blue));
-  --filled-color: #fff;
+  --empty-color: #eeeeee;
+  --filled-background: linear-gradient(180deg, #F2EAD3, #F5F5F5);
+  --filled-color: #393E46;
   --percentage: 0%;
+
+  transition: filter .3s, -webkit-filter .3s;
 }
 
 :host([danger]) {
@@ -18,6 +23,12 @@
   --filled-color: #fff;
 }
 
+:host([disabled]) {
+  cursor: not-allowed;
+  filter: invert(1) saturate(0) contrast(0.5);
+  -webkit-filter: invert(1) saturate(0) contrast(0.5);
+}
+
 div {
   display: grid;
   place-content: center;
@@ -25,10 +36,12 @@ div {
   font-weight: bold;
   font-size: 0.9rem;
   overflow: hidden;
+  border-radius: 7px;
 
   &.empty {
     background: var(--empty-background);
     color: var(--empty-color);
+    transition: color .3s, background .3s;
   }
 
   &.filled {

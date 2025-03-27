@@ -52,9 +52,9 @@ export const modal = singleton('remove-passkey-modal', () => {
     <glass-modal ref=${modal} onclose=${() => cancel(false)}>
       <i-con class='danger' src='warning-sign' dark thick></i-con>
       <p>
-        You're about to delete <span ref=${keyname}>Passkey</span>. You won't be able to
+        You're about to delete passkey <span ref=${keyname}>Passkey</span>. You won't be able to
         log in with this passkey anymore. This action is permanent
-        and <u>cannot be undone</u>. You also need to delete the passkey from your browser manually.
+        and irriversible. You also need to delete the passkey from your browser manually.
       </p>
       <btn-group>
         <confirm-button danger label='Delete Passkey' onconfirm=${confirm}></confirm-button>

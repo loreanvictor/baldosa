@@ -11,13 +11,17 @@ use tower_sessions::{
   Expiry, MemoryStore, SessionManagerLayer,
 };
 use tower_http::cors::CorsLayer;
+use log::info;
 
 pub mod error;
 pub mod user;
 mod storage;
+mod otc;
 mod register;
 mod authenticate;
 mod passkeys;
+mod email;
+
 
 pub use user::AuthenticatedUser;
 pub use error::AuthError;
@@ -72,9 +76,16 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   // a lot of CORS parameters explicitly (not using wildcards) so
   // that browsers are satisfied.
   //
+  let allowed_origin = match env::var("DEV_CLIENT_URL") {
+    Ok(dev_client_url) => HeaderValue::from_str(&dev_client_url).unwrap(),
+    Err(_) => HeaderValue::from_str(&client_url).unwrap(),
+  };
+
+  info!("allowed origin: {:?}", allowed_origin);
+
   let cors = CorsLayer::new()
     .allow_methods([ Method::POST, Method::GET, Method::DELETE ])
-    .allow_origin(HeaderValue::from_str(&client_url).unwrap())
+    .allow_origin(allowed_origin)
     .allow_headers([
       header::CONTENT_TYPE,
       header::AUTHORIZATION,
@@ -85,6 +96,7 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   ;
 
   let storage = storage::AuthStorage::new(db.clone());
+  let otc = otc::OneTimeCodes::new(db.clone());
 
   Router::new()
     .route("/register/start", post(register::start))
@@ -95,8 +107,11 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     .route("/passkeys/start", post(passkeys::start_adding))
     .route("/passkeys/finish", post(passkeys::finish_adding))
     .route("/passkeys/{id}", delete(passkeys::remove))
+    .route("/email/code", post(email::send_auth_otc))
+    .route("/email/authenticate", post(email::authenticate))
     .layer(Extension(Arc::new(webauthn)))
     .layer(Extension(storage))
+    .layer(Extension(otc))
     .layer(session)
     .layer(cors)
 }

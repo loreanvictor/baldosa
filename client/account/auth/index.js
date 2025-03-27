@@ -10,7 +10,7 @@ let _token = undefined
 let _email = undefined
 let _name = undefined
 
-const setaccount = (email, name, token) => {
+export const setaccount = (email, name, token) => {
   _token = token
   _name = name
   _email = email

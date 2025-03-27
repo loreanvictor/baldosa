@@ -8,6 +8,7 @@ import '../design/misc/icon/component.js'
 import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
 import { init, login, register, logout, user } from './auth/index.js'
+import { authenticate as emaillogin } from './email/index.js'
 import { modal as settings } from './settings/modal.js'
 import { modal as terms } from './terms.js'
 import { modal as about } from './about.js'
@@ -70,6 +71,10 @@ export const modal = singleton('account-modal', () => {
           <i-con src='bid' dark thick slot='icon'></i-con>
           Bids
         </secondary-button>
+        <secondary-button row>
+          <i-con src='four-squares' dark thick slot='icon'></i-con>
+          Tiles
+        </secondary-button>
         <secondary-button row onclick=${() => settings().controls.open()}>
           <i-con src='gear' dark thick slot='icon'></i-con>
           Settings
@@ -88,10 +93,10 @@ export const modal = singleton('account-modal', () => {
           <i-con src='person-plus' dark thick slot='icon'></i-con>
           Create New Account
         </secondary-button>
-        <!-- <secondary-button row>
+        <secondary-button row onclick=${() => emaillogin()}>
           <i-con src='envelop' dark thick slot='icon'></i-con>
           Sign in with Email
-        </secondary-button> -->
+        </secondary-button>
       </action-list>
       <br/>
       <action-list island>

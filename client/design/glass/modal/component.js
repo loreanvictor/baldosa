@@ -1,4 +1,4 @@
-import { define, attachControls, useDispatch, currentNode, on } from 'minicomp'
+import { define, attachControls, useDispatch, currentNode } from 'minicomp'
 import { ref, html } from 'rehtm'
 
 import '../../../util/swipe-control.js'
