@@ -45,12 +45,20 @@ pub async fn send_auth_otc(
             <b style='font-size: 4em; font-weight: 100'>{}</b>
           </p>
           <br/>
-          <pre style='margin: 0; padding: 0;'>
- ▝▘
- ▝▚▖▗▖    Best Regards,
-▗▞▚▖▗▞▘   The Baldosa Team
-          </pre>
-        </div>
+          <div style='display: flex'>
+            <p style='margin: 0; margin-right: 2ch; padding: 0; background: #222831; color: #FFF5E0; border-radius: 7px;'>
+⠀⠀⠀⠀⠀⠀⠀⠀<br/>
+⠀⠀▝▘⠀⠀⠀⠀<br/>
+⠀⠀▝▚▖▗▖⠀<br/>
+⠀▗▞▚▖▗▞▘<br/>
+⠀⠀⠀⠀⠀⠀⠀
+            </p>
+            <p>
+<br/>
+Best Regards,<br/>
+The Baldosa Team
+            </p>
+          </div>
         ", user.first_name, user.last_name, code.code).as_str()
       )
   ).await {
