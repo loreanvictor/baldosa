@@ -9,30 +9,53 @@ import { errmodal } from '../../design/misc/errmodal.js'
 let _token = undefined
 let _email = undefined
 let _name = undefined
+let _verification = undefined
 
-export const setaccount = (email, name, token) => {
-  _token = token
-  _name = name
-  _email = email
-  localStorage.setItem('current-user', JSON.stringify({ email, name, token }))
-  broadcast('account:login')
+export const setAccount = (email, name, verification, token) => {
+  if (token && email) {
+    _token = token
+    _name = name
+    _email = email
+    _verification = verification
+    localStorage.setItem('current-user', JSON.stringify({ email, name, verification, token }))
+    broadcast('account:login')
+  } else {
+    throw new Error('Wrong credentials for logging in')
+  }
+}
+
+export const addVerification = (verification) => {
+  _verification = {
+    ..._verification,
+    ...verification
+  }
+
+  broadcast('account:verification_updated', _verification)
 }
 
 export const logout = () => {
   _token = undefined
   _email = undefined
   _name = undefined
+  _verification = undefined
   localStorage.removeItem('current-user')
   broadcast('account:logout')
 }
 
-export const user = () => (_email && _token && { name: _name, email: _email, token: _token })
+export const user = () => (_email && _token && {
+  name: _name,
+  email: _email,
+  verification: _verification,
+  token: _token,
+})
+
+window.user = user
 
 export const init = () => {
   const current = JSON.parse(localStorage.getItem('current-user') ?? '{}')
 
   if (current.email && current.token) {
-    setaccount(current.email, current.name ?? 'Anonymous User', current.token)
+    setAccount(current.email, current.name ?? 'Anonymous User', current.verification, current.token)
   }
 }
 
@@ -42,7 +65,7 @@ export const login = async () => {
     const credential = await navigator.credentials.get(authOpts)
   
     const user = await finishAuthentication(credential)
-    setaccount(user.email, `${user.firstname} ${user.lastname}`, user.token)
+    setAccount(user.email, `${user.firstname} ${user.lastname}`, user.verification, user.token)
   } catch (error) {
     errmodal().controls.open(
       `Could not login, because of the following error:`,
@@ -61,7 +84,7 @@ export const register = async () => {
     const credential = await navigator.credentials.create(createCredentialOptions)
 
     const user = await finishRegistration(credential)
-    setaccount(user.email, `${user.firstname} ${user.lastname}`, user.token)
+    setAccount(user.email, `${user.firstname} ${user.lastname}`, user.verification, user.token)
   } catch (error) {
     errmodal().controls.open(
       `Could not register new user with email ${email}, because of the following error:`,

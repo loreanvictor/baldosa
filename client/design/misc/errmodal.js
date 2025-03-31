@@ -11,17 +11,19 @@ export const errmodal = singleton('error-modal', () => {
   const modal = ref()
   const title = ref()
   const msg = ref()
+  const btn = ref()
   const errname = ref()
   const errmsg = ref()
   const retry = useDispatch('retry')
 
   attachControls({
-    open: (message, error) => {
+    open: (message, error, retrylabel = 'Retry') => {
       modal.current.controls.open()
       title.current.textContent = error.status ?? 'Err'
       msg.current.textContent = message
       errname.current.textContent = `[${error.name}]::`
       errmsg.current.textContent = error.message
+      btn.current.textContent = retrylabel
     }
   })
 
@@ -56,10 +58,10 @@ export const errmodal = singleton('error-modal', () => {
       </pre>
       <br/><br/>
       <btn-group>
-        <primary-button onclick=${() => {
+        <primary-button ref=${btn} onclick=${() => {
           modal.current.controls.close()
           retry()
-        }}>Retry</primary-button>
+        }}></primary-button>
       </btn-group>
     </glass-modal>
   `

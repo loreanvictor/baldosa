@@ -1,7 +1,9 @@
 ```
+
  ▝▘            ▝▘    ▝▘
- ▝▚▖▗▖  ▗▖▗▞▘  ▝▘ ▗▖▗▞▘  ▗▖▗▖   ▗▞▚▖ ▗▖▗▞▘  
+ ▝▚▖▗▖  ▗▖▗▖   ▝▘ ▗▖▗▞▘  ▗▖▗▖   ▗▞▚▖ ▗▖▗▖   
 ▗▞▚▖▗▞▘▝▚▖▗▞▚▖▗▞▘▝▚▖▗▞▚▖▝▚▖▗▞▘▝▚▞▘  ▝▚▖▗▞▚▖
+
 ```
 
 **Baldosa** is an infinite community-driven canvas, where tiles are submitted by the community,

@@ -153,4 +153,16 @@ impl AuthStorage {
       Err(e) => Err(e).into(),
     }
   }
+
+  pub async fn verify_user_email(&self, id: Uuid) -> Result<Option<StoredUser>, sqlx::Error> {
+    let res = sqlx::query_as!(
+      StoredUser,
+      "update users set email_verified_at = now() where id = $1 returning *",
+      id
+    ).fetch_optional(&self.pool).await;
+    match res {
+      Ok(user) => Ok(user),
+      Err(e) => Err(e).into(),
+    }
+  }
 }

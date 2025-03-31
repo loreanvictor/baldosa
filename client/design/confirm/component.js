@@ -10,6 +10,7 @@ define('confirm-button', () => {
   const self = currentNode()
   const empty = ref()
   const filled = ref()
+  const knob = ref()
   let disabled = false
   let locked = false
 
@@ -17,9 +18,8 @@ define('confirm-button', () => {
   onAttribute('locked', (value) => locked = value !== null && value !== undefined && value !== ATTRIBUTE_REMOVED)
   onAttribute('label', (label) => {
     if (label) {
-      const action = touchdevice() ? 'Slide' : 'Hold'
-      empty.current.textContent = action + ' to ' + label
-      filled.current.textContent = action + ' to ' + label
+      empty.current.textContent = label
+      filled.current.textContent = label
     }
   })
 
@@ -33,21 +33,21 @@ define('confirm-button', () => {
   const swipe = ({ detail }) => {
     const rect = self.getBoundingClientRect()
     const x = detail.d.x + detail.start.x
-    filled.current.style.setProperty('transition', 'none')
-    filled.current.style.setProperty('--percentage', `${Math.max((x - rect.left), 0) / rect.width * 100}%`)
+    self.setAttribute('engaged', '')
+    self.style.setProperty('--percentage', `${Math.max((x - rect.left), 0) / rect.width * 100}%`)
   }
 
   const swipeend = ({ detail }) => {
     const rect = self.getBoundingClientRect()
-    filled.current.style.setProperty('transition', '')
+    self.removeAttribute('engaged')
     const x = detail.d.x + detail.start.x
     if (x > rect.left + rect.width * .9) {
       confirm()
       if (!locked) {
-        setTimeout(() => filled.current.style.setProperty('--percentage', ''), 200)
+        setTimeout(() => self.style.setProperty('--percentage', ''), 200)
       }
     } else {
-      filled.current.style.setProperty('--percentage', '')
+      self.style.setProperty('--percentage', '')
     }
   }
 
@@ -60,33 +60,31 @@ define('confirm-button', () => {
     const rect = self.getBoundingClientRect()
     const x = event.clientX
     const y = event.clientY
-    filled.current.style.setProperty('transition', 'none')
-    const clippath = `circle(var(--percentage) at
-      ${(x - rect.left) / rect.width * 100}% ${(y - rect.top) / rect.height * 100}%)`
-    filled.current.style.clipPath = clippath
-    filled.current.style.webkitClipPath = clippath
+    self.setAttribute('engaged', '')
+    self.style.setProperty('--tx', `${(x - rect.left) / rect.width * 100}%`)
+    self.style.setProperty('--ty', `${(y - rect.top) / rect.height * 100}%`)
+
     clearInterval(holdinterval)
     holdinterval = setInterval(() => {
       waited += 20
-      filled.current.style.setProperty('--percentage', `${waited / wait * 100}%`)
+      self.style.setProperty('--percentage', `${waited / wait * 100}%`)
     }, 20)
   })
 
   on('mouseup', () => {
     if (touchdevice()) return
     clearInterval(holdinterval)
-    filled.current.style.setProperty('transition', '')
+    self.removeAttribute('engaged')
     
     if (waited >= wait * .8) {
       confirm()
-      filled.current.style.setProperty('transition', '')
       clearInterval(holdinterval)
 
       if (!locked) {
-        setTimeout(() => filled.current.style.setProperty('--percentage', ''), 200)
+        setTimeout(() => self.style.setProperty('--percentage', ''), 200)
       }
     } else {
-      filled.current.style.setProperty('--percentage', '')
+      self.style.setProperty('--percentage', '')
     }
 
     waited = 0
@@ -95,8 +93,7 @@ define('confirm-button', () => {
   on('mouseleave', () => {
     waited = 0
     clearInterval(holdinterval)
-    filled.current.style.setProperty('transition', '')
-    filled.current.style.setProperty('--percentage', '')
+    self.removeAttribute('engaged')
   })
 
   return html`
@@ -105,7 +102,16 @@ define('confirm-button', () => {
     </div>
     <div class='filled' ref=${filled}>
     </div>
+    <span class='slide-knob' ref=${knob}>
+      <i-con src='arrow-right' thick></i-con>
+    </span>
     <span class='slide-indicator'></span>
+    <span>
+      <span class='hold-indicator'></span>
+      <span class='hold-indicator'></span>
+      <span class='hold-indicator'></span>
+      <span class='hold-indicator'></span>
+    </span>
     <swipe-control target=${self}
       direction='horizontal'
       onstart=${swipestart} onswipe=${swipe} onrelease=${swipeend}></swipe-control>

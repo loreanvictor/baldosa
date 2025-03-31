@@ -8,7 +8,7 @@ use log::error;
 
 use super::error::AuthError;
 use super::storage::AuthStorage;
-use super::user::AuthenticatedUser;
+use super::user::{ AuthenticatedUser, VerificationStatus };
 
 
 pub async fn start(
@@ -67,7 +67,10 @@ pub async fn finish(
       }
 
       match storage.find_user_by_id(uuid).await {
-        Ok(Some(user)) => Ok(Json(AuthenticatedUser::sign(user.id, user.email, user.first_name, user.last_name ))),
+        Ok(Some(user)) => {
+          let verification = VerificationStatus::from(&user);
+          Ok(Json(AuthenticatedUser::sign(user.id, user.email, user.first_name, user.last_name, verification)))
+        },
         Ok(None) => {
           error!("User not found: {}", uuid);
           Err(AuthError::UserNotFound)

@@ -2,13 +2,27 @@ use std::env;
 use axum::{ extract::FromRequestParts, http::request::Parts, response::{ IntoResponse, Response } };
 use webauthn_rs::prelude::Uuid;
 use serde::{ Deserialize, Serialize };
-use chrono::{ Utc, Days };
+use chrono::{ Utc, Days, DateTime };
 use jsonwebtoken::{ encode, decode, DecodingKey, EncodingKey, Header, Validation };
 
 use log::error;
 
 use super::AuthError;
+use super::storage::StoredUser;
 
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct VerificationStatus {
+  pub email_verified_at: Option<DateTime<Utc>>,
+}
+
+impl VerificationStatus {
+  pub fn from(user: &StoredUser) -> Self {
+    Self {
+      email_verified_at: user.email_verified_at
+    }
+  }
+}
 
 #[derive(Serialize, Debug)]
 pub struct AuthenticatedUser {
@@ -16,6 +30,7 @@ pub struct AuthenticatedUser {
   pub email: String,
   pub first_name: String,
   pub last_name: String,
+  pub verification: VerificationStatus,
   pub token: String,
 }
 
@@ -25,6 +40,7 @@ pub struct UserClaim {
   pub email: String,
   pub first_name: String,
   pub last_name: String,
+  pub verification: VerificationStatus,
   pub exp: usize,
 }
 
@@ -34,6 +50,7 @@ impl AuthenticatedUser {
     email: String,
     first_name: String,
     last_name: String,
+    verification: VerificationStatus,
   ) -> Self {
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let key = EncodingKey::from_secret(secret.as_ref());
@@ -43,6 +60,7 @@ impl AuthenticatedUser {
       email: email.clone(),
       first_name: first_name.clone(),
       last_name: last_name.clone(),
+      verification: verification.clone(),
       exp: Utc::now().checked_add_days(Days::new(1000)).unwrap().timestamp() as usize, // TODO: set expiration time
     };
     let token = encode(&header, &claim, &key).unwrap();
@@ -62,6 +80,7 @@ impl AuthenticatedUser {
       email,
       first_name,
       last_name,
+      verification,
       token,
     }
   }
@@ -94,6 +113,7 @@ where
         email: token_data.claims.email,
         first_name: token_data.claims.first_name,
         last_name: token_data.claims.last_name,
+        verification: token_data.claims.verification,
         token: token.to_string(),
       }),
       Err(err) => {

@@ -1,13 +1,13 @@
 import createError from 'http-errors'
 
 import { backendURL as authBackendURL } from '../auth/backend.js'
-
+import { authenticated } from '../auth/index.js'
 
 export const backendURL = () => `${authBackendURL()}/email`
 
 
 export const sendAuthCode = async (email) => {
-  await fetch(`${backendURL()}/code`, {
+  const res = await fetch(`${backendURL()}/code`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -15,6 +15,11 @@ export const sendAuthCode = async (email) => {
     },
     body: JSON.stringify({ email })
   })
+
+  if (!res.ok) {
+    const msg = await res.text()
+    throw createError(res.status, msg)
+  }
 }
 
 
@@ -40,5 +45,40 @@ export const authenticateWithCode = async (email, code) => {
     token: user.token,
     firstname: user.first_name,
     lastname: user.last_name,
+    verification: user.verification,
+  }
+}
+
+
+export const sendVerificationCode = async () => {
+  const res = await fetch(`${backendURL()}/verification-code`,
+    authenticated({
+      method: 'POST',
+      credentials: 'include',
+    })
+  )
+
+  if (!res.ok) {
+    const msg = await res.text()
+    throw createError(res.status, msg)
+  }
+}
+
+
+export const verifyEmailWithCode = async (code) => {
+  const res = await fetch(`${backendURL()}/verify`, 
+    authenticated({
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code })
+    })
+  )
+
+  if (!res.ok) {
+    const msg = await res.text()
+    throw createError(res.status, msg)
   }
 }

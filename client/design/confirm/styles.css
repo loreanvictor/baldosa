@@ -27,16 +27,31 @@
   cursor: not-allowed;
   filter: invert(1) saturate(0) contrast(0.5);
   -webkit-filter: invert(1) saturate(0) contrast(0.5);
+
+  .slide-indicator { display: none; }
+  .hold-indicator { display: none; }
+}
+
+:host([engaged]) {
+  .filled, .slide-knob {
+    transition: none;
+  }
 }
 
 div {
-  display: grid;
-  place-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 52px;
   font-weight: bold;
   font-size: 0.9rem;
   overflow: hidden;
   border-radius: 7px;
+
+  &:before { content: 'Hold to '; margin-right: .5ch; }
+  @media (pointer: coarse) {
+    &:before { content: 'Slide to '; }
+  }
 
   &.empty {
     background: var(--empty-background);
@@ -49,20 +64,20 @@ div {
     top: 0; left: 0; right: 0;
     background: var(--filled-background);
     color: var(--filled-color);
-    clip-path: circle(var(--percentage));
-    -webkit-clip-path: circle(var(--percentage));
+    clip-path: circle(var(--percentage) at var(--tx, 50%) var(--ty, 50%));
+    -webkit-clip-path: circle(var(--percentage) at var(--tx, 50%) var(--ty, 50%));
 
     @media (pointer: coarse) {
       clip-path: polygon(
         0 0,
-        var(--percentage) 0,
-        var(--percentage) 100%,
+        calc(var(--percentage) + 16px) 0,
+        calc(var(--percentage) + 16px) 100%,
         0 100%
       );
       -webkit-clip-path: polygon(
         0 0,
-        var(--percentage) 0,
-        var(--percentage) 100%,
+        calc(var(--percentage) + 16px) 0,
+        calc(var(--percentage) + 16px) 100%,
         0 100%
       );
     }
@@ -76,7 +91,7 @@ div {
   top: 0; left: 0;
   width: 32px;
   height: 52px;
-  background-color: white;
+  background-color: #ffffffbb;
   filter: blur(16px);
   -webkit-filter: blur(16px);
   mix-blend-mode: overlay;
@@ -94,5 +109,68 @@ div {
   }
   to {
     transform: translateX(450vw);
+  }
+}
+
+
+.slide-knob {
+  position: absolute;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: var(--percentage);
+  width: 32px;
+  bottom: 0;
+  background: var(--filled-background);
+  filter: brightness(1.15);
+  box-shadow: 0 0 8px rgba(0, 0, 0, .25);
+  border-radius: 7px;
+  transition: left 0.2s ease-in-out;
+
+  i-con {
+    --color: var(--filled-color);
+    width: 28px;
+  }
+
+  @media (pointer: coarse) {
+    display: flex;
+  }
+}
+
+
+.hold-indicator {
+  --i: 1;
+  --size: 96px;
+  position: absolute;
+  display: block;
+  left: calc(50% - var(--size) / 2);
+  top: calc(50% - var(--size) / 2);
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--size);
+  background: #ffffff0a;
+  filter: blur(3px);
+  -webkit-filter: blur(3px);
+  animation: pulse 5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -.5s - 10s);
+
+  @media (pointer: coarse) {
+    display: none;
+  }
+
+  &:nth-child(2) { --i: 2 }
+  &:nth-child(3) { --i: 3 }
+  &:nth-child(4) { --i: 4 }
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(.1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(5);
+    opacity: 0;
   }
 }

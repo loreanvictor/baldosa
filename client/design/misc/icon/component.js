@@ -1,4 +1,4 @@
-import { define, onAttribute, useDispatch } from 'minicomp'
+import { define, onAttribute, useDispatch, ATTRIBUTE_REMOVED } from 'minicomp'
 import { html, ref } from 'rehtm'
 
 
@@ -30,10 +30,11 @@ define('i-con', ({ src, dark, thick, fill, notifications }) => {
     }
   }
 
+  const istrue = attr => attr !== undefined && attr !== ATTRIBUTE_REMOVED && attr !== 'false' && attr !== false
   onAttribute('src', s => { src = s; update() })
-  onAttribute('dark', d => { dark = d; update() })
-  onAttribute('thick', t => { thick = t; update() })
-  onAttribute('fill', f => { fill = f; update() })
+  onAttribute('dark', d => { dark = istrue(d); update() })
+  onAttribute('thick', t => { thick = istrue(t); update() })
+  onAttribute('fill', f => { fill = istrue(f); update() })
   onAttribute('notifications', n => { notifications = n; shownotif() })
 
   return html`

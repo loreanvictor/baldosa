@@ -48,10 +48,10 @@ define('secondary-button', ({ row = false, warn = false, type = 'button' }) => {
     <link rel="stylesheet" href="./client/design/button/styles.css" />
     <style>
       button {
-        --button-shade-dark: #2E3031;
-        --button-shade-light: #303334;
+        --button-shade-dark: #393939;
+        --button-shade-light: #3f3f3f;
         --button-text-color: #FFF6E0;
-        --button-border-color: #272829;
+        --button-border-color: #3e3e3e;
       }
     </style>
     <button ref=${btn} class=${composeclass({ row, warn })} type=${type}>

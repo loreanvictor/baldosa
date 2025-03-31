@@ -9,6 +9,9 @@ use log::{ error, info };
 use super::{ AuthenticatedUser, AuthError };
 use super::storage::AuthStorage;
 
+// TODO: break into a separate module
+//       with its dedicated router that is
+//       nested on the top router.
 
 pub async fn all(
   Extension(storage): Extension<AuthStorage>,

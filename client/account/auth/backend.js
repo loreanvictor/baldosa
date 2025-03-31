@@ -63,6 +63,7 @@ export const finishAuthentication = async (credentials) => {
     token: user.token,
     firstname: user.first_name,
     lastname: user.last_name,
+    verification: user.verification,
   }
 }
 
@@ -132,5 +133,6 @@ export const finishRegistration = async (credential) => {
     token: user.token,
     firstname: user.first_name,
     lastname: user.last_name,
+    verification: user.verification,
   }
 }

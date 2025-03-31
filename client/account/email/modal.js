@@ -6,6 +6,7 @@ import { singleton } from '../../util/singleton.js'
 import '../../design/glass/modal/component.js'
 import '../../design/confirm/component.js'
 import '../../design/input/text/component.js'
+import '../../design/misc/textual.js'
 
 
 export const modal = singleton('email-signin-modal', () => {
@@ -30,12 +31,12 @@ export const modal = singleton('email-signin-modal', () => {
   return html`
     <glass-modal ref=${modal} onclose=${() => cancel('login cancelled')}>
       <span slot='title'>Sign in <br/> with Email</span>
-      <p style='opacity: .5; font-weight: 100'>
+      <small-hint>
         If you want to sign in on a device not supporting passkeys,
         or without access to your passkeys, simply enter your email address,
         and use the one time code that is sent to you. Note that you need
         to already have an account to sing in this way.
-      </p>
+      </small-hint>
       <text-input ref=${email} name='email' label='Email'
           required type='email' oncheck=${check}>
         <span slot='hint'>

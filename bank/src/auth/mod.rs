@@ -16,7 +16,6 @@ use log::info;
 pub mod error;
 pub mod user;
 mod storage;
-mod otc;
 mod register;
 mod authenticate;
 mod passkeys;
@@ -96,7 +95,6 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   ;
 
   let storage = storage::AuthStorage::new(db.clone());
-  let otc = otc::OneTimeCodes::new(db.clone());
 
   Router::new()
     .route("/register/start", post(register::start))
@@ -107,11 +105,9 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     .route("/passkeys/start", post(passkeys::start_adding))
     .route("/passkeys/finish", post(passkeys::finish_adding))
     .route("/passkeys/{id}", delete(passkeys::remove))
-    .route("/email/code", post(email::send_auth_otc))
-    .route("/email/authenticate", post(email::authenticate))
+    .nest("/email", email::router())
     .layer(Extension(Arc::new(webauthn)))
     .layer(Extension(storage))
-    .layer(Extension(otc))
     .layer(session)
     .layer(cors)
 }

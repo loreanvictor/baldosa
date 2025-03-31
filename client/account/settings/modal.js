@@ -4,7 +4,9 @@ import { ref, html } from 'rehtm'
 import { singleton } from '../../util/singleton.js'
 import '../../design/glass/modal/component.js'
 import '../../design/button/components.js'
+import '../../design/misc/textual.js'
 
+import '../email/verify.js'
 import './passkeys/button.js'
 import './passkeys/list.js'
 
@@ -19,21 +21,20 @@ export const modal = singleton('account-settings-modal', () => {
   return html`
     <glass-modal ref=${modal} aside>
       <span slot='title'>Settings</span>
-      <action-list island>
-        <secondary-button row>
-          <i-con src='envelop-check' dark thick slot='icon'></i-con>
-          Verify Email
-        </secondary-button>
-        <add-passkey-button row></add-passkey-button>
-      </action-list>
-      <br/>
-      <h4>Existing Passkeys</h4>
-      <passkey-list></passkey-list>
-      <br/>
-      <small style='opacity: .5'>
+      <h3>Verification</h3>
+      <small-hint>
+      Verifying your account helps with account recovery, security, processing of
+      support requests, and allows more relaxed usage limits of various features.
+      </small-hint>
+      <verify-email-button row></verify-email-button>
+      <h-r></h-r>
+      <h3>Passkeys</h3>
+      <small-hint>
         Your passkeys appear here. To add a new passkey, login on the device
         you want to add the passkey on, then click the "Add Passkey" button.
-      </small>
+      </small-hint>
+      <passkey-list></passkey-list>
+      <add-passkey-button row></add-passkey-button>
       <br/><br/>
     </glass-modal>
   `

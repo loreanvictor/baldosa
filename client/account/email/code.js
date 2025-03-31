@@ -6,18 +6,21 @@ import { singleton } from '../../util/singleton.js'
 
 
 const SPECIAL_KEYS = { ERASE: '⌫', RESET: '↺' }
+const MAX_ATTEMPTS = 5
 
 export const modal = singleton('email-code-modal', () => {
   const modal = ref()
   const complete = useDispatch('complete')
   const close = useDispatch('close')
   const codisplay = ref()
+  const count = ref()
   let code = ''
+  let attempts = 0
 
   attachControls({
-    open: () => modal.current.controls.open(),
+    open: () => (attempts = 0, showcount(), modal.current.controls.open()),
     close: () => modal.current.controls.close(),
-    invalidate: () => codisplay.current.classList.add('error'),
+    invalidate: () => (codisplay.current.classList.add('error'), attempts++, showcount()),
   })
 
   const display = () => {
@@ -28,6 +31,11 @@ export const modal = singleton('email-code-modal', () => {
       span.textContent = empty ? '✱' : code[i]
       span.classList.toggle('filled', !empty)
     }
+  }
+
+  const showcount = () => {
+    const remaining = MAX_ATTEMPTS - attempts
+    count.current.textContent = remaining > 1 ? `${remaining} attempts remaining` : 'Last attempt'
   }
 
   const add = key => {
@@ -59,7 +67,14 @@ export const modal = singleton('email-code-modal', () => {
         text-align: center;
         font-weight: 100;
         opacity: .5;
-        font-size: 1.3rem;
+        font-size: 1.5rem;
+      }
+
+      small {
+        text-align: center;
+        display: block;
+        margin-top: -2ex;
+        opacity: .35;
       }
 
       #code {
@@ -115,6 +130,7 @@ export const modal = singleton('email-code-modal', () => {
     </style>
     <glass-modal ref=${modal} noheader onclose=${close}>
       <p>Enter the emailed code</p>
+      <small ref=${count}></small>
       <div id='code' ref=${codisplay}>
         <span>✱</span><span>✱</span><span>✱</span>
         <span>✱</span><span>✱</span><span>✱</span>
