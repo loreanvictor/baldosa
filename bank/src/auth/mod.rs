@@ -1,30 +1,30 @@
-use webauthn_rs::prelude::*;
-use std::{ env, sync::Arc };
-use sqlx::{ Pool, postgres::Postgres };
+use std::{env, sync::Arc};
+
 use axum::{
-  http::{ header, HeaderValue, Method },
-  Router, routing::{ get, post, delete },
-  extract::Extension
+  extract::Extension,
+  http::{header, HeaderValue, Method},
+  routing::{delete, get, post},
+  Router,
 };
+use log::info;
+use sqlx::{postgres::Postgres, Pool};
+use tower_http::cors::CorsLayer;
 use tower_sessions::{
-  cookie::{ time::Duration, SameSite },
+  cookie::{time::Duration, SameSite},
   Expiry, MemoryStore, SessionManagerLayer,
 };
-use tower_http::cors::CorsLayer;
-use log::info;
+use webauthn_rs::prelude::*;
 
-pub mod error;
-pub mod user;
-mod storage;
-mod register;
 mod authenticate;
-mod passkeys;
 mod email;
+pub mod error;
+mod passkeys;
+mod register;
+mod storage;
+pub mod user;
 
-
-pub use user::AuthenticatedUser;
 pub use error::AuthError;
-
+pub use user::AuthenticatedUser;
 
 pub fn router(db: &Pool<Postgres>) -> Router {
   let client_url = env::var("CLIENT_URL").expect("CLIENT_URL Must be set!");
@@ -66,8 +66,7 @@ pub fn router(db: &Pool<Postgres>) -> Router {
       //    so we can use NONE.
       //
     })
-    .with_expiry(Expiry::OnInactivity(Duration::seconds(300)))
-  ;
+    .with_expiry(Expiry::OnInactivity(Duration::seconds(300)));
 
   // we need cross site cookies for the client to be able to
   // hold a session for their authentication / registration. however
@@ -83,7 +82,7 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   info!("allowed origin: {:?}", allowed_origin);
 
   let cors = CorsLayer::new()
-    .allow_methods([ Method::POST, Method::GET, Method::DELETE ])
+    .allow_methods([Method::POST, Method::GET, Method::DELETE])
     .allow_origin(allowed_origin)
     .allow_headers([
       header::CONTENT_TYPE,
@@ -91,8 +90,7 @@ pub fn router(db: &Pool<Postgres>) -> Router {
       header::ACCEPT,
       header::SET_COOKIE,
     ])
-    .allow_credentials(true)
-  ;
+    .allow_credentials(true);
 
   let storage = storage::AuthStorage::new(db.clone());
 

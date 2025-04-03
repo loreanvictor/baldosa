@@ -1,15 +1,18 @@
 use std::sync::Arc;
-use serde::Deserialize;
-use webauthn_rs::prelude::*;
-use tower_sessions::Session;
-use axum::{ extract::{ Extension, Json }, response::IntoResponse };
 
-use log::{ info, error };
+use axum::{
+  extract::{Extension, Json},
+  http::StatusCode,
+  response::IntoResponse,
+};
+use log::{error, info};
+use serde::Deserialize;
+use tower_sessions::Session;
+use webauthn_rs::prelude::*;
 
 use super::error::AuthError;
 use super::storage::AuthStorage;
-use super::user::{ AuthenticatedUser, VerificationStatus };
-
+use super::user::{AuthenticatedUser, VerificationStatus};
 
 #[derive(Deserialize, Debug)]
 pub struct StartRegistrationBody {
@@ -30,12 +33,12 @@ pub async fn start(
     Ok(Some(_)) => {
       error!("User already exists");
       return Err(AuthError::UserExists);
-    },
-    Ok(None) => {},
+    }
+    Ok(None) => {}
     Err(err) => {
       error!("Error checking user existence: {:?}", err);
       return Err(AuthError::Unknown);
-    },
+    }
   }
 
   let email = body.email;
@@ -47,9 +50,14 @@ pub async fn start(
 
   match webauthn.start_passkey_registration(unique_user_id, &email, &name, None) {
     Ok((credential_options, reg_state)) => {
-      session.insert("reg_state", (unique_user_id, email, first_name, last_name, reg_state)).await?;
+      session
+        .insert(
+          "reg_state",
+          (unique_user_id, email, first_name, last_name, reg_state),
+        )
+        .await?;
       Ok(Json(credential_options))
-    },
+    }
     Err(_) => Err(AuthError::Unknown),
   }
 }
@@ -66,11 +74,14 @@ pub async fn finish(
   session: Session,
   Json(body): Json<RegisterWithPasskeyBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  let (unique_user_id, email, first_name, last_name, reg_state) = 
-    match session.get::<(Uuid, String, String, String, PasskeyRegistration)>("reg_state").await? {
-      Some((unique_user_id, email, first_name, last_name, reg_state)) =>
-        (unique_user_id, email, first_name, last_name, reg_state),
-      None => return Err(AuthError::CorruptSession),
+  let (unique_user_id, email, first_name, last_name, reg_state) = match session
+    .get::<(Uuid, String, String, String, PasskeyRegistration)>("reg_state")
+    .await?
+  {
+    Some((unique_user_id, email, first_name, last_name, reg_state)) => {
+      (unique_user_id, email, first_name, last_name, reg_state)
+    }
+    None => return Err(AuthError::CorruptSession),
   };
 
   let _ = session.remove_value("reg_state").await;
@@ -79,28 +90,40 @@ pub async fn finish(
       info!("Registration finished for: {}", email);
 
       match storage.find_user_by_email(email.as_str()).await {
-        Ok(Some(_)) => {},
-        Ok(None) => storage.create_user(unique_user_id, &email, &first_name, &last_name)
-            .await.map_err(|_| AuthError::Unknown)?,
+        Ok(Some(_)) => {}
+        Ok(None) => storage
+          .create_user(unique_user_id, &email, &first_name, &last_name)
+          .await
+          .map_err(|_| AuthError::Unknown)?,
         Err(err) => {
           error!("Error checking user existence: {:?}", err);
           return Err(AuthError::Unknown);
-        },
+        }
       }
 
-      match storage.create_passkey(unique_user_id, &body.key_name, &passkey).await {
-          Ok(_) => Ok(Json(AuthenticatedUser::sign(
-            unique_user_id, email, first_name, last_name, VerificationStatus::default()
-          ))),
-          Err(err) => {
-            error!("Error creating passkey: {:?}", err);
-            return Err(AuthError::Unknown);
-          },
+      match storage
+        .create_passkey(unique_user_id, &body.key_name, &passkey)
+        .await
+      {
+        Ok(_) => Ok((
+          StatusCode::CREATED,
+          Json(AuthenticatedUser::sign(
+            unique_user_id,
+            email,
+            first_name,
+            last_name,
+            VerificationStatus::default(),
+          )),
+        )),
+        Err(err) => {
+          error!("Error creating passkey: {:?}", err);
+          return Err(AuthError::Unknown);
         }
-    },
+      }
+    }
     Err(err) => {
       error!("Registration failed: {:?}", err);
       Err(AuthError::InvalidCredentials)
-    },
+    }
   }
 }

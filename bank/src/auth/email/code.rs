@@ -1,8 +1,11 @@
-use webauthn_rs::prelude::Uuid;
-use rand::{ rngs::StdRng, Rng, SeedableRng };
-use chrono::{ DateTime, Utc, Duration };
-use dashmap::{ DashMap, mapref::entry::Entry::{ Occupied, Vacant } };
+use chrono::{DateTime, Duration, Utc};
+use dashmap::{
+  mapref::entry::Entry::{Occupied, Vacant},
+  DashMap,
+};
+use rand::{rngs::StdRng, Rng, SeedableRng};
 use ring::digest;
+use webauthn_rs::prelude::Uuid;
 
 use super::super::error::AuthError;
 
@@ -28,7 +31,6 @@ pub struct CodesRepository {
   attempts: DashMap<Uuid, Attempt>,
 }
 
-
 impl CodesRepository {
   pub fn new() -> Self {
     Self {
@@ -51,7 +53,7 @@ impl CodesRepository {
           Ok(())
         }
       }
-      None => Ok(())
+      None => Ok(()),
     }
   }
 
@@ -75,13 +77,17 @@ impl CodesRepository {
 
   pub async fn create(&self, user_id: &Uuid, subject: &str) -> Result<String, AuthError> {
     match self.check_locked(user_id).await {
-      Ok(()) => {},
-      Err(err) => { return Err(err); }
+      Ok(()) => {}
+      Err(err) => {
+        return Err(err);
+      }
     };
 
     let mut rng = StdRng::from_os_rng();
     let code = format!("{:06}", rng.random_range(0..1_000_000));
-    let code_hash = digest::digest(&digest::SHA256, &code.as_bytes()).as_ref().to_vec();
+    let code_hash = digest::digest(&digest::SHA256, &code.as_bytes())
+      .as_ref()
+      .to_vec();
 
     let mut codes = self.codes.entry(*user_id).or_insert(Vec::new());
     codes.push(OneTimeCode {
@@ -95,21 +101,25 @@ impl CodesRepository {
 
   pub async fn verify(&self, user_id: &Uuid, code: &str, subject: &str) -> Result<(), AuthError> {
     match self.check_locked(user_id).await {
-      Ok(()) => {},
-      Err(err) => { return Err(err); }
+      Ok(()) => {}
+      Err(err) => {
+        return Err(err);
+      }
     };
 
-    let hash = digest::digest(&digest::SHA256, &code.as_bytes()).as_ref().to_vec();
+    let hash = digest::digest(&digest::SHA256, &code.as_bytes())
+      .as_ref()
+      .to_vec();
     match self.codes.entry(*user_id) {
       Occupied(codes) => {
         for code in codes.get().iter() {
           if code.code_hash == hash && code.subject == subject && code.expires_at > Utc::now() {
             codes.remove();
             self.attempts.remove(user_id);
-            return Ok(())
+            return Ok(());
           }
         }
-      },
+      }
       Vacant(_) => {}
     };
 

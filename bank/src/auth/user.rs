@@ -1,15 +1,18 @@
 use std::env;
-use axum::{ extract::FromRequestParts, http::request::Parts, response::{ IntoResponse, Response } };
-use webauthn_rs::prelude::Uuid;
-use serde::{ Deserialize, Serialize };
-use chrono::{ Utc, Days, DateTime };
-use jsonwebtoken::{ encode, decode, DecodingKey, EncodingKey, Header, Validation };
 
+use axum::{
+  extract::FromRequestParts,
+  http::request::Parts,
+  response::{IntoResponse, Response},
+};
+use chrono::{DateTime, Days, Utc};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use log::error;
+use serde::{Deserialize, Serialize};
+use webauthn_rs::prelude::Uuid;
 
-use super::AuthError;
 use super::storage::StoredUser;
-
+use super::AuthError;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct VerificationStatus {
@@ -19,7 +22,7 @@ pub struct VerificationStatus {
 impl VerificationStatus {
   pub fn from(user: &StoredUser) -> Self {
     Self {
-      email_verified_at: user.email_verified_at
+      email_verified_at: user.email_verified_at,
     }
   }
 }
@@ -61,7 +64,10 @@ impl AuthenticatedUser {
       first_name: first_name.clone(),
       last_name: last_name.clone(),
       verification: verification.clone(),
-      exp: Utc::now().checked_add_days(Days::new(1000)).unwrap().timestamp() as usize, // TODO: set expiration time
+      exp: Utc::now()
+        .checked_add_days(Days::new(1000))
+        .unwrap()
+        .timestamp() as usize, // TODO: set expiration time
     };
     let token = encode(&header, &claim, &key).unwrap();
     //
@@ -86,7 +92,7 @@ impl AuthenticatedUser {
   }
 }
 
-impl <S> FromRequestParts<S> for AuthenticatedUser
+impl<S> FromRequestParts<S> for AuthenticatedUser
 where
   S: Send + Sync,
 {
@@ -94,14 +100,16 @@ where
 
   async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
     let headers = parts.headers.clone();
-    let token = match headers.get("Authorization")
+    let token = match headers
+      .get("Authorization")
       .and_then(|value| value.to_str().ok())
-      .and_then(|value| value.strip_prefix("Bearer ")) {
+      .and_then(|value| value.strip_prefix("Bearer "))
+    {
       Some(token) => token,
       None => {
         error!("Missing Authorization header");
-        return Err(AuthError::InvalidCredentials.into_response())
-      },
+        return Err(AuthError::InvalidCredentials.into_response());
+      }
     };
 
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
@@ -119,7 +127,7 @@ where
       Err(err) => {
         error!("Invalid token: {:?}, {:?}", &token, err);
         Err(AuthError::InvalidCredentials.into_response())
-      },
+      }
     }
   }
 }

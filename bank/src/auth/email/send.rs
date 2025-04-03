@@ -1,13 +1,16 @@
 use std::sync::Arc;
-use resend_rs::{ types::CreateEmailBaseOptions, Resend };
+
+use axum::{
+  extract::{Extension, Json, State},
+  response::IntoResponse,
+};
+use resend_rs::{types::CreateEmailBaseOptions, Resend};
 use serde::Deserialize;
-use axum::{ extract::{ Extension, Json, State }, response::IntoResponse };
 
 use super::super::error::AuthError;
 use super::super::storage::AuthStorage;
 use super::super::AuthenticatedUser;
 use super::code::CodesRepository;
-
 
 #[derive(Deserialize, Debug)]
 pub struct EmailOtcBody {
@@ -49,16 +52,20 @@ pub async fn send_auth_otc(
 ) -> Result<impl IntoResponse, AuthError> {
   let user = match storage.find_user_by_email(&body.email).await {
     Ok(Some(user)) => user,
-    _ => { return Err(AuthError::UserNotFound); },
+    _ => {
+      return Err(AuthError::UserNotFound);
+    }
   };
 
   let code = match codes.create(&user.id, "auth_with_email").await {
     Ok(code) => code,
-    Err(err) => { return Err(err); },
+    Err(err) => {
+      return Err(err);
+    }
   };
 
   let from = "Baldosa <auth@baldosa.city>";
-  let to = [ body.email ];
+  let to = [body.email];
   let subject = format!("Baldosa Login Code: {}", code);
 
   match resend.emails.send(
@@ -86,11 +93,13 @@ pub async fn send_verification_code(
 
   let code = match codes.create(&user.id, "verify_email").await {
     Ok(code) => code,
-    Err(err) => { return Err(err); },
+    Err(err) => {
+      return Err(err);
+    }
   };
 
   let from = "Baldosa <auth@baldosa.city>";
-  let to = [ user.email ];
+  let to = [user.email];
   let subject = format!("Baldosa Verification Code: {}", code);
 
   match resend.emails.send(

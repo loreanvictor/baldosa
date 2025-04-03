@@ -1,9 +1,8 @@
 use std::path::Path;
-use dotenvy::{ from_path, dotenv_override, dotenv_iter, from_path_iter };
+
+use dotenvy::{dotenv_iter, dotenv_override, from_path, from_path_iter};
 use env_logger;
-
 use log::debug;
-
 
 pub fn init() -> Result<(), dotenvy::Error> {
   let parent = Path::new("../.env");

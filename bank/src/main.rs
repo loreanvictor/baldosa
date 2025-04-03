@@ -1,8 +1,9 @@
-mod env;
-mod router;
 mod auth;
 mod db;
+mod env;
+mod router;
 mod run_auctions;
+mod wallet;
 
 #[tokio::main]
 async fn main() {

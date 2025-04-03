@@ -1,14 +1,13 @@
 use std::sync::Arc;
-use resend_rs::Resend;
-use axum::{ Router, routing::post, extract::Extension };
 
+use axum::{extract::Extension, routing::post, Router};
 use code::CodesRepository;
+use resend_rs::Resend;
 
-mod code;
 mod authenticate;
-mod verify;
+mod code;
 mod send;
-
+mod verify;
 
 pub fn router() -> Router {
   let codes = CodesRepository::new();
