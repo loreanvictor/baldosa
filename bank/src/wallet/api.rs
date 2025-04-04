@@ -2,14 +2,14 @@ use axum::{
   extract::{Extension, Json, Query},
   response::IntoResponse,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use sqlx::types::Uuid;
 
+use super::super::auth::{ AuthenticatedUser, admin::AdminUser };
 use super::account::Account;
-use super::auth::UsableInboundOffer;
+use super::auth::{ UsableInboundOffer, UsableOutgoingOffer };
 use super::error::WalletError;
 use super::ledger::Ledger;
-use super::ops::OfferResult;
-use super::{super::auth::AuthenticatedUser, auth::UsableOutgoingOffer, Transaction};
 
 pub async fn balance(
   Extension(ledger): Extension<Ledger>,
@@ -92,12 +92,6 @@ pub struct OfferBody {
   pub note: Option<String>,
 }
 
-#[derive(Serialize)]
-pub struct OfferResponse {
-  pub offered: Transaction,
-  pub rest: Transaction,
-}
-
 pub async fn offer(
   Extension(ledger): Extension<Ledger>,
   user: AuthenticatedUser,
@@ -113,11 +107,65 @@ pub async fn offer(
     )
     .await
   {
-    Ok(OfferResult(offered, rest)) => Ok(Json(OfferResponse { offered, rest })),
+    Ok(result) => Ok(Json(result)),
     Err(err) => Err(err),
   }
 }
 
-//
-// TODO: how about some admin APIs?
-//
+#[derive(Deserialize)]
+pub struct InjectBody {
+  pub amount: u32,
+  pub receiver: Account,
+  pub note: Option<String>,
+}
+
+pub async fn inject(
+  Extension(ledger): Extension<Ledger>,
+  AdminUser(user): AdminUser,
+  Json(body): Json<InjectBody>,
+) -> Result<impl IntoResponse, WalletError> {
+  match ledger
+    .inject(
+      &body.receiver,
+      body.amount,
+      body.note,
+      &user,
+    )
+    .await
+  {
+    Ok(result) => Ok(Json(result)),
+    Err(err) => Err(err),
+  }
+}
+
+#[derive(Deserialize)]
+pub struct PartiallyAcceptBody {
+  pub offer: Uuid,
+  pub amount: u32,
+  pub note: Option<String>,
+}
+
+pub async fn partially_accept(
+  Extension(ledger): Extension<Ledger>,
+  AdminUser(user): AdminUser,
+  Json(body): Json<PartiallyAcceptBody>,
+) -> Result<impl IntoResponse, WalletError> {
+  let offer = ledger.get_transaction(&body.offer)
+    .await
+    .map_err(|_| WalletError::TransactionNotFound)?;
+
+  if offer.is_used() {
+    return Err(WalletError::AlreadyUsedTransaction);
+  }
+
+  if !offer.receiver_sys.is_some() {
+    return Err(WalletError::UnauthorizedTransaction);
+  }
+
+  match ledger.partially_accept_offer(&offer, body.amount, body.note, &user)
+    .await
+  {
+    Ok(result) => Ok(Json(result)),
+    Err(err) => Err(err),
+  }
+}

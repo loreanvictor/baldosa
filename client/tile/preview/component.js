@@ -1,6 +1,7 @@
 import { define, onProperty, onAttribute } from 'minicomp'
 import { ref, html } from 'rehtm'
 
+import { modal as uc } from '../../util/under-construction.js'
 import '../../util/show-only.js'
 import '../../design/glass/modal/component.js'
 import '../../design/glass/toast/component.js'
@@ -112,7 +113,7 @@ define('tile-preview', () => {
             Copy Tile Link
           </secondary-button>
         </copy-button>
-        <secondary-button row warn>
+        <secondary-button row warn onclick=${() => uc().controls.open()}>
           <i-con src='flag' dark thick slot='icon'></i-con>
           Report Content
         </secondary-button>

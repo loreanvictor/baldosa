@@ -81,6 +81,10 @@ macro_rules! tx {
     }
   };
 
+  ($sender:expr => $receiver:expr; using $consumed:expr, $amount:expr; by $issuer:expr, $note:literal) => {
+    tx!($sender => $receiver; using $consumed, $amount; by $issuer, Some($note.to_string()))
+  };
+
   ($sender:expr => $receiver:expr; using $consumed:expr, $amount:expr; by $issuer:expr, $note:expr) => {
     {
       let _s = $sender;
@@ -115,7 +119,11 @@ macro_rules! tx {
     tx!($sender => $receiver; using $consumed, $amount; by $issuer, None)
   };
 
-  (merge $offer:expr => $state:expr; using $amount:expr; by $issuer:expr) => {
+  (merge $offer:expr => $state:expr; using $amount:expr; by $issuer:expr, $note:literal) => {
+    tx!(merge $offer => $state; using $amount; by $issuer, Some($note.to_string()))
+  };
+
+  (merge $offer:expr => $state:expr; using $amount:expr; by $issuer:expr, $note:expr) => {
     {
       let _o = $offer;
       let _s = $state;
@@ -124,22 +132,31 @@ macro_rules! tx {
       Transaction {
         consumes: _o.id,
         consumed_value: u32::min($amount, _o.total()) as i32,
-        sender: _s.sender,
-        sender_sys: _s.sender_sys.clone(),
+        sender: _s.receiver,
+        sender_sys: _s.receiver_sys.clone(),
         receiver: _s.receiver,
         receiver_sys: _s.receiver_sys.clone(),
         merges: _s.id,
         merged_value: _s.total() as i32,
         issued_by: _i.id,
+        note: $note,
         ..Default::default()
       }
     }
   };
 
-  (merge $offer:expr => $state:expr; by $issuer:expr) => {
+  (merge $offer:expr => $state:expr; using $amount:expr; by $issuer:expr) => {
+    tx!(merge $offer => $state; using $amount; by $issuer, None)
+  };
+
+  (merge $offer:expr => $state:expr; by $issuer:expr, $note:expr) => {
     {
       let _o = $offer;
-      tx!(merge $offer => $state; using _o.total(); by $issuer)
+      tx!(merge $offer => $state; using _o.total(); by $issuer, $note)
     }
-  }
+  };
+
+  (merge $offer:expr => $state:expr; by $issuer:expr) => {
+    tx!(merge $offer => $state; by $issuer, None)
+  };
 }

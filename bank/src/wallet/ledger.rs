@@ -157,16 +157,16 @@ impl Ledger {
       )",
     );
 
-    query.push_values(txs, |mut b, tx| {
+    query.push_values(&txs, |mut b, tx| {
       b.push_bind(tx.sender);
-      b.push_bind(tx.sender_sys);
+      b.push_bind(tx.sender_sys.clone());
       b.push_bind(tx.receiver);
-      b.push_bind(tx.receiver_sys);
+      b.push_bind(tx.receiver_sys.clone());
       b.push_bind(tx.consumes);
       b.push_bind(tx.consumed_value);
       b.push_bind(tx.merges);
       b.push_bind(tx.merged_value);
-      b.push_bind(tx.note);
+      b.push_bind(tx.note.clone());
       b.push_bind(tx.issued_by);
     });
 

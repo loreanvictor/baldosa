@@ -1,9 +1,12 @@
 use std::fmt::Display;
 
 use sqlx::types::Uuid;
+use serde::{ Deserialize, Serialize };
 
 #[derive(Debug)]
 
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(tag="type", content="id")]
 pub enum Account {
   User(Uuid),
   System(String),
@@ -31,8 +34,8 @@ impl Account {
 impl Display for Account {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
-      Account::User(user_id) => write!(f, "User::{}", user_id),
-      Account::System(sys) => write!(f, "Sys::{}", sys),
+      Account::User(user_id) => write!(f, "[u]{}", user_id),
+      Account::System(sys) => write!(f, "[s]{}", sys),
       Account::Invalid => write!(f, "invalid"),
     }
   }

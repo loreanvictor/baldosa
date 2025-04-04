@@ -22,6 +22,7 @@ mod passkeys;
 mod register;
 mod storage;
 pub mod user;
+pub mod admin;
 
 pub use error::AuthError;
 pub use user::AuthenticatedUser;

@@ -12,14 +12,16 @@ mod auth;
 pub mod error;
 mod ledger;
 mod macros;
-mod ops;
+pub mod operations;
 mod transaction;
 
 pub use ledger::Ledger;
-pub use transaction::Transaction;
 
 pub fn router(db: &Pool<Postgres>) -> Router {
-  let cors = CorsLayer::new().allow_methods(Any).allow_origin(Any);
+  let cors = CorsLayer::new()
+    .allow_methods(Any)
+    .allow_headers(Any)
+    .allow_origin(Any);
 
   let ledger = Ledger::new(db.clone());
 
@@ -31,6 +33,10 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     .route("/reject", post(api::reject))
     .route("/rescind", post(api::rescind))
     .route("/offer", post(api::offer))
+    // --- ADMIN APIS --- \\
+    .route("/admin/inject", post(api::inject))
+    .route("/admin/partially-accept", post(api::partially_accept))
+    // --- LAYERS --- \\
     .layer(Extension(ledger))
     .layer(cors)
 }

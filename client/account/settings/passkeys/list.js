@@ -2,6 +2,7 @@ import { define, onConnected } from 'minicomp'
 import { ref, html } from 'rehtm'
 
 import { onBroadcast } from '../../../util/broadcast.js'
+import { modal as uc } from '../../../util/under-construction.js'
 import '../../../util/keyed-list.js'
 import '../../../design/glass/modal/component.js'
 import '../../../design/button/components.js'
@@ -36,7 +37,10 @@ define('passkey-list', () => {
     opts.current.controls.open({ anchor })
   }
 
-  // TODO: implement passkey usage logs
+  const viewlogs = key => {
+    // TODO: implement passkey usage logs
+    uc().controls.open()
+  }
 
   return html`
     <style>
@@ -64,7 +68,9 @@ define('passkey-list', () => {
       const date = new Date(key.created_at)
 
       return html`
-        <swipe-card key=${key.id} left="sticky" right="sticky" onswipeleft=${() => removeKey(key)}>
+        <swipe-card key=${key.id} left="sticky" right="sticky"
+          onswipeleft=${() => removeKey(key)}
+          onswiperight=${() => viewlogs(key)}>
           <i-con src='key' dark fill slot='image'></i-con>
           ${key.key_name}
           <br/>
@@ -86,7 +92,7 @@ define('passkey-list', () => {
           Delete Passkey
           <i-con src='trash-can' dark thick slot='icon'></i-con>
         </secondary-button>
-        <secondary-button row>
+        <secondary-button row onclick=${() => viewlogs(selected)}>
           View Usage Logs
           <i-con src='receipt' dark thick slot='icon'></i-con>
         </secondary-button>

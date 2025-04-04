@@ -24,6 +24,8 @@ pub enum AuthError {
   UserHasNoCredentials,
   #[error("Too many attempts")]
   TooManyAttempts,
+  #[error("Insufficient permissions")]
+  InsufficientPermissions,
   #[error("Deserialising session failed: {0}")]
   InvalidSessionState(#[from] tower_sessions::session::Error),
 }
@@ -31,9 +33,9 @@ pub enum AuthError {
 impl IntoResponse for AuthError {
   fn into_response(self) -> Response {
     (match self {
+      AuthError::Unknown => (StatusCode::INTERNAL_SERVER_ERROR, "Unknown error"),
       AuthError::CorruptSession => (StatusCode::BAD_REQUEST, "Corrupted session"),
       AuthError::UserNotFound => (StatusCode::UNAUTHORIZED, "User not found"),
-      AuthError::Unknown => (StatusCode::INTERNAL_SERVER_ERROR, "Unknown error"),
       AuthError::UserHasNoCredentials => (StatusCode::UNAUTHORIZED, "User has no credentials"),
       AuthError::InvalidSessionState(_) => {
         (StatusCode::BAD_REQUEST, "Deserialising session failed")
@@ -45,6 +47,9 @@ impl IntoResponse for AuthError {
         "Requested verification already complete",
       ),
       AuthError::TooManyAttempts => (StatusCode::TOO_MANY_REQUESTS, "Too many attempts"),
+      AuthError::InsufficientPermissions => {
+        (StatusCode::FORBIDDEN, "Insufficient permissions")
+      }
     })
     .into_response()
   }

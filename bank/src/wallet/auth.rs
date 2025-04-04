@@ -42,12 +42,12 @@ where
       None => return Err(WalletError::TransactionNotFound.into_response()),
     };
 
-    if tx.receiver != Some(user.id) && tx.sender != Some(user.id) {
-      return Err(WalletError::UnauthorizedTransaction.into_response());
+    if tx.is_used() {
+      return Err(WalletError::AlreadyUsedTransaction.into_response());
     }
 
-    if tx.consumed || tx.merged {
-      return Err(WalletError::AlreadyUsedTransaction.into_response());
+    if !tx.is_usable_by_user(&user.id) {
+      return Err(WalletError::UnauthorizedTransaction.into_response());
     }
 
     Ok(UsableTransaction(tx, user))
@@ -65,11 +65,11 @@ where
   async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
     let UsableTransaction(tx, user) = UsableTransaction::from_request(req, state).await?;
 
-    if tx.is_state {
+    if !tx.is_offer() {
       return Err(WalletError::ErroneousTransaction.into_response());
     }
 
-    if tx.receiver != Some(user.id) {
+    if !tx.is_usable_offer_to(&user.id) {
       return Err(WalletError::UnauthorizedTransaction.into_response());
     }
 
@@ -88,11 +88,11 @@ where
   async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
     let UsableTransaction(tx, user) = UsableTransaction::from_request(req, state).await?;
 
-    if tx.is_state {
+    if !tx.is_offer() {
       return Err(WalletError::ErroneousTransaction.into_response());
     }
 
-    if tx.sender != Some(user.id) {
+    if !tx.is_usable_offer_from(&user.id) {
       return Err(WalletError::UnauthorizedTransaction.into_response());
     }
 

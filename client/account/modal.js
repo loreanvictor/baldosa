@@ -7,11 +7,14 @@ import '../design/misc/icon/component.js'
 
 import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
+import { modal as uc } from '../util/under-construction.js'
 import { init, login, register, logout, user } from './auth/index.js'
 import { authenticate as emaillogin } from './email/index.js'
+import { modal as wallet } from './wallet/modal.js'
 import { modal as settings } from './settings/modal.js'
 import { modal as terms } from './terms.js'
 import { modal as about } from './about.js'
+
 
 
 export const modal = singleton('account-modal', () => {
@@ -63,15 +66,15 @@ export const modal = singleton('account-modal', () => {
         <p></p><small></small>
       </div>
       <action-list ref=${loggedin} island>
-        <secondary-button row>
+        <secondary-button row onclick=${() => wallet().controls.open()}>
           <i-con src='coin' dark thick slot='icon'></i-con>
           Wallet
         </secondary-button>
-        <secondary-button row>
+        <secondary-button row onclick=${() => uc().controls.open()}>
           <i-con src='bid' dark thick slot='icon'></i-con>
           Bids
         </secondary-button>
-        <secondary-button row>
+        <secondary-button row onclick=${() => uc().controls.open()}>
           <i-con src='four-squares' dark thick slot='icon'></i-con>
           Tiles
         </secondary-button>
