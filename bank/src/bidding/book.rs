@@ -39,7 +39,7 @@ impl Book {
     .fetch_one(&self.pool)
     .await
     .map_err(|e| {
-      println!("Failed to create bid: {}", e);
+      println!("Failed to create bid: {e}");
       e
     })
   }
@@ -97,6 +97,7 @@ impl Book {
     Ok(())
   }
 
+  #[allow(dead_code)]
   pub async fn mark_as_unpublished(&self, bid: &mut Bid) -> Result<(), sqlx::Error> {
     if bid.published_at.is_none() {
       return Ok(());

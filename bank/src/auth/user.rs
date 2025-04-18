@@ -64,10 +64,10 @@ impl AuthenticatedUser {
       first_name: first_name.clone(),
       last_name: last_name.clone(),
       verification: verification.clone(),
-      exp: Utc::now()
+      exp: usize::try_from(Utc::now()
         .checked_add_days(Days::new(1000))
         .unwrap()
-        .timestamp() as usize, // TODO: set expiration time
+        .timestamp()).unwrap_or_default(), // TODO: set expiration time
     };
     let token = encode(&header, &claim, &key).unwrap();
     //
@@ -100,22 +100,19 @@ where
 
   async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
     let headers = parts.headers.clone();
-    let token = match headers
+    let Some(token) = headers
       .get("Authorization")
       .and_then(|value| value.to_str().ok())
       .and_then(|value| value.strip_prefix("Bearer "))
-    {
-      Some(token) => token,
-      None => {
-        error!("Missing Authorization header");
-        return Err(AuthError::InvalidCredentials.into_response());
-      }
+    else {
+      error!("Missing Authorization header");
+      return Err(AuthError::InvalidCredentials.into_response());
     };
 
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let key = DecodingKey::from_secret(secret.as_ref());
 
-    match decode::<UserClaim>(&token, &key, &Validation::default()) {
+    match decode::<UserClaim>(token, &key, &Validation::default()) {
       Ok(token_data) => Ok(AuthenticatedUser {
         id: token_data.claims.id,
         email: token_data.claims.email,

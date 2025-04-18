@@ -23,7 +23,7 @@ pub async fn all(
 ) -> Result<impl IntoResponse, AuthError> {
   let passkeys = match storage.get_passkeys(user.id).await {
     Ok(passkeys) => {
-      if passkeys.len() == 0 {
+      if passkeys.is_empty() {
         return Err(AuthError::UserNotFound);
       }
       passkeys
@@ -85,14 +85,11 @@ pub async fn finish_adding(
 ) -> Result<impl IntoResponse, AuthError> {
   info!("Finalising new passkey for {}", user.email);
 
-  let state = match session
+  let Some(state) = session
     .get::<PasskeyRegistration>("add_passkey_state")
     .await?
-  {
-    Some(state) => state,
-    None => {
-      return Err(AuthError::CorruptSession);
-    }
+  else {
+      return Err(AuthError::CorruptSession)
   };
 
   let _ = session.remove_value("add_passkey_state").await;
@@ -112,7 +109,7 @@ pub async fn finish_adding(
     }
     Err(err) => {
       error!("Coulnd't verify new passkey for {}: {:?}", user.email, err);
-      return Err(AuthError::InvalidCredentials);
+      Err(AuthError::InvalidCredentials)
     }
   }
 }
@@ -123,7 +120,7 @@ pub async fn remove(
   Path(id): Path<Uuid>,
 ) -> Result<impl IntoResponse, AuthError> {
   match storage.remove_passkey(user.id, id).await {
-    Ok(_) => Ok(()),
+    Ok(()) => Ok(()),
     Err(err) => {
       error!("Couldn't remove passkey for {}: {:?}", user.email, err);
       Err(AuthError::Unknown)

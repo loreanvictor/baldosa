@@ -37,35 +37,26 @@ pub async fn finish(
   session: Session,
   Json(body): Json<AuthenticateWithPasskeyBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  let reg_state = match session
+  let Some(reg_state) = session
     .get::<DiscoverableAuthentication>("auth_state")
     .await?
-  {
-    Some(state) => state,
-    None => {
-      return Err(AuthError::CorruptSession);
-    }
+  else {
+    return Err(AuthError::CorruptSession);
   };
 
-  let (uuid, cred_id) = match webauthn.identify_discoverable_authentication(&body.credential) {
-    Ok((uuid, cred_id)) => (uuid, cred_id),
-    Err(_) => {
-      return Err(AuthError::InvalidCredentials);
-    }
+  let Ok((uuid, cred_id)) = webauthn.identify_discoverable_authentication(&body.credential) 
+  else {
+    return Err(AuthError::InvalidCredentials);
   };
 
-  let passkeys = match storage.get_passkeys(uuid).await {
-    Ok(passkeys) => passkeys,
-    Err(_) => {
-      return Err(AuthError::UserNotFound);
-    }
+  let Ok(passkeys) = storage.get_passkeys(uuid).await
+  else {
+    return Err(AuthError::UserNotFound);
   };
 
-  let passkey = match passkeys.iter().find(|key| key.credential_id == cred_id) {
-    Some(passkey) => passkey,
-    None => {
-      return Err(AuthError::InvalidCredentials);
-    }
+  let Some(passkey) = passkeys.iter().find(|key| key.credential_id == cred_id)
+  else {
+    return Err(AuthError::InvalidCredentials);
   };
 
   let discoverable_keys = passkeys
@@ -97,17 +88,17 @@ pub async fn finish(
           )))
         }
         Ok(None) => {
-          error!("User not found: {}", uuid);
+          error!("User not found: {uuid}");
           Err(AuthError::UserNotFound)
         }
         Err(err) => {
-          error!("Error finding user: {:?}", err);
+          error!("Error finding user: {err:?}");
           Err(AuthError::Unknown)
         }
       }
     }
     Err(_) => {
-      return Err(AuthError::InvalidCredentials);
+      Err(AuthError::InvalidCredentials)
     }
   }
 }

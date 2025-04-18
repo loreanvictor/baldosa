@@ -22,7 +22,7 @@ pub async fn verify(
   user: AuthenticatedUser,
   Json(body): Json<VerifyEmailBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  match codes.verify(&user.id, &body.code, "verify_email").await {
+  match codes.verify(&user.id, &body.code, "verify_email") {
     Ok(()) => (),
     Err(err) => {
       return Err(err);

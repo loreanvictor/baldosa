@@ -80,7 +80,7 @@ pub async fn post_bid(
         url: Some(body.url),
         image: Some(body.image),
       },
-      tx.total() as i32,
+      i32::try_from(tx.total()).unwrap_or_default(),
     )
     .await
   {

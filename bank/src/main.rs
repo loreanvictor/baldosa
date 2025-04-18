@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 mod auth;
 mod bidding;
 mod db;

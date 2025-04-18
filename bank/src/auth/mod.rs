@@ -58,15 +58,15 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   let store = MemoryStore::default();
   let session = SessionManagerLayer::new(store)
     .with_secure(secure)
-    .with_same_site(match secure {
-      true => SameSite::None,
-      false => SameSite::Lax,
+    .with_same_site(
+      if secure { SameSite::None }
+      else { SameSite::Lax }
       // 👆 when running locally, we can't have secure cookies, but we need
       //    the cookies to be cross site (since client is on a different domain).
       //    thats why we use LAX here. on prod, however, we have secure cookies
       //    so we can use NONE.
       //
-    })
+    )
     .with_expiry(Expiry::OnInactivity(Duration::seconds(300)));
 
   // we need cross site cookies for the client to be able to
@@ -80,7 +80,7 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     Err(_) => HeaderValue::from_str(&client_url).unwrap(),
   };
 
-  info!("allowed origin: {:?}", allowed_origin);
+  info!("allowed origin: {allowed_origin:?}");
 
   let cors = CorsLayer::new()
     .allow_methods([Method::POST, Method::GET, Method::DELETE])

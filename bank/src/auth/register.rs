@@ -36,7 +36,7 @@ pub async fn start(
     }
     Ok(None) => {}
     Err(err) => {
-      error!("Error checking user existence: {:?}", err);
+      error!("Error checking user existence: {err:?}");
       return Err(AuthError::Unknown);
     }
   }
@@ -74,20 +74,18 @@ pub async fn finish(
   session: Session,
   Json(body): Json<RegisterWithPasskeyBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  let (unique_user_id, email, first_name, last_name, reg_state) = match session
+  let Some((unique_user_id, email, first_name, last_name, reg_state)) =
+    session
     .get::<(Uuid, String, String, String, PasskeyRegistration)>("reg_state")
     .await?
-  {
-    Some((unique_user_id, email, first_name, last_name, reg_state)) => {
-      (unique_user_id, email, first_name, last_name, reg_state)
-    }
-    None => return Err(AuthError::CorruptSession),
+  else {
+    return Err(AuthError::CorruptSession)
   };
 
   let _ = session.remove_value("reg_state").await;
   match webauthn.finish_passkey_registration(&body.credential, &reg_state) {
     Ok(passkey) => {
-      info!("Registration finished for: {}", email);
+      info!("Registration finished for: {email}");
 
       match storage.find_user_by_email(email.as_str()).await {
         Ok(Some(_)) => {}
@@ -96,7 +94,7 @@ pub async fn finish(
           .await
           .map_err(|_| AuthError::Unknown)?,
         Err(err) => {
-          error!("Error checking user existence: {:?}", err);
+          error!("Error checking user existence: {err:?}");
           return Err(AuthError::Unknown);
         }
       }
@@ -116,13 +114,13 @@ pub async fn finish(
           )),
         )),
         Err(err) => {
-          error!("Error creating passkey: {:?}", err);
-          return Err(AuthError::Unknown);
+          error!("Error creating passkey: {err:?}");
+          Err(AuthError::Unknown)
         }
       }
     }
     Err(err) => {
-      error!("Registration failed: {:?}", err);
+      error!("Registration failed: {err:?}");
       Err(AuthError::InvalidCredentials)
     }
   }

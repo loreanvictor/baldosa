@@ -74,7 +74,7 @@ macro_rules! tx {
 
       Transaction {
         receiver, receiver_sys,
-        consumed_value: $amount as i32,
+        consumed_value: i32::try_from($amount).unwrap_or_default(),
         issued_by: _i.id,
         ..Default::default()
       }
@@ -106,7 +106,7 @@ macro_rules! tx {
 
       Transaction {
         consumes: _c.id,
-        consumed_value: $amount as i32,
+        consumed_value: i32::try_from($amount).unwrap_or_default(),
         sender, sender_sys, receiver, receiver_sys,
         note: $note,
         issued_by: _i.id,
@@ -131,13 +131,13 @@ macro_rules! tx {
 
       Transaction {
         consumes: _o.id,
-        consumed_value: u32::min($amount, _o.total()) as i32,
+        consumed_value: i32::try_from(u32::min($amount, _o.total())).unwrap_or_default(),
         sender: _s.receiver,
         sender_sys: _s.receiver_sys.clone(),
         receiver: _s.receiver,
         receiver_sys: _s.receiver_sys.clone(),
         merges: _s.id,
-        merged_value: _s.total() as i32,
+        merged_value: i32::try_from(_s.total()).unwrap_or_default(),
         issued_by: _i.id,
         note: $note,
         ..Default::default()

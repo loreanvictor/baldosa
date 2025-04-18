@@ -41,16 +41,16 @@ impl Publisher {
           .put(format!("{}/{}:{}", self.url, bid.x, bid.y))
           .json(&PublishRequest {
             source: bid.content.image.clone().expect("Missing image"),
-            title: bid.content.title.clone().unwrap_or("".to_string()),
-            subtitle: bid.content.subtitle.clone().unwrap_or("".to_string()),
-            description: bid.content.description.clone().unwrap_or("".to_string()),
-            link: bid.content.url.clone().unwrap_or("".to_string()),
+            title: bid.content.title.clone().unwrap_or_default(),
+            subtitle: bid.content.subtitle.clone().unwrap_or_default(),
+            description: bid.content.description.clone().unwrap_or_default(),
+            link: bid.content.url.clone().unwrap_or_default(),
           }),
       )
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to publish bid: {}", e);
+        error!("Failed to publish bid: {e}");
         match e.status() {
           Some(StatusCode::UNAUTHORIZED) => PublishError::Unauthorized,
           _ => PublishError::Unknown,
@@ -58,12 +58,12 @@ impl Publisher {
       })?;
 
     if response.status() == StatusCode::UNAUTHORIZED {
-      return Err(PublishError::Unauthorized);
+      Err(PublishError::Unauthorized)
     } else if !response.status().is_success() {
       error!("Failed to publish bid: {}", response.status());
       error!(
         "Response: {}",
-        response.text().await.unwrap_or("".to_string())
+        response.text().await.unwrap_or(String::new())
       );
       return Err(PublishError::Unknown);
     } else {

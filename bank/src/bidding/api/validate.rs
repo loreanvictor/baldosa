@@ -25,8 +25,8 @@ pub async fn validate_bid(
     return Err(BiddingError::InsufficientFunds);
   }
 
-  match book.get_earmarked(&transaction).await {
-    Ok(Some(_)) => return Err(BiddingError::AlreadyEarmarked),
+  match book.get_earmarked(transaction).await {
+    Ok(Some(_)) => Err(BiddingError::AlreadyEarmarked),
     _ => Ok(()),
   }
 }

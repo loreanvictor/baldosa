@@ -18,7 +18,7 @@ pub async fn balance(
   ledger
     .balance_or_init(&Account::of_user(&user.id), None, &user)
     .await
-    .and_then(|tx| Ok(Json(tx)))
+    .map(Json)
 }
 
 pub async fn accept(
@@ -28,7 +28,7 @@ pub async fn accept(
   ledger
     .accept_offer(&offer, &user)
     .await
-    .and_then(|tx| Ok(Json(tx)))
+    .map(Json)
 }
 
 pub async fn reject(
@@ -38,7 +38,7 @@ pub async fn reject(
   ledger
     .reject_offer(&offer, None, &user)
     .await
-    .and_then(|tx| Ok(Json(tx)))
+    .map(Json)
 }
 
 pub async fn rescind(
@@ -48,7 +48,7 @@ pub async fn rescind(
   ledger
     .rescind_offer(&offer, &user)
     .await
-    .and_then(|tx| Ok(Json(tx)))
+    .map(Json)
 }
 
 #[derive(Deserialize)]
@@ -69,7 +69,7 @@ pub async fn offers(
       limit.unwrap_or(32),
     )
     .await
-    .and_then(|txs| Ok(Json(txs)))
+    .map(Json)
     .map_err(|_| WalletError::Unknown)
 }
 
@@ -81,7 +81,7 @@ pub async fn history(
   ledger
     .transaction_history(&user.id, offset.unwrap_or(0), limit.unwrap_or(32))
     .await
-    .and_then(|txs| Ok(Json(txs)))
+    .map(Json)
     .map_err(|_| WalletError::Unknown)
 }
 
@@ -154,7 +154,7 @@ pub async fn partially_accept(
     return Err(WalletError::AlreadyUsedTransaction);
   }
 
-  if !offer.receiver_sys.is_some() {
+  if offer.receiver_sys.is_none() {
     return Err(WalletError::UnauthorizedTransaction);
   }
 

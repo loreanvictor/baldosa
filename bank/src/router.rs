@@ -23,9 +23,9 @@ pub async fn start_server(db: &Pool<Postgres>) {
     .and_then(|p| p.parse::<u16>().ok())
     .unwrap_or(8081);
 
-  let addr = format!("{}:{}", host, port);
+  let addr = format!("{host}:{port}");
 
-  info!("serving on {}", addr);
+  info!("serving on {addr}");
 
   let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
   axum::serve(listener, app).await.unwrap();

@@ -54,7 +54,7 @@ impl AuthStorage {
     .await
     {
       Ok(_) => Ok(()),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -90,7 +90,7 @@ impl AuthStorage {
         }),
         None => Err(Error::RowNotFound),
       },
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -108,7 +108,7 @@ impl AuthStorage {
     .await
     {
       Ok(_) => Ok(()),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -131,7 +131,7 @@ impl AuthStorage {
           })
           .collect(),
       ),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -145,7 +145,7 @@ impl AuthStorage {
     .await
     {
       Ok(_) => Ok(()),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -155,7 +155,7 @@ impl AuthStorage {
       .await;
     match res {
       Ok(user) => Ok(user),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -165,7 +165,7 @@ impl AuthStorage {
       .await;
     match res {
       Ok(user) => Ok(user),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -179,7 +179,7 @@ impl AuthStorage {
     .await;
     match res {
       Ok(user) => Ok(user),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 }

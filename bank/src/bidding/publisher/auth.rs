@@ -37,19 +37,19 @@ impl Auth {
   pub fn apply(&self, builder: RequestBuilder) -> RequestBuilder {
     match self {
       Auth::None => builder,
-      Auth::SimpleKey(key) => builder.header("Authorization", format!("Bearer {}", key)),
+      Auth::SimpleKey(key) => builder.header("Authorization", format!("Bearer {key}")),
       Auth::Jwt { secret, subject } => {
         let token = encode(
           &Header::default(),
           &AuthClaims {
             sub: subject.to_owned(),
-            exp: (Utc::now() + Duration::minutes(5)).timestamp() as usize,
+            exp: usize::try_from((Utc::now() + Duration::minutes(5)).timestamp()).unwrap_or_default(),
           },
           &EncodingKey::from_secret(secret.as_ref()),
         )
         .unwrap();
 
-        builder.header("Authorization", format!("Bearer {}", token))
+        builder.header("Authorization", format!("Bearer {token}"))
       }
     }
   }

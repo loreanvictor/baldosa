@@ -20,11 +20,11 @@ pub struct EmailOtcBody {
 fn email_html_for_code(first_name: &str, last_name: &str, code: &str, msg: &str) -> String {
   format!("
     <div style='font-family: monospace; max-width: 360px'>
-    <p><b>Dear {} {}</b></p>
+    <p><b>Dear {first_name} {last_name}</b></p>
     <p>
-      {}
+      {msg}
       <br/><br/>
-      <b style='font-size: 4em; font-weight: 100'>{}</b>
+      <b style='font-size: 4em; font-weight: 100'>{code}</b>
     </p>
     <br/>
     <div style='display: flex'>
@@ -41,7 +41,7 @@ fn email_html_for_code(first_name: &str, last_name: &str, code: &str, msg: &str)
         The Baldosa Team
       </p>
     </div>
-  ", first_name, last_name, msg, code)
+  ")
 }
 
 pub async fn send_auth_otc(
@@ -50,14 +50,12 @@ pub async fn send_auth_otc(
   Extension(resend): Extension<Resend>,
   Json(body): Json<EmailOtcBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  let user = match storage.find_user_by_email(&body.email).await {
-    Ok(Some(user)) => user,
-    _ => {
-      return Err(AuthError::UserNotFound);
-    }
+  let Ok(Some(user)) = storage.find_user_by_email(&body.email).await
+  else {
+    return Err(AuthError::UserNotFound);
   };
 
-  let code = match codes.create(&user.id, "auth_with_email").await {
+  let code = match codes.create(&user.id, "auth_with_email") {
     Ok(code) => code,
     Err(err) => {
       return Err(err);
@@ -66,7 +64,7 @@ pub async fn send_auth_otc(
 
   let from = "Baldosa <auth@baldosa.city>";
   let to = [body.email];
-  let subject = format!("Baldosa Login Code: {}", code);
+  let subject = format!("Baldosa Login Code: {code}");
 
   match resend.emails.send(
     CreateEmailBaseOptions::new(from, to, subject)
@@ -87,11 +85,11 @@ pub async fn send_verification_code(
   Extension(resend): Extension<Resend>,
   user: AuthenticatedUser,
 ) -> Result<impl IntoResponse, AuthError> {
-  if let Some(_) = user.verification.email_verified_at {
+  if user.verification.email_verified_at.is_some() {
     return Err(AuthError::AlreadyVerified);
   }
 
-  let code = match codes.create(&user.id, "verify_email").await {
+  let code = match codes.create(&user.id, "verify_email") {
     Ok(code) => code,
     Err(err) => {
       return Err(err);
@@ -100,7 +98,7 @@ pub async fn send_verification_code(
 
   let from = "Baldosa <auth@baldosa.city>";
   let to = [user.email];
-  let subject = format!("Baldosa Verification Code: {}", code);
+  let subject = format!("Baldosa Verification Code: {code}");
 
   match resend.emails.send(
     CreateEmailBaseOptions::new(from, to, subject)

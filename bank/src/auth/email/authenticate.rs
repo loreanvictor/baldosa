@@ -22,14 +22,12 @@ pub async fn authenticate(
   Extension(storage): Extension<AuthStorage>,
   Json(body): Json<AuthenticateWithEmailBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  let user = match storage.find_user_by_email(&body.email).await {
-    Ok(Some(user)) => user,
-    _ => {
-      return Err(AuthError::UserNotFound);
-    }
+  let Ok(Some(user)) = storage.find_user_by_email(&body.email).await
+  else {
+    return Err(AuthError::UserNotFound);
   };
 
-  match codes.verify(&user.id, &body.code, "auth_with_email").await {
+  match codes.verify(&user.id, &body.code, "auth_with_email") {
     Ok(()) => (),
     Err(err) => {
       return Err(err);

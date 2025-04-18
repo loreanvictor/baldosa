@@ -30,19 +30,23 @@ pub struct Transaction {
 }
 
 impl Transaction {
+  #[allow(clippy::cast_sign_loss)]
+  #[allow(clippy::inline_always)]
   #[inline(always)]
   pub fn total(&self) -> u32 {
     (self.consumed_value + self.merged_value) as u32
   }
 
+  #[allow(clippy::inline_always)]
   #[inline(always)]
   pub fn sender_account(&self) -> Account {
-    Account::from_tuple(&self.sender, &self.sender_sys)
+    Account::from_tuple(self.sender.as_ref(), self.sender_sys.as_ref())
   }
 
+  #[allow(clippy::inline_always)]
   #[inline(always)]
   pub fn receiver_account(&self) -> Account {
-    Account::from_tuple(&self.receiver, &self.receiver_sys)
+    Account::from_tuple(self.receiver.as_ref(), self.receiver_sys.as_ref())
   }
 
   pub fn is_used(&self) -> bool {
@@ -55,15 +59,15 @@ impl Transaction {
 
   pub fn is_usable_by_user(&self, user_id: &Uuid) -> bool {
     !self.is_used()
-      && (self.sender == Some(user_id.clone()) || self.receiver == Some(user_id.clone()))
+      && (self.sender == Some(*user_id) || self.receiver == Some(*user_id))
   }
 
   pub fn is_usable_offer_to(&self, user_id: &Uuid) -> bool {
-    self.is_usable_by_user(user_id) && self.is_offer() && self.receiver == Some(user_id.clone())
+    self.is_usable_by_user(user_id) && self.is_offer() && self.receiver == Some(*user_id)
   }
 
   pub fn is_usable_offer_from(&self, user_id: &Uuid) -> bool {
-    self.is_usable_by_user(user_id) && self.is_offer() && self.sender == Some(user_id.clone())
+    self.is_usable_by_user(user_id) && self.is_offer() && self.sender == Some(*user_id)
   }
 }
 
@@ -72,12 +76,12 @@ impl Display for Transaction {
     write!(
       f,
       "{} -({})-> {}:{} <=({})= {}",
-      self.consumes.map(|id| id.to_string()).unwrap_or(" ".into()),
+      self.consumes.map_or(" ".into(), |id| id.to_string()),
       self.consumed_value,
       self.sender_account(),
       self.receiver_account(),
       self.merged_value,
-      self.merges.map(|id| id.to_string()).unwrap_or(" ".into()),
+      self.merges.map_or(" ".into(), |id| id.to_string()),
     )
   }
 }

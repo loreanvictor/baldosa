@@ -1,5 +1,5 @@
 mod auth;
 pub mod error;
-mod publisher;
+mod sdk;
 
-pub use publisher::Publisher;
+pub use sdk::Publisher;

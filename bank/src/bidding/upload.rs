@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::env;
 
 use s3::bucket::Bucket;
-use s3::post_policy::{PostPolicyField as F, PostPolicyValue as V, *};
+use s3::post_policy::{PostPolicyField as F, PostPolicyValue as V, PostPolicy, PresignedPost};
 
 use super::super::wallet::Transaction;
 use super::error::BiddingError;
@@ -46,9 +46,8 @@ pub async fn generate_url(
   transaction: &Transaction,
   config: &Config,
 ) -> Result<PresignedPost, BiddingError> {
-  let txid = match transaction.id {
-    Some(id) => id,
-    None => return Err(BiddingError::InvalidBid),
+  let Some(txid) = transaction.id else {
+    return Err(BiddingError::InvalidBid)
   };
 
   let key = format!("tile-{}-{}-{}.jpg", coords.0, coords.1, txid);

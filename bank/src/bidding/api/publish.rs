@@ -14,8 +14,8 @@ pub async fn publish(
 ) -> Result<(), BiddingError> {
   let forward = Transaction {
     consumes: transaction.id,
-    consumed_value: transaction.total() as i32,
-    sender_sys: transaction.receiver_sys.to_owned(),
+    consumed_value: i32::try_from(transaction.total()).unwrap_or_default(),
+    sender_sys: transaction.receiver_sys.clone(),
     receiver_sys: Some("bank".to_string()),
     issued_by: transaction.issued_by,
     note: Some(format!("bid {} published", bid.id)),

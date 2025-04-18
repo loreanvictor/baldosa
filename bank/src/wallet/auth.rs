@@ -28,11 +28,11 @@ where
 
     let user = AuthenticatedUser::from_request_parts(&mut parts, state)
       .await
-      .map_err(|err| err.into_response())?;
+      .map_err(IntoResponse::into_response)?;
 
     let Extension(ledger) = Extension::<Ledger>::from_request_parts(&mut parts, state)
       .await
-      .map_err(|err| err.into_response())?;
+      .map_err(IntoResponse::into_response)?;
 
     let tx = match rtx.id {
       Some(id) => ledger

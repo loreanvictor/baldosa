@@ -39,7 +39,7 @@ impl CodesRepository {
     }
   }
 
-  async fn check_locked(&self, user_id: &Uuid) -> Result<(), AuthError> {
+  fn check_locked(&self, user_id: &Uuid) -> Result<(), AuthError> {
     let attempt = match self.attempts.entry(*user_id) {
       Occupied(attempt) => attempt,
       Vacant(_) => return Ok(()),
@@ -57,7 +57,7 @@ impl CodesRepository {
     }
   }
 
-  async fn fail_attempt(&self, user_id: &Uuid) -> AuthError {
+  fn fail_attempt(&self, user_id: &Uuid) -> AuthError {
     let mut attempt = self.attempts.entry(*user_id).or_insert_with(|| Attempt {
       attempts: 0,
       lock_until: None,
@@ -75,8 +75,8 @@ impl CodesRepository {
     }
   }
 
-  pub async fn create(&self, user_id: &Uuid, subject: &str) -> Result<String, AuthError> {
-    match self.check_locked(user_id).await {
+  pub fn create(&self, user_id: &Uuid, subject: &str) -> Result<String, AuthError> {
+    match self.check_locked(user_id) {
       Ok(()) => {}
       Err(err) => {
         return Err(err);
@@ -85,11 +85,11 @@ impl CodesRepository {
 
     let mut rng = StdRng::from_os_rng();
     let code = format!("{:06}", rng.random_range(0..1_000_000));
-    let code_hash = digest::digest(&digest::SHA256, &code.as_bytes())
+    let code_hash = digest::digest(&digest::SHA256, code.as_bytes())
       .as_ref()
       .to_vec();
 
-    let mut codes = self.codes.entry(*user_id).or_insert(Vec::new());
+    let mut codes = self.codes.entry(*user_id).or_default();
     codes.push(OneTimeCode {
       code_hash,
       subject: subject.to_string(),
@@ -99,20 +99,20 @@ impl CodesRepository {
     Ok(code)
   }
 
-  pub async fn verify(&self, user_id: &Uuid, code: &str, subject: &str) -> Result<(), AuthError> {
-    match self.check_locked(user_id).await {
+  pub fn verify(&self, user_id: &Uuid, code: &str, subject: &str) -> Result<(), AuthError> {
+    match self.check_locked(user_id) {
       Ok(()) => {}
       Err(err) => {
         return Err(err);
       }
     };
 
-    let hash = digest::digest(&digest::SHA256, &code.as_bytes())
+    let hash = digest::digest(&digest::SHA256, code.as_bytes())
       .as_ref()
       .to_vec();
     match self.codes.entry(*user_id) {
       Occupied(codes) => {
-        for code in codes.get().iter() {
+        for code in codes.get() {
           if code.code_hash == hash && code.subject == subject && code.expires_at > Utc::now() {
             codes.remove();
             self.attempts.remove(user_id);
@@ -123,6 +123,6 @@ impl CodesRepository {
       Vacant(_) => {}
     };
 
-    Err(self.fail_attempt(user_id).await)
+    Err(self.fail_attempt(user_id))
   }
 }

@@ -88,7 +88,7 @@ impl Ledger {
               merged,
             }),
             Err(err) => {
-              error!("Failed to merge offer: {}", err);
+              error!("Failed to merge offer: {err}");
               Err(WalletError::Unknown)
             }
           }

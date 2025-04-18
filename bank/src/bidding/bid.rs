@@ -1,3 +1,4 @@
+use std::string::ToString;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -15,11 +16,11 @@ pub struct BidContent {
 impl From<Value> for BidContent {
   fn from(value: Value) -> Self {
     BidContent {
-      image: value["image"].as_str().map(|s| s.to_string()),
-      description: value["description"].as_str().map(|s| s.to_string()),
-      title: value["title"].as_str().map(|s| s.to_string()),
-      subtitle: value["subtitle"].as_str().map(|s| s.to_string()),
-      url: value["url"].as_str().map(|s| s.to_string()),
+      image: value["image"].as_str().map(ToString::to_string),
+      description: value["description"].as_str().map(ToString::to_string),
+      title: value["title"].as_str().map(ToString::to_string),
+      subtitle: value["subtitle"].as_str().map(ToString::to_string),
+      url: value["url"].as_str().map(ToString::to_string),
     }
   }
 }
@@ -39,6 +40,7 @@ pub struct Bid {
 }
 
 impl Bid {
+  #[allow(dead_code)]
   pub fn coords(&self) -> (i32, i32) {
     (self.x, self.y)
   }

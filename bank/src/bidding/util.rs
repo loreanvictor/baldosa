@@ -19,8 +19,7 @@ pub fn parse_coords(path: &str) -> Result<(i32, i32), ParseCoordsError> {
     .map(|(x, y)| (x.parse::<i32>(), y.parse::<i32>()))
   {
     Some((Ok(x), Ok(y))) => Ok((x, y)),
-    Some((Err(e), _)) => Err(ParseCoordsError::InvalidNumber(e)),
-    Some((_, Err(e))) => Err(ParseCoordsError::InvalidNumber(e)),
+    Some((Err(e), _) | (_, Err(e))) => Err(ParseCoordsError::InvalidNumber(e)),
     None => Err(ParseCoordsError::InvalidFormat),
   }
 }
@@ -43,7 +42,7 @@ fn parse_num_with_unit<const N: usize>(
       let num: u32 = num
         .trim()
         .parse()
-        .map_err(|e| ParseNumWithUnitError::InvalidNumber(e))?;
+        .map_err(ParseNumWithUnitError::InvalidNumber)?;
       return Ok(num * factor);
     }
   }

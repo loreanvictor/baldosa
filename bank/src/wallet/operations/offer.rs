@@ -43,7 +43,7 @@ impl Ledger {
     note: Option<String>,
     issuer: &AuthenticatedUser,
   ) -> Result<OfferResult, WalletError> {
-    if amount <= 0 {
+    if amount == 0 {
       return Err(WalletError::ErroneousTransaction);
     }
 

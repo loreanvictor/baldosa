@@ -34,12 +34,12 @@ where
 {
   type Rejection = Response;
 
-  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-    let user = AuthenticatedUser::from_request_parts(parts, _state)
+  async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
+    let user = AuthenticatedUser::from_request_parts(parts, state)
       .await
       .map_err(IntoResponse::into_response)?;
     let Extension(config): Extension<Arc<AdminConfig>> =
-      Extension::from_request_parts(parts, _state)
+      Extension::from_request_parts(parts, state)
         .await
         .map_err(IntoResponse::into_response)?;
 

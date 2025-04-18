@@ -2,7 +2,6 @@ use std::env;
 use std::path::Path;
 
 use dotenvy::{dotenv_iter, dotenv_override, from_path, from_path_iter};
-use env_logger;
 use log::debug;
 
 fn is_sensitive_key(key: &str) -> bool {
@@ -23,7 +22,7 @@ fn debug_env_kv(key: &str, val: &str) {
 
   match (sensitive, debug_sensitive) {
     (true, false) => debug!("{}={}", key, mask(val)),
-    _ => debug!("{}={}", key, val),
+    _ => debug!("{key}={val}"),
   }
 }
 

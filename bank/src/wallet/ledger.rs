@@ -25,7 +25,7 @@ impl Ledger {
     .await
     {
       Ok(tx) => Ok(tx),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -64,7 +64,7 @@ impl Ledger {
 
     match result {
       Ok(tx) => Ok(tx),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -86,8 +86,8 @@ impl Ledger {
             limit $3
           ",
           user_id,
-          offset as i32,
-          limit as i32
+          i64::try_from(offset).unwrap_or_default(),
+          i64::try_from(limit).unwrap_or_default(),
         )
         .fetch_all(&self.pool)
         .await
@@ -103,8 +103,8 @@ impl Ledger {
             limit $3
           ",
           sys_id,
-          offset as i32,
-          limit as i32
+          i64::try_from(offset).unwrap_or_default(),
+          i64::try_from(limit).unwrap_or_default(),
         )
         .fetch_all(&self.pool)
         .await
@@ -114,7 +114,7 @@ impl Ledger {
 
     match result {
       Ok(txs) => Ok(txs),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -134,14 +134,14 @@ impl Ledger {
         limit $3
       ",
       user_id,
-      offset as i32,
-      limit as i32
+      i64::try_from(offset).unwrap_or_default(),
+      i64::try_from(limit).unwrap_or_default(),
     )
     .fetch_all(&self.pool)
     .await
     {
       Ok(txs) => Ok(txs),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 
@@ -181,7 +181,7 @@ impl Ledger {
           .try_into()
           .unwrap(),
       ),
-      Err(e) => Err(e).into(),
+      Err(e) => Err(e),
     }
   }
 }
