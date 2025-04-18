@@ -15,6 +15,7 @@ use tower_sessions::{
 };
 use webauthn_rs::prelude::*;
 
+pub mod admin;
 mod authenticate;
 mod email;
 pub mod error;
@@ -22,7 +23,6 @@ mod passkeys;
 mod register;
 mod storage;
 pub mod user;
-pub mod admin;
 
 pub use error::AuthError;
 pub use user::AuthenticatedUser;

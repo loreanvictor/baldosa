@@ -1,17 +1,17 @@
-use async_trait::async_trait;
 use std::error::Error;
+
+use async_trait::async_trait;
 use aws_sdk_s3::Client as S3Client;
 
 use super::super::Coords;
 use super::target::BitmaskTarget;
-
 
 ///
 /// A target to store chunk bitmasks of a map in an S3 bucket.
 /// A chunk bitmask is a bitmask representing a finite chunk of an infinite map,
 /// and can be used to quickly determine if a point exists within the chunk
 /// (i.e. if a tile is published or not).
-/// 
+///
 /// The S3 target stores the bitmask for a chunk (x, y) in the bucket as a binary file
 /// named `tilemap-x-y.bin`.
 ///
@@ -34,18 +34,24 @@ impl S3BitmaskTarget {
 
 #[async_trait]
 impl BitmaskTarget for S3BitmaskTarget {
-  async fn save_bitmask(&self, anchor: &Coords, bitmask: &[u8]) -> Result<(), Box<dyn Error + Send + Sync>> {
+  async fn save_bitmask(
+    &self,
+    anchor: &Coords,
+    bitmask: &[u8],
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let key = format!("tilemap-{}-{}.bin", anchor.0, anchor.1);
-    match self.client
+    match self
+      .client
       .put_object()
       .bucket(&self.bucket)
       .key(key)
       .cache_control("max-age=600")
       .body(bitmask.to_vec().into())
       .send()
-      .await {
+      .await
+    {
       Ok(_) => Ok(()),
-      Err(e) => Err(e.into())
+      Err(e) => Err(e.into()),
     }
   }
 }

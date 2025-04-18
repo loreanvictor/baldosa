@@ -1,4 +1,5 @@
 mod auth;
+mod bidding;
 mod db;
 mod env;
 mod router;

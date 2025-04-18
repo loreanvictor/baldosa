@@ -53,23 +53,25 @@ impl Transaction {
     !self.is_state
   }
 
-  pub fn is_usable_by_user(&self, user_id:&Uuid) -> bool {
-    !self.is_used() &&
-      (self.sender == Some(user_id.clone()) || self.receiver == Some(user_id.clone()))
+  pub fn is_usable_by_user(&self, user_id: &Uuid) -> bool {
+    !self.is_used()
+      && (self.sender == Some(user_id.clone()) || self.receiver == Some(user_id.clone()))
   }
 
-  pub fn is_usable_offer_to(&self, user_id:&Uuid) -> bool {
+  pub fn is_usable_offer_to(&self, user_id: &Uuid) -> bool {
     self.is_usable_by_user(user_id) && self.is_offer() && self.receiver == Some(user_id.clone())
   }
 
-  pub fn is_usable_offer_from(&self, user_id:&Uuid) -> bool {
+  pub fn is_usable_offer_from(&self, user_id: &Uuid) -> bool {
     self.is_usable_by_user(user_id) && self.is_offer() && self.sender == Some(user_id.clone())
   }
 }
 
 impl Display for Transaction {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "{} -({})-> {}:{} <=({})= {}", 
+    write!(
+      f,
+      "{} -({})-> {}:{} <=({})= {}",
       self.consumes.map(|id| id.to_string()).unwrap_or(" ".into()),
       self.consumed_value,
       self.sender_account(),

@@ -5,8 +5,7 @@ use super::super::account::Account;
 use super::super::error::WalletError;
 use super::super::ledger::Ledger;
 use super::super::transaction::Transaction;
-
-use crate::{ commit_tx, tx };
+use crate::{commit_tx, tx};
 
 #[derive(Serialize)]
 pub struct OfferResult {
@@ -15,7 +14,7 @@ pub struct OfferResult {
 }
 
 impl Ledger {
-    ///
+  ///
   /// Offers the given amount from a sender account to a receiver account. Will also
   /// create a new state for the sender, based on the remainder of their balance.
   /// ```
@@ -32,7 +31,7 @@ impl Ledger {
   /// - `issuer`: the user who is requesting the offer
   ///
   /// ### Returns:
-  /// `OfferResult(offered, rest)`, where:
+  /// `OfferResult { offered, rest }`, where:
   /// - `offered` is an offer of the requested amount,
   /// - `rest` is the new state of the sender.
   ///
@@ -44,6 +43,10 @@ impl Ledger {
     note: Option<String>,
     issuer: &AuthenticatedUser,
   ) -> Result<OfferResult, WalletError> {
+    if amount <= 0 {
+      return Err(WalletError::ErroneousTransaction);
+    }
+
     match self.balance_or_init(sender, None, issuer).await {
       Ok(balance) => {
         let total = balance.total();

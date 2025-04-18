@@ -6,20 +6,22 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 async-trait = "0.1.88"
-axum = { version = "0.8", features = ["macros"] }
+axum = { version = "0.8.3", features = ["macros"] }
 dotenvy = "0.15.7"
-env_logger = "0.11.7"
+env_logger = "0.11.8"
 log = "0.4.27"
-sqlx = { version = "0.8.3", features = ["postgres", "runtime-tokio", "uuid", "chrono"] }
+sqlx = { version = "0.8.5", features = ["postgres", "runtime-tokio", "uuid", "chrono"] }
 thiserror = "2.0.12"
-tokio = { "version" = "1.44", "features" = ["full"] }
+tokio = { "version" = "1.44.2", "features" = ["full"] }
 tower-sessions = "0.14.0"
 webauthn-rs = { version = "0.5.1", features = ["danger-allow-state-serialisation", "conditional-ui"] }
-serde_json = "1.0.140"
+serde_json = { version = "1.0.140", features = ["raw_value"] }
 tower-http = { version = "0.6.2", "features" = ["cors"] }
 jsonwebtoken = "9.3.1"
 chrono = { version = "0.4.40", features = ["serde"] }
-rand = "0.9.0"
+rand = "0.9.1"
 resend-rs = "0.12.1"
 ring = "0.17.14"
 dashmap = "6.1.0"
+rust-s3 = "0.35.1"
+reqwest = { version = "0.12.15", features = ["json"] }

@@ -1,17 +1,16 @@
+use log::error;
 use serde::Serialize;
 use sqlx::types::Uuid;
-use log::error;
 
 use super::super::super::auth::AuthenticatedUser;
 use super::super::account::Account;
 use super::super::error::WalletError;
 use super::super::ledger::Ledger;
 use super::super::transaction::Transaction;
-
-use crate::{ commit_tx, tx };
+use crate::{commit_tx, tx};
 
 #[derive(Serialize)]
-#[serde(tag="type")]
+#[serde(tag = "type")]
 pub enum InjectResult {
   ToUser {
     init: Transaction,
@@ -23,7 +22,6 @@ pub enum InjectResult {
     merged: Transaction,
   },
 }
-
 
 impl Ledger {
   ///
@@ -49,7 +47,7 @@ impl Ledger {
   /// - `issued_by`: the uuid of the user who is injecting the tokens
   ///
   /// ### Returns:
-  /// `InjectResult(init, offer, merge)`, where:
+  /// `InjectResult { init, offer, merge }`, where:
   /// - `init` is the initial state of the temporary account created for injection,
   /// - `offer` is an offer from the temporary account to the receiver,
   /// - `merge`, optional, is the new state of the receiver if it is a system account, the offer will be
@@ -84,11 +82,15 @@ impl Ledger {
             tx! { merge &offer => balance; by issuer, "asset injection" };
             to self
           ] {
-            Ok([merged]) => Ok(InjectResult::ToSysUser { init, offer, merged }),
+            Ok([merged]) => Ok(InjectResult::ToSysUser {
+              init,
+              offer,
+              merged,
+            }),
             Err(err) => {
               error!("Failed to merge offer: {}", err);
               Err(WalletError::Unknown)
-            },
+            }
           }
         }
         Err(err) => Err(err),

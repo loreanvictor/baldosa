@@ -1,7 +1,7 @@
+pub mod scheduler;
 pub mod task;
 pub mod throttler;
-pub mod scheduler;
 
-pub use task::Task;
 pub use scheduler::Scheduler;
+pub use task::Task;
 pub use throttler::Throttler;

@@ -1,7 +1,7 @@
 use std::{env, sync::Arc};
 
 use axum::{
-  extract::{ FromRequestParts, Extension },
+  extract::{Extension, FromRequestParts},
   http::request::Parts,
   response::{IntoResponse, Response},
 };
@@ -17,7 +17,8 @@ pub struct AdminConfig {
 impl AdminConfig {
   pub fn init() -> Arc<Self> {
     let admin_key = env::var("ADMIN_KEY").expect("ADMIN_KEY must be set");
-    let admins = env::var("ADMIN_USERS").expect("ADMIN_USERS must be set")
+    let admins = env::var("ADMIN_USERS")
+      .expect("ADMIN_USERS must be set")
       .split(',')
       .map(|s| s.trim().to_string())
       .collect();
@@ -34,9 +35,13 @@ where
   type Rejection = Response;
 
   async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-    let user = AuthenticatedUser::from_request_parts(parts, _state).await.map_err(IntoResponse::into_response)?;
+    let user = AuthenticatedUser::from_request_parts(parts, _state)
+      .await
+      .map_err(IntoResponse::into_response)?;
     let Extension(config): Extension<Arc<AdminConfig>> =
-      Extension::from_request_parts(parts, _state).await.map_err(IntoResponse::into_response)?;
+      Extension::from_request_parts(parts, _state)
+        .await
+        .map_err(IntoResponse::into_response)?;
 
     if !config.admins.contains(&user.email) {
       return Err(AuthError::InsufficientPermissions.into_response());

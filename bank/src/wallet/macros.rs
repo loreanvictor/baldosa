@@ -9,11 +9,11 @@
 ///
 /// ### Example:
 /// ```rs
-/// let [tx1, tx2] = commit_transactions!(ledger; tx1, tx2)?;
+/// let [tx1, tx2] = commit_tx!(tx1, tx2; to ledger)?;
 /// ```
 /// Or with error handling:
 /// ```rs
-/// match commit_transactions!(ledger; tx1, tx2) {
+/// match commit_tx!(tx1, tx2; to ledger) {
 ///   Ok([tx1, tx2]) => { ... },
 ///   Err(_) => { ... },
 /// }

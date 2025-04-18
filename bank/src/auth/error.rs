@@ -47,9 +47,7 @@ impl IntoResponse for AuthError {
         "Requested verification already complete",
       ),
       AuthError::TooManyAttempts => (StatusCode::TOO_MANY_REQUESTS, "Too many attempts"),
-      AuthError::InsufficientPermissions => {
-        (StatusCode::FORBIDDEN, "Insufficient permissions")
-      }
+      AuthError::InsufficientPermissions => (StatusCode::FORBIDDEN, "Insufficient permissions"),
     })
     .into_response()
   }

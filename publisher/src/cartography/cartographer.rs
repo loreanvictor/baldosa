@@ -1,13 +1,15 @@
+use std::{error::Error, pin::Pin, sync::Arc};
+
 use async_trait::async_trait;
-use std::{ error::Error, sync::Arc, pin::Pin };
 use futures::stream::Stream;
 use image::Pixel;
 
-use super::{ Storage, Coords, Point };
-use super::bitmask::{ target::BitmaskTarget, generate::{ GenerateAndStoreBitmaskTask, get_chunk_coords } };
+use super::bitmask::{
+  generate::{get_chunk_coords, GenerateAndStoreBitmaskTask},
+  target::BitmaskTarget,
+};
 use super::schedule::Scheduler;
-
-
+use super::{Coords, Point, Storage};
 
 ///
 /// A cartographer that schedules a bitmask generation task
@@ -21,10 +23,12 @@ pub struct Cartographer<P: Pixel + Send + Sync + 'static> {
   scheduler: Box<dyn Scheduler<GenerateAndStoreBitmaskTask<P>>>,
 }
 
-impl <P: Pixel + Send + Sync> Cartographer<P>
-where <P as Pixel>::Subpixel: Send + Sync {
+impl<P: Pixel + Send + Sync> Cartographer<P>
+where
+  <P as Pixel>::Subpixel: Send + Sync,
+{
   ///
-  /// Create a new cartographer with the given storage and target. 
+  /// Create a new cartographer with the given storage and target.
   /// - `storage` - the storage (e.g. database) to store the points.
   /// - `target` - the target to store the generated bitmasks.
   /// - `scheduler` - the scheduler to schedule the bitmask generation tasks.
@@ -34,7 +38,10 @@ where <P as Pixel>::Subpixel: Send + Sync {
     target: Arc<dyn BitmaskTarget>,
     mut scheduler: impl Scheduler<GenerateAndStoreBitmaskTask<P>> + 'static,
   ) -> Self {
-    scheduler.assign(GenerateAndStoreBitmaskTask::new(Arc::clone(&storage), target));
+    scheduler.assign(GenerateAndStoreBitmaskTask::new(
+      Arc::clone(&storage),
+      target,
+    ));
 
     Self {
       storage,
@@ -44,35 +51,39 @@ where <P as Pixel>::Subpixel: Send + Sync {
 }
 
 #[async_trait]
-impl <P: Pixel + Send + Sync> Storage<P> for Cartographer<P>
-where <P as Pixel>::Subpixel: Send + Sync {
+impl<P: Pixel + Send + Sync> Storage<P> for Cartographer<P>
+where
+  <P as Pixel>::Subpixel: Send + Sync,
+{
   async fn put(
     &self,
     coords: &Coords,
-    color: &Vec<<P as Pixel>::Subpixel>
+    color: &Vec<<P as Pixel>::Subpixel>,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
     match self.storage.put(coords, color).await {
       Ok(()) => {
         let anchor = get_chunk_coords(coords);
         Ok(self.scheduler.schedule(&anchor).await)
-      },
-      err => err
+      }
+      err => err,
     }
   }
 
-  async fn delete(&self, coords: &Coords)
-    -> Result<(), Box<dyn Error + Send + Sync>> {
-      match self.storage.delete(coords).await {
-        Ok(()) => {
-          let anchor = get_chunk_coords(coords);
-          Ok(self.scheduler.schedule(&anchor).await)
-        },
-        err => err
+  async fn delete(&self, coords: &Coords) -> Result<(), Box<dyn Error + Send + Sync>> {
+    match self.storage.delete(coords).await {
+      Ok(()) => {
+        let anchor = get_chunk_coords(coords);
+        Ok(self.scheduler.schedule(&anchor).await)
       }
+      err => err,
+    }
   }
 
-  async fn get<'a>(&'a self, from: &'a Coords, to: &'a Coords)
-    -> Pin<Box<dyn Stream<Item = Point<P>> + Send + 'a>> {
-      self.storage.get(from, to).await
+  async fn get<'a>(
+    &'a self,
+    from: &'a Coords,
+    to: &'a Coords,
+  ) -> Pin<Box<dyn Stream<Item = Point<P>> + Send + 'a>> {
+    self.storage.get(from, to).await
   }
 }

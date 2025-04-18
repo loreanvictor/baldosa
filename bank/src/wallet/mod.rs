@@ -8,14 +8,16 @@ use tower_http::cors::{Any, CorsLayer};
 
 mod account;
 mod api;
-mod auth;
+pub mod auth;
 pub mod error;
 mod ledger;
 mod macros;
 pub mod operations;
 mod transaction;
 
+pub use account::Account;
 pub use ledger::Ledger;
+pub use transaction::Transaction;
 
 pub fn router(db: &Pool<Postgres>) -> Router {
   let cors = CorsLayer::new()

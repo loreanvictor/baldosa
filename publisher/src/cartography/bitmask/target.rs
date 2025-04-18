@@ -1,7 +1,8 @@
-use async_trait::async_trait;
 use std::error::Error;
-use super::super::Coords;
 
+use async_trait::async_trait;
+
+use super::super::Coords;
 
 ///
 /// A target to store chunk bitmasks of a map. A chunk bitmask is a bitmask
@@ -13,7 +14,11 @@ pub trait BitmaskTarget: Send + Sync {
   ///
   /// Save a given chunk bitmask to the target.
   ///
-  async fn save_bitmask(&self, coords: &Coords, mask: &[u8]) -> Result<(), Box<dyn Error + Send + Sync>>;
+  async fn save_bitmask(
+    &self,
+    coords: &Coords,
+    mask: &[u8],
+  ) -> Result<(), Box<dyn Error + Send + Sync>>;
 }
 
 pub struct NullTarget {}

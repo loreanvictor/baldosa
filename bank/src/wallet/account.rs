@@ -1,12 +1,10 @@
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
 use sqlx::types::Uuid;
-use serde::{ Deserialize, Serialize };
 
-#[derive(Debug)]
-
-#[derive(Serialize, Deserialize, Clone)]
-#[serde(tag="type", content="id")]
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type", content = "id")]
 pub enum Account {
   User(Uuid),
   System(String),

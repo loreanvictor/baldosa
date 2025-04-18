@@ -5,9 +5,9 @@ use axum::{
 use serde::Deserialize;
 use sqlx::types::Uuid;
 
-use super::super::auth::{ AuthenticatedUser, admin::AdminUser };
+use super::super::auth::{admin::AdminUser, AuthenticatedUser};
 use super::account::Account;
-use super::auth::{ UsableInboundOffer, UsableOutgoingOffer };
+use super::auth::{UsableInboundOffer, UsableOutgoingOffer};
 use super::error::WalletError;
 use super::ledger::Ledger;
 
@@ -125,12 +125,7 @@ pub async fn inject(
   Json(body): Json<InjectBody>,
 ) -> Result<impl IntoResponse, WalletError> {
   match ledger
-    .inject(
-      &body.receiver,
-      body.amount,
-      body.note,
-      &user,
-    )
+    .inject(&body.receiver, body.amount, body.note, &user)
     .await
   {
     Ok(result) => Ok(Json(result)),
@@ -150,7 +145,8 @@ pub async fn partially_accept(
   AdminUser(user): AdminUser,
   Json(body): Json<PartiallyAcceptBody>,
 ) -> Result<impl IntoResponse, WalletError> {
-  let offer = ledger.get_transaction(&body.offer)
+  let offer = ledger
+    .get_transaction(&body.offer)
     .await
     .map_err(|_| WalletError::TransactionNotFound)?;
 
@@ -162,7 +158,8 @@ pub async fn partially_accept(
     return Err(WalletError::UnauthorizedTransaction);
   }
 
-  match ledger.partially_accept_offer(&offer, body.amount, body.note, &user)
+  match ledger
+    .partially_accept_offer(&offer, body.amount, body.note, &user)
     .await
   {
     Ok(result) => Ok(Json(result)),

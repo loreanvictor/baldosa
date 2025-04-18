@@ -1,8 +1,9 @@
-use axum::{ Router, extract::Extension };
+use axum::{extract::Extension, Router};
 use log::info;
 use sqlx::{postgres::Postgres, Pool};
 
 use super::auth;
+use super::bidding;
 use super::wallet;
 
 pub async fn start_server(db: &Pool<Postgres>) {
@@ -13,8 +14,8 @@ pub async fn start_server(db: &Pool<Postgres>) {
   let app = Router::new()
     .nest("/auth", auth::router(db))
     .nest("/wallet", wallet::router(db))
-    .layer(Extension(admin))
-  ;
+    .nest("/bids", bidding::router(db))
+    .layer(Extension(admin));
 
   let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
   let port = std::env::var("PORT")
