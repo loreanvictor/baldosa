@@ -4,6 +4,7 @@ use sqlx::{postgres::Postgres, Pool};
 
 use super::super::wallet::Transaction;
 use super::bid::{Bid, BidContent};
+use super::coords::Coords;
 
 #[derive(Debug, Clone)]
 pub struct Book {
@@ -18,7 +19,7 @@ impl Book {
   pub async fn record(
     &self,
     tx: &Transaction,
-    coords: (i32, i32),
+    coords: Coords,
     content: BidContent,
     amount: i32,
   ) -> Result<Bid, sqlx::Error> {
@@ -30,8 +31,8 @@ impl Book {
         returning *
       ",
       tx.id,
-      coords.0,
-      coords.1,
+      coords.x,
+      coords.y,
       to_value(content).unwrap(),
       amount,
       tx.sender
@@ -54,17 +55,6 @@ impl Book {
     )
     .fetch_optional(&self.pool)
     .await
-  }
-
-  pub async fn is_tile_vacant(&self, coords: (i32, i32)) -> Result<bool, sqlx::Error> {
-    sqlx::query!(
-      "select * from published_tiles where x = $1 and y = $2",
-      coords.0,
-      coords.1
-    )
-    .fetch_optional(&self.pool)
-    .await
-    .map(|o| o.is_none() || o.unwrap().occupant_bid.is_none())
   }
 
   pub async fn mark_as_published(&self, bid: &mut Bid) -> Result<(), sqlx::Error> {
@@ -119,5 +109,20 @@ impl Book {
     tx.commit().await?;
     bid.published_at = None;
     Ok(())
+  }
+
+  pub async fn get_occupant_bid(&self, coords: Coords) -> Result<Option<Bid>, sqlx::Error> {
+    sqlx::query_as!(
+      Bid,
+      "
+        select bids.* from published_tiles
+        join bids on published_tiles.occupant_bid = bids.id
+        where published_tiles.x = $1 and published_tiles.y = $2
+      ",
+      coords.x,
+      coords.y
+    )
+    .fetch_optional(&self.pool)
+    .await
   }
 }

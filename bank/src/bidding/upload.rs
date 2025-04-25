@@ -1,61 +1,70 @@
 use std::borrow::Cow;
-use std::env;
+use std::str::FromStr;
+use std::time::Duration;
 
+use bytesize::ByteSize;
 use s3::bucket::Bucket;
-use s3::post_policy::{PostPolicyField as F, PostPolicyValue as V, PostPolicy, PresignedPost};
+use s3::post_policy::{PostPolicy, PostPolicyField as F, PostPolicyValue as V, PresignedPost};
+use serde::Deserialize;
+use serde_with::DeserializeFromStr;
 
 use super::super::wallet::Transaction;
+use super::coords::Coords;
 use super::error::BiddingError;
-use super::util::{parse_file_size, parse_time_duration};
 
-#[derive(Clone)]
+#[derive(Clone, Debug, DeserializeFromStr)]
 pub enum ContentType {
   Prefix(String),
   Exact(String),
 }
 
-#[derive(Clone)]
-pub struct Config {
-  pub max_file_size: u32,
-  pub url_expiration: u32,
-  pub content_type: ContentType,
-}
+impl FromStr for ContentType {
+  type Err = String;
 
-impl Config {
-  pub fn image_config_from_env() -> Self {
-    Self {
-      max_file_size: parse_file_size(
-        &env::var("UPLOAD_IMAGE_MAX_FILE_SIZE").unwrap_or("5MB".to_string()),
-      )
-      .unwrap(),
-      url_expiration: parse_time_duration(
-        &env::var("UPLOAD_IMAGE_URL_EXPIRATION").unwrap_or("30min".to_string()),
-      )
-      .unwrap(),
-      content_type: match env::var("UPLOAD_IMAGE_CONTENT_TYPE") {
-        Ok(content_type) => ContentType::Exact("image/".to_string() + content_type.as_str()),
-        Err(_) => ContentType::Prefix("image/".to_string()),
-      },
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    if mime::Mime::from_str(s.trim_end_matches('*')).is_err() {
+      return Err(format!("Invalid content type: {s}"));
+    }
+
+    match s.split_once('/') {
+      Some((prefix, "*")) => Ok(ContentType::Prefix(prefix.to_string() + "/")),
+      Some(_) => Ok(ContentType::Exact(s.to_string())),
+      None => Err(format!("Invalid content type: {s}")),
     }
   }
 }
 
+#[derive(Clone, Deserialize, Debug)]
+pub struct Config {
+  #[serde(with = "bytesize_serde")]
+  pub max_file_size: ByteSize,
+  #[serde(with = "humantime_serde")]
+  pub url_expiration: Duration,
+  pub content_type: ContentType,
+}
+
 pub async fn generate_url(
   bucket: &Bucket,
-  coords: (i32, i32),
+  coords: Coords,
   transaction: &Transaction,
   config: &Config,
 ) -> Result<PresignedPost, BiddingError> {
   let Some(txid) = transaction.id else {
-    return Err(BiddingError::InvalidBid)
+    return Err(BiddingError::InvalidBid);
   };
 
-  let key = format!("tile-{}-{}-{}.jpg", coords.0, coords.1, txid);
+  let key = format!("tile-{}-{}-{}.jpg", coords.x, coords.y, txid);
 
-  let policy = PostPolicy::new(config.url_expiration)
+  let policy = PostPolicy::new(u32::try_from(config.url_expiration.as_secs()).unwrap_or_default())
     .condition(F::Key, V::Exact(Cow::from(key)))
     .unwrap()
-    .condition(F::ContentLengthRange, V::Range(1, config.max_file_size))
+    .condition(
+      F::ContentLengthRange,
+      V::Range(
+        1,
+        u32::try_from(config.max_file_size.as_u64()).unwrap_or_default(),
+      ),
+    )
     .unwrap()
     .condition(
       F::ContentType,

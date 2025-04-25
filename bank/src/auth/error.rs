@@ -4,30 +4,45 @@ use axum::{
 };
 use thiserror::Error;
 
+///
+/// Represents an error that can occur during
+/// authentication / registration / verification.
+///
 #[derive(Error, Debug)]
 pub enum AuthError {
+  /// We don't know what happened? Typically something went wrong.
   #[error("Unknown error")]
   Unknown,
+  /// The user session is corrupted, e.g. they should have initiated
+  /// a registration process but didn't.
   #[error("Corrupted session")]
   CorruptSession,
+  /// The user provided invalid credentials (e.g. wrong passkeys, passwords, etc.)
   #[error("Invalid credentials")]
   InvalidCredentials,
+  /// The user already exists (e.g. during registration)
   #[error("User already exists")]
   UserExists,
+  /// The user has already been verified (through some verification process, e.g. email)
   #[error("Requested verification already complete")]
   AlreadyVerified,
-  #[allow(dead_code)]
+  /// The user was not found (for example for logging in)
   #[error("User not found")]
   UserNotFound,
+  /// The user is trying something too much (for example email verification)
+  #[error("Too many attempts")]
+  TooManyAttempts,
+  /// The user doesn't have enough permissions (e.g. they aren't admin)
+  #[error("Insufficient permissions")]
+  InsufficientPermissions,
+  /// Failed to deserialise session
+  #[error("Deserialising session failed: {0}")]
+  InvalidSessionState(#[from] tower_sessions::session::Error),
+
+  /// The user has no passkeys
   #[allow(dead_code)]
   #[error("User has no credentials")]
   UserHasNoCredentials,
-  #[error("Too many attempts")]
-  TooManyAttempts,
-  #[error("Insufficient permissions")]
-  InsufficientPermissions,
-  #[error("Deserialising session failed: {0}")]
-  InvalidSessionState(#[from] tower_sessions::session::Error),
 }
 
 impl IntoResponse for AuthError {

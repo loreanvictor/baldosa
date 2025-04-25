@@ -58,8 +58,7 @@ impl Transaction {
   }
 
   pub fn is_usable_by_user(&self, user_id: &Uuid) -> bool {
-    !self.is_used()
-      && (self.sender == Some(*user_id) || self.receiver == Some(*user_id))
+    !self.is_used() && (self.sender == Some(*user_id) || self.receiver == Some(*user_id))
   }
 
   pub fn is_usable_offer_to(&self, user_id: &Uuid) -> bool {

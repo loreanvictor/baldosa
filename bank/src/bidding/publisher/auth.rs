@@ -43,7 +43,8 @@ impl Auth {
           &Header::default(),
           &AuthClaims {
             sub: subject.to_owned(),
-            exp: usize::try_from((Utc::now() + Duration::minutes(5)).timestamp()).unwrap_or_default(),
+            exp: usize::try_from((Utc::now() + Duration::minutes(5)).timestamp())
+              .unwrap_or_default(),
           },
           &EncodingKey::from_secret(secret.as_ref()),
         )

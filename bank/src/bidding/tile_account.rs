@@ -1,39 +1,35 @@
-use super::util::{parse_coords, ParseCoordsError};
+use super::coords::Coords;
 use crate::wallet::{Account, Transaction};
 
-pub struct TileAccount(pub i32, pub i32);
+pub struct TileAccount {
+  pub x: i32,
+  pub y: i32,
+}
 
 impl TileAccount {
-  pub fn from(coords: (i32, i32)) -> Self {
-    Self(coords.0, coords.1)
-  }
-
-  #[allow(dead_code)]
-  pub fn coords(&self) -> (i32, i32) {
-    (self.0, self.1)
-  }
-
-  pub fn name(&self) -> String {
-    format!("tile:{}:{}", self.0, self.1)
-  }
-
-  #[allow(dead_code)]
   pub fn account(&self) -> Account {
-    Account::of_sys_user(&self.name())
-  }
-
-  #[allow(dead_code)]
-  pub fn parse(s: &str) -> Result<Self, ParseCoordsError> {
-    match s.split_once(':') {
-      Some(("tile", coords)) => parse_coords(coords).map(TileAccount::from),
-      _ => Err(ParseCoordsError::InvalidFormat),
-    }
+    Account::of_sys_user(&String::from(self))
   }
 
   pub fn is_recipient_of(&self, tx: &Transaction) -> bool {
     match tx.receiver_account() {
-      Account::System(sys) => sys == self.name(),
+      Account::System(sys) => sys == String::from(self),
       _ => false,
+    }
+  }
+}
+
+impl From<&TileAccount> for String {
+  fn from(tile_account: &TileAccount) -> Self {
+    format!("tile:{}:{}", tile_account.x, tile_account.y)
+  }
+}
+
+impl From<Coords> for TileAccount {
+  fn from(coords: Coords) -> Self {
+    Self {
+      x: coords.x,
+      y: coords.y,
     }
   }
 }

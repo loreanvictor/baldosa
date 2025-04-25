@@ -25,30 +25,21 @@ pub async fn accept(
   Extension(ledger): Extension<Ledger>,
   UsableInboundOffer(offer, user): UsableInboundOffer,
 ) -> Result<impl IntoResponse, WalletError> {
-  ledger
-    .accept_offer(&offer, &user)
-    .await
-    .map(Json)
+  ledger.accept_offer(&offer, &user).await.map(Json)
 }
 
 pub async fn reject(
   Extension(ledger): Extension<Ledger>,
   UsableInboundOffer(offer, user): UsableInboundOffer,
 ) -> Result<impl IntoResponse, WalletError> {
-  ledger
-    .reject_offer(&offer, None, &user)
-    .await
-    .map(Json)
+  ledger.reject_offer(&offer, None, &user).await.map(Json)
 }
 
 pub async fn rescind(
   Extension(ledger): Extension<Ledger>,
   UsableOutgoingOffer(offer, user): UsableOutgoingOffer,
 ) -> Result<impl IntoResponse, WalletError> {
-  ledger
-    .rescind_offer(&offer, &user)
-    .await
-    .map(Json)
+  ledger.rescind_offer(&offer, &user).await.map(Json)
 }
 
 #[derive(Deserialize)]

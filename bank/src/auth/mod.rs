@@ -27,6 +27,13 @@ pub mod user;
 pub use error::AuthError;
 pub use user::AuthenticatedUser;
 
+///
+/// Builds a router for the auth endpoints, including:
+/// - registration
+/// - login
+/// - passkey management
+/// - email verification (and sign in)
+///
 pub fn router(db: &Pool<Postgres>) -> Router {
   let client_url = env::var("CLIENT_URL").expect("CLIENT_URL Must be set!");
   let rp_id = env::var("AUTH_DOMAIN").unwrap_or("localhost".to_string());
@@ -58,15 +65,16 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   let store = MemoryStore::default();
   let session = SessionManagerLayer::new(store)
     .with_secure(secure)
-    .with_same_site(
-      if secure { SameSite::None }
-      else { SameSite::Lax }
-      // 👆 when running locally, we can't have secure cookies, but we need
-      //    the cookies to be cross site (since client is on a different domain).
-      //    thats why we use LAX here. on prod, however, we have secure cookies
-      //    so we can use NONE.
-      //
-    )
+    .with_same_site(if secure {
+      SameSite::None
+    } else {
+      SameSite::Lax
+    })
+    // 👆 when running locally, we can't have secure cookies, but we need
+    //    the cookies to be cross site (since client is on a different domain).
+    //    thats why we use LAX here. on prod, however, we have secure cookies
+    //    so we can use NONE.
+    //
     .with_expiry(Expiry::OnInactivity(Duration::seconds(300)));
 
   // we need cross site cookies for the client to be able to

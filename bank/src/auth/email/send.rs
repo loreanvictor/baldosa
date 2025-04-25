@@ -50,17 +50,11 @@ pub async fn send_auth_otc(
   Extension(resend): Extension<Resend>,
   Json(body): Json<EmailOtcBody>,
 ) -> Result<impl IntoResponse, AuthError> {
-  let Ok(Some(user)) = storage.find_user_by_email(&body.email).await
-  else {
+  let Ok(Some(user)) = storage.find_user_by_email(&body.email).await else {
     return Err(AuthError::UserNotFound);
   };
 
-  let code = match codes.create(&user.id, "auth_with_email") {
-    Ok(code) => code,
-    Err(err) => {
-      return Err(err);
-    }
-  };
+  let code = codes.create(&user.id, "auth_with_email")?;
 
   let from = "Baldosa <auth@baldosa.city>";
   let to = [body.email];
@@ -89,12 +83,7 @@ pub async fn send_verification_code(
     return Err(AuthError::AlreadyVerified);
   }
 
-  let code = match codes.create(&user.id, "verify_email") {
-    Ok(code) => code,
-    Err(err) => {
-      return Err(err);
-    }
-  };
+  let code = codes.create(&user.id, "verify_email")?;
 
   let from = "Baldosa <auth@baldosa.city>";
   let to = [user.email];

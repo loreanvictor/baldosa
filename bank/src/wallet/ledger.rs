@@ -1,16 +1,18 @@
 use sqlx::{postgres::Postgres, types::Uuid, FromRow, Pool, QueryBuilder};
 
 use super::account::Account;
+use super::config::Config;
 use super::transaction::Transaction;
 
 #[derive(Debug, Clone)]
 pub struct Ledger {
   pool: Pool<Postgres>,
+  pub config: Config,
 }
 
 impl Ledger {
-  pub fn new(pool: Pool<Postgres>) -> Self {
-    Self { pool }
+  pub fn new(config: Config, pool: Pool<Postgres>) -> Self {
+    Self { pool, config }
   }
 
   pub async fn get_transaction(&self, id: &Uuid) -> Result<Transaction, sqlx::Error> {

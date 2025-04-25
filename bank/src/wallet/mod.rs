@@ -3,12 +3,12 @@ use axum::{
   routing::{get, post},
   Router,
 };
-use sqlx::{postgres::Postgres, Pool};
 use tower_http::cors::{Any, CorsLayer};
 
 mod account;
 mod api;
 pub mod auth;
+pub mod config;
 pub mod error;
 mod ledger;
 mod macros;
@@ -19,13 +19,13 @@ pub use account::Account;
 pub use ledger::Ledger;
 pub use transaction::Transaction;
 
-pub fn router(db: &Pool<Postgres>) -> Router {
+pub fn router(ledger: &Ledger) -> Router {
   let cors = CorsLayer::new()
     .allow_methods(Any)
     .allow_headers(Any)
     .allow_origin(Any);
 
-  let ledger = Ledger::new(db.clone());
+  let ledger = ledger.clone();
 
   Router::new()
     .route("/balance", get(api::balance))

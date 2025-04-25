@@ -1,11 +1,9 @@
-use super::super::super::auth::AuthenticatedUser;
 use super::super::account::Account;
 use super::super::error::WalletError;
 use super::super::ledger::Ledger;
 use super::super::transaction::Transaction;
+use crate::auth::AuthenticatedUser;
 use crate::{commit_tx, tx};
-
-const ACCOUNT_INIT_BALANCE: u32 = 10;
 
 impl Ledger {
   ///
@@ -33,7 +31,7 @@ impl Ledger {
       Ok(tx) => Ok(tx),
       Err(_) => {
         match commit_tx! [
-          tx! { => account; using init_amount.unwrap_or(ACCOUNT_INIT_BALANCE); by issuer };
+          tx! { => account; using init_amount.unwrap_or(self.config.initial_balance); by issuer };
           to self
         ] {
           Ok([balance]) => Ok(balance),

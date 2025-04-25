@@ -16,6 +16,8 @@ pub enum BiddingError {
   AlreadyEarmarked,
   #[error("Unauthorized Transaction")]
   UnauthorizedTransaction,
+  #[error("Unauthorized Coordinates")]
+  UnauthorizedCoords,
 }
 
 impl IntoResponse for BiddingError {
@@ -28,6 +30,7 @@ impl IntoResponse for BiddingError {
       BiddingError::UnauthorizedTransaction => {
         (StatusCode::UNAUTHORIZED, "Unauthorized transaction")
       }
+      BiddingError::UnauthorizedCoords => (StatusCode::UNAUTHORIZED, "Unauthorized coordinates"),
     })
     .into_response()
   }

@@ -14,8 +14,15 @@ use webauthn_rs::prelude::Uuid;
 use super::storage::StoredUser;
 use super::AuthError;
 
+///
+/// Represents the verification status of a user.
+/// Including all potential verifications they have had.
+///
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct VerificationStatus {
+  ///
+  /// When the user's email was verified, `None` if not verified.
+  ///
   pub email_verified_at: Option<DateTime<Utc>>,
 }
 
@@ -27,6 +34,32 @@ impl VerificationStatus {
   }
 }
 
+///
+/// Represents an authenticated user,
+/// including a signed token that can be used
+/// to authenticate future requests.
+///
+/// Use this struct to extract the currently
+/// logged in user from requests:
+///
+/// Example:
+/// ```rs
+/// pub async fn my_handler(
+///   user: AuthenticatedUser,
+///   Json(body): Json<MyRequestBody>,
+/// ) -> Result<impl IntoResponse, MyError> {
+///   // ...
+/// }
+/// ```
+///
+/// You can also use it to generally pass validated
+/// information about a logged in user in other layers
+/// of application logic.
+///
+/// Note that for extraction to work, `JWT_SECRET` environment variable
+/// must be set, and it can only extract users that are signed with
+/// the same secret (so changing the secret effectively logs out all users).
+///
 #[derive(Serialize, Debug)]
 pub struct AuthenticatedUser {
   pub id: Uuid,
@@ -37,6 +70,10 @@ pub struct AuthenticatedUser {
   pub token: String,
 }
 
+///
+/// Denotes the set of claims verified
+/// by a user token in an `AuthenticatedUser`.
+///
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UserClaim {
   pub id: Uuid,
@@ -48,6 +85,13 @@ pub struct UserClaim {
 }
 
 impl AuthenticatedUser {
+  ///
+  /// Generates a signed token for a user.
+  /// Returns an `AuthenticatedUser` containing the token,
+  /// which also attests the rest of the fields.
+  ///
+  /// This requires the `JWT_SECRET` environment variable to be set.
+  ///
   pub fn sign(
     id: Uuid,
     email: String,
@@ -64,10 +108,13 @@ impl AuthenticatedUser {
       first_name: first_name.clone(),
       last_name: last_name.clone(),
       verification: verification.clone(),
-      exp: usize::try_from(Utc::now()
-        .checked_add_days(Days::new(1000))
-        .unwrap()
-        .timestamp()).unwrap_or_default(), // TODO: set expiration time
+      exp: usize::try_from(
+        Utc::now()
+          .checked_add_days(Days::new(1000))
+          .unwrap()
+          .timestamp(),
+      )
+      .unwrap_or_default(),
     };
     let token = encode(&header, &claim, &key).unwrap();
     //

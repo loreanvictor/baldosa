@@ -1,16 +1,24 @@
 #![warn(clippy::pedantic)]
 
-mod auth;
-mod bidding;
+mod config;
 mod db;
 mod env;
 mod router;
+
+mod auth;
+mod bidding;
 mod run_auctions;
 mod wallet;
 
 #[tokio::main]
 async fn main() {
   env::init().unwrap();
+
+  let conf = config::init().unwrap_or_else(|e| {
+    log::error!("Failed to load config: {e}");
+    std::process::exit(1);
+  });
+
   let db = db::init().await;
 
   let mode = std::env::args().nth(1);
@@ -18,6 +26,6 @@ async fn main() {
   if mode == Some("auctions".to_string()) {
     run_auctions::run_auctions().await;
   } else {
-    router::start_server(&db).await;
+    router::start_server(&conf, &db).await;
   }
 }

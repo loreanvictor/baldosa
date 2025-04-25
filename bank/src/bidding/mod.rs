@@ -16,19 +16,20 @@ use super::wallet::Ledger;
 mod api;
 mod bid;
 mod book;
+pub mod config;
+mod coords;
 pub mod error;
 mod publisher;
 mod tile_account;
 mod upload;
-mod util;
 
-pub fn router(db: &Pool<Postgres>) -> Router {
+pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> Router {
   let cors = CorsLayer::new()
     .allow_methods(Any)
     .allow_headers(Any)
     .allow_origin(Any);
 
-  let ledger = Ledger::new(db.clone());
+  let ledger = ledger.clone();
   let book = Book::new(db.clone());
   let publisher = Publisher::from_env();
   let bucket = Bucket::new(
@@ -43,13 +44,11 @@ pub fn router(db: &Pool<Postgres>) -> Router {
   )
   .unwrap();
 
-  let uploadconf = upload::Config::image_config_from_env();
-
   Router::new()
     .route("/", get(|| async { "Not Implemented" })) // --> get my bids
     .route("/live", get(|| async { "Not Implemented" })) // --> get my currently published bids
     .route("/history", get(|| async { "Not Implemented" })) // --> get the history of all my bids
-    .route("/{coords}", get(|| async { "Not Implemented" })) // --> get bidding info for a tile
+    .route("/{coords}", get(api::bidding_info)) // --> get bidding info for a tile
     .route("/{coords}/init", post(api::init_bid)) // --> initiate a bid on a tile
     .route("/{coords}", post(api::post_bid)) // --> finalize bid on a tile
     .route("/{coords}", delete(|| async { "Not Implemented" })) // --> rescind bid, unpublish if need be
@@ -57,6 +56,6 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     .layer(Extension(book))
     .layer(Extension(publisher))
     .layer(Extension(*bucket))
-    .layer(Extension(uploadconf))
+    .layer(Extension(config))
     .layer(cors)
 }
