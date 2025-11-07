@@ -6,6 +6,8 @@ import { html, ref } from 'rehtm'
 
 import { observe } from '../../util/observe.js'
 import { constantly } from '../../util/constantly.js'
+import { onBroadcast } from '../../util/broadcast.js'
+
 import '../util/track-cursor.js'
 import '../control/click-control.js'
 import { createGallery } from './image/gallery.js'
@@ -125,6 +127,16 @@ define('infinite-grid', () => {
   })
 
   onAttribute('image-cache-size', s => gallery.current?.limit(imageCacheSize = valid(parseInt(s), imageCacheSize)))
+
+  onBroadcast('tile:open', ({ x, y }) => {
+    if (mask.current.has(x, y)) {
+      onClick({ x, y, meta: gallery.current.get(x, y).meta })
+    } else {
+      onClick({ x, y })
+    }
+  })
+
+  onBroadcast('tile:published', ({ x, y, content }) => gallery.current?.patch(x, y, content))
 
   return html`
     <style>

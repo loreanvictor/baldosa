@@ -1,9 +1,9 @@
-use std::fmt::{ Debug, Formatter, Result as FmtResult };
+use std::fmt::{Debug, Formatter, Result as FmtResult};
 use std::pin::Pin;
-use futures::stream::Stream;
-use async_trait::async_trait;
-use image::Pixel;
 
+use async_trait::async_trait;
+use futures::stream::Stream;
+use image::Pixel;
 
 ///
 /// Represts a coordinates (x, y) in the map.
@@ -28,7 +28,7 @@ pub struct Point<P: Pixel + Send + Sync> {
   pub color: Vec<<P as Pixel>::Subpixel>,
 }
 
-impl <P: Pixel + Send + Sync> Debug for Point<P> {
+impl<P: Pixel + Send + Sync> Debug for Point<P> {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(f, "Point {{ coords: {:?} }}", self.coords)
   }
@@ -49,18 +49,21 @@ pub trait Storage<P: Pixel + Send + Sync>: Send + Sync {
   async fn put(
     &self,
     coords: &Coords,
-    color: &Vec<<P as Pixel>::Subpixel>
+    color: &Vec<<P as Pixel>::Subpixel>,
   ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
 
   ///
   /// Deletes a point from the map.
   ///
-  async fn delete(&self, coords: &Coords)
-    -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
+  async fn delete(&self, coords: &Coords) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
 
   ///
-  /// Gets all points in the stored map in given rectangle 
+  /// Gets all points in the stored map in given rectangle
   /// (defined by two points). Returns a stream of points.
   ///
-  async fn get<'a>(&'a self, from: &'a Coords, to: &'a Coords) -> Pin<Box<dyn Stream<Item = Point<P>> + Send + 'a>>;
+  async fn get<'a>(
+    &'a self,
+    from: &'a Coords,
+    to: &'a Coords,
+  ) -> Pin<Box<dyn Stream<Item = Point<P>> + Send + 'a>>;
 }

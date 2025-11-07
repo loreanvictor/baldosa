@@ -2,9 +2,9 @@ import { parse } from 'envfile'
 import { define, attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../design/glass/pane.js'
-import '../design/glass/modal/component.js'
-import '../design/button/components.js'
+import '../design/overlays/pane.js'
+import '../design/overlays/modal/component.js'
+import '../design/buttons/button/components.js'
 
 
 let devModeAlert = false

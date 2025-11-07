@@ -1,5 +1,5 @@
-pub mod storage;
 pub mod dummy;
 pub mod sqlite;
+pub mod storage;
 
-pub use storage::{ Storage, Coords, Point };
+pub use storage::{Coords, Point, Storage};

@@ -1,7 +1,7 @@
-use serde::Deserialize;
-use tokio::fs;
 use std::collections::HashMap;
 
+use serde::Deserialize;
+use tokio::fs;
 
 pub struct Config {
   pub sizes: Vec<u32>,
@@ -25,11 +25,14 @@ pub async fn init() -> Config {
     .await
     .expect("Config file `config.toml` not found.");
 
-  let config: WrittenConfig = toml::from_str(&config)
-    .expect("Config file lacks proper format.");
+  let config: WrittenConfig = toml::from_str(&config).expect("Config file lacks proper format.");
 
   Config {
     sizes: config.sizes,
-    blur: config.blur.into_iter().map(|entry| (entry.size, entry.amount)).collect(),
+    blur: config
+      .blur
+      .into_iter()
+      .map(|entry| (entry.size, entry.amount))
+      .collect(),
   }
 }

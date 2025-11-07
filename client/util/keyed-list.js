@@ -23,6 +23,11 @@ define('keyed-list', () => {
     }
   }
 
+  const prepend = (value) => {
+    const $item = each(value)
+    self.prepend($item)
+  }
+
   const move = (key, before) => {
     const $item = self.querySelector(`[key="${key}"]`)
     let $before
@@ -59,7 +64,7 @@ define('keyed-list', () => {
     })
   }
 
-  attachControls({ init, add, remove, move, collapse })
+  attachControls({ init, add, prepend, remove, move, collapse })
 
   return `
     <slot></slot>

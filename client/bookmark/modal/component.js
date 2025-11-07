@@ -1,22 +1,22 @@
 import { attachControls, onConnected } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../../design/button/components.js'
-import '../../design/misc/icon/component.js'
-import '../../design/glass/modal/component.js'
-import '../../design/misc/swipe-card/component.js'
-import '../../util/keyed-list.js'
-
+import { trim } from '../../util/format.js'
 import { singleton } from '../../util/singleton.js'
 import { onBroadcast, broadcast } from '../../util/broadcast.js'
 import { tilelink } from '../../tile/util/tile-link.js'
+import { openlink } from '../../util/open-link.js'
+import '../../util/keyed-list.js'
+
+import '../../design/buttons/button/components.js'
+import '../../design/display/icon/component.js'
+import '../../design/overlays/modal/component.js'
+import '../../design/layout/swipe-card/component.js'
 
 import '../button.js'
 import '../toast.js'
 import { all, remove } from '../db.js'
 
-
-const trim = (msg, length) => msg.length > length ? msg.slice(0, length) + '…' : msg
 
 export const modal = singleton('bookmark-modal', () => {
   const toast = ref()
@@ -41,8 +41,7 @@ export const modal = singleton('bookmark-modal', () => {
   const close = () => needupdate && setTimeout(() => update(), 200)
   const open = bookmark => {
     if (bookmark.meta?.link) {
-      const opened = window.open(bookmark.meta.link, '_blank')
-      !opened && (location.href = bookmark.meta.link)
+      openlink(bookmark.meta.link)
     } else {
       goto(bookmark)
     }
@@ -97,6 +96,7 @@ export const modal = singleton('bookmark-modal', () => {
             </swipe-card>
           `
         }}></keyed-list>
+        <br/>
         <small style='font-weight: 100; opacity: .5; display: block'>
           Your bookmarks appear here. You can bookmark content you want to revisit later
           using the bookmark <i-con src=bookmark dark style='width: 2.5ch; vertical-align: middle'></i-con> button.

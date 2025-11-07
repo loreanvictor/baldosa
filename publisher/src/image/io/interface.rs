@@ -1,10 +1,9 @@
 use async_trait::async_trait;
-use image::{ ImageBuffer, Pixel };
-
+use image::{ImageBuffer, Pixel};
 
 ///
 /// Metadata for an image.
-/// 
+///
 #[derive(Debug, Clone)]
 pub struct Metadata {
   /// Title of the image.
@@ -18,7 +17,6 @@ pub struct Metadata {
   /// Details of the image.
   pub details: Option<serde_json::Value>,
 }
-
 
 ///
 /// An interface for loading and saving images.
@@ -36,11 +34,13 @@ pub trait ImageInterface: Sync + Send {
   /// The `source` might denote different things based on the interface,
   /// for example it might be some fs path, or some URL, etc.
   ///
-  async fn load(&self, source: &str)
-    -> Result<
-      ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
-      Box<dyn std::error::Error + Send + Sync>
-    >;
+  async fn load(
+    &self,
+    source: &str,
+  ) -> Result<
+    ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
+    Box<dyn std::error::Error + Send + Sync>,
+  >;
 
   ///
   /// Save an image to the given target.
@@ -51,7 +51,7 @@ pub trait ImageInterface: Sync + Send {
     &self,
     image: &ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
     meta: &Metadata,
-    target: &str
+    target: &str,
   ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
 
   ///

@@ -1,13 +1,19 @@
-use serde::Serialize;
-use std::{ sync::Arc, collections::HashMap, error::Error };
-use tokio::{ task::{ spawn, spawn_blocking }, sync::Mutex };
+use std::{collections::HashMap, error::Error, sync::Arc};
+
 use futures::future::try_join_all;
-use image::{ Rgb, Pixel, imageops::{ resize, fast_blur, FilterType }};
+use image::{
+  imageops::{fast_blur, resize, FilterType},
+  Pixel, Rgb,
+};
+use serde::Serialize;
+use tokio::{
+  sync::Mutex,
+  task::{spawn, spawn_blocking},
+};
 
-use super::util::crop_to_square;
-use super::io::interface::{ ImageInterface, Metadata };
 use super::super::config::Config;
-
+use super::io::interface::{ImageInterface, Metadata};
+use super::util::crop_to_square;
 
 ///
 /// Result of a publish operation. A publish operation results
@@ -15,10 +21,12 @@ use super::super::config::Config;
 /// alongside a signature color for the tile. Alongside configured
 /// sizes, a size 0 image will also be produced, which is square
 /// crop of the original image.
-/// 
+///
 #[derive(Serialize, Debug)]
 pub struct PublishResult<P: Pixel>
-where P::Subpixel: Serialize {
+where
+  P::Subpixel: Serialize,
+{
   /// The color of the tile.
   pub color: Option<Vec<P::Subpixel>>,
 
@@ -34,7 +42,7 @@ where P::Subpixel: Serialize {
 /// with the given coordinates. Also attaches the given metadata (`title`, `subtitle` and `link`)
 /// to all produced images (subject to support by the given `io` implementation).
 ///
-pub async fn publish<P: Pixel + Send + Sync + 'static> (
+pub async fn publish<P: Pixel + Send + Sync + 'static>(
   source: &str,
   x: i32,
   y: i32,
@@ -46,7 +54,9 @@ pub async fn publish<P: Pixel + Send + Sync + 'static> (
   io: Arc<dyn ImageInterface<Pixel = P>>,
   config: Arc<Config>,
 ) -> Result<PublishResult<P>, Box<dyn Error + Send + Sync>>
-where P::Subpixel: Send + Sync + Serialize {
+where
+  P::Subpixel: Send + Sync + Serialize,
+{
   // Load and crop the image once
   let image = io.load(source).await?;
   let square = Arc::new(crop_to_square(&image));
@@ -57,11 +67,11 @@ where P::Subpixel: Send + Sync + Serialize {
 
   // Share metadata across tasks without cloning per task
   let meta = Arc::new(Metadata {
-      title: title.clone(),
-      subtitle: subtitle.clone(),
-      description: description.clone(),
-      link: link.clone(),
-      details: details.clone(),
+    title: title.clone(),
+    subtitle: subtitle.clone(),
+    description: description.clone(),
+    link: link.clone(),
+    details: details.clone(),
   });
 
   let mut handles = Vec::new();
@@ -79,11 +89,15 @@ where P::Subpixel: Send + Sync + Serialize {
 
     let handle = spawn_blocking(move || {
       let resized = resize(&*square, size, size, FilterType::Lanczos3);
-      let blurred = if blur_amount > 0.0 { fast_blur(&resized, blur_amount) } else { resized };
-      let color = if size == 1 {
-          Some(blurred.get_pixel(0, 0).to_rgb())
+      let blurred = if blur_amount > 0.0 {
+        fast_blur(&resized, blur_amount)
       } else {
-          None
+        resized
+      };
+      let color = if size == 1 {
+        Some(blurred.get_pixel(0, 0).to_rgb())
+      } else {
+        None
       };
       (blurred, target, meta, color)
     });
@@ -98,8 +112,8 @@ where P::Subpixel: Send + Sync + Serialize {
         Ok(saved) => {
           published.lock().await.insert(size, saved);
           Ok(())
-        },
-        Err(e) => Err(e)
+        }
+        Err(e) => Err(e),
       }
     }));
   }
@@ -114,8 +128,8 @@ where P::Subpixel: Send + Sync + Serialize {
       Ok(saved) => {
         published.lock().await.insert(0, saved);
         Ok(())
-      },
-      Err(e) => Err(e)
+      }
+      Err(e) => Err(e),
     }
   });
   handles.push(original_handle);
@@ -124,7 +138,9 @@ where P::Subpixel: Send + Sync + Serialize {
   match try_join_all(handles).await {
     Ok(res) => {
       // Check for errors
-      for r in res { r?; }
+      for r in res {
+        r?;
+      }
       // Prepare the result
       let color = color_shared.lock().await;
       let color = match &*color {
@@ -137,7 +153,7 @@ where P::Subpixel: Send + Sync + Serialize {
         color,
         images: published.clone(),
       })
-    },
-    Err(e) => Err(e.into())
+    }
+    Err(e) => Err(e.into()),
   }
 }

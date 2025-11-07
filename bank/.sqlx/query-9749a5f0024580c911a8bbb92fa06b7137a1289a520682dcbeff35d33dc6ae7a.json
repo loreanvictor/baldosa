@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select * from transactions where id = $1\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "sender",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "receiver",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "consumes",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "consumed_value",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "merges",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "merged_value",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "is_state",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "sender_sys",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "receiver_sys",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "consumed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "merged",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "note",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "issued_by",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "9749a5f0024580c911a8bbb92fa06b7137a1289a520682dcbeff35d33dc6ae7a"
+}

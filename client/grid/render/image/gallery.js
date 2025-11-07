@@ -44,10 +44,16 @@ export const createGallery = (baseUrl, cacheSize, ttl = 10_000) => {
     return undefined
   }
 
+
+  const patch = (x, y, meta) => {
+    const key = `${x}:${y}`
+    cache.patch(key, meta, s => getUrl(x, y, IMG_SIZES[s]))
+  }
+
   const listen = (listener) => cache.listen(listener)
   const limit = size => cache.limit(size)
   const dispose = () => cache.dispose()
-  const control = { get, listen, limit, dispose }
+  const control = { get, listen, limit, dispose, patch }
   control[Symbol.dispose] = dispose
 
   return control

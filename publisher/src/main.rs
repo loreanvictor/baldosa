@@ -1,22 +1,24 @@
-use std::sync::Arc;
-use axum::{
-  routing::{ put, delete }, Extension, Router
-};
+#![allow(clippy::all)]
 
+use std::sync::Arc;
+
+use axum::{
+  routing::{delete, put},
+  Extension, Router,
+};
 use log::info;
 
-mod env;
-mod config;
-mod s3;
-mod db;
 mod auth;
-mod image;
 mod cartography;
+mod config;
+mod db;
+mod env;
+mod image;
+mod s3;
 
-use image::api::{ publish_handler, unpublish_handler };
-use image::io::DefaultImageInterface as IO;
 use cartography::DefaultMapStorage as Map;
-
+use image::api::{publish_handler, unpublish_handler};
+use image::io::DefaultImageInterface as IO;
 
 #[tokio::main]
 async fn main() {
@@ -37,11 +39,14 @@ async fn main() {
       .route("/{coords}", delete(unpublish_handler::<IO, Map>))
       .layer(Extension(Arc::new(config)))
       .layer(Extension(Arc::new(io)))
-      .layer(Extension(Arc::new(map)))
+      .layer(Extension(Arc::new(map))),
   );
 
   let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
-  let port = std::env::var("PORT").ok().and_then(|p| p.parse::<u16>().ok()).unwrap_or(8080);
+  let port = std::env::var("PORT")
+    .ok()
+    .and_then(|p| p.parse::<u16>().ok())
+    .unwrap_or(8080);
   let addr = format!("{}:{}", host, port);
 
   info!("serving on {}", addr);

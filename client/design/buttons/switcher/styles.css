@@ -1,0 +1,52 @@
+.holder {
+  --height: 32px;
+  --padding: .5ch;
+
+  display: inline-flex;
+  height: var(--height);
+  user-select: none;
+  -webkit-user-select: none;
+  gap: 1ex;
+  border-radius: var(--height);
+  background: linear-gradient(180deg, #111111, #1b1b1b);
+  box-shadow: 0 -8px 8px #242424, 0 2px 0 1px #222222;
+  padding: var(--padding);
+  position: relative;
+
+  .bubble {
+    position: absolute;
+    pointer-events: none;
+    background: linear-gradient(180deg, #ffffff22, #ffffff1a);
+    border-radius: calc(var(--height) - var(--padding) / 2);
+    transition: left .15s, right .15s, height .15s, top .15s;
+  }
+
+  ::slotted(button) {
+    background: none;
+    font-size: .8rem;
+    color: #9e9e9e;
+    padding: 1ch 2ch;
+    border: none;
+    cursor: pointer;
+    font-size: 100;
+    border-radius: calc(var(--height) - var(--padding) / 2);
+    transition: transform .15s, color .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::slotted(button[selected]) {
+    color: #fff;
+    transform: scale(1.1);
+  }
+
+  ::slotted(button:hover) {
+    background: #ffffff04;
+  }
+
+  ::slotted(hr) {
+    border: none;
+    width: 2px;
+    transform: scaleY(1.2);
+    background: linear-gradient(90deg, #424242, #111111);
+  }
+}

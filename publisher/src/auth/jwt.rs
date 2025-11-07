@@ -1,12 +1,14 @@
-use serde::{ Deserialize, Serialize };
 use axum::{
-  extract::{ Request, State },
-  http::{ header::{ HeaderMap, AUTHORIZATION }, StatusCode },
-  response::{ IntoResponse, Response },
+  extract::{Request, State},
+  http::{
+    header::{HeaderMap, AUTHORIZATION},
+    StatusCode,
+  },
   middleware::Next,
+  response::{IntoResponse, Response},
 };
-use jsonwebtoken::{ decode, DecodingKey, Validation, errors::Error as JwtError, errors::ErrorKind };
-
+use jsonwebtoken::{decode, errors::Error as JwtError, errors::ErrorKind, DecodingKey, Validation};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
@@ -46,8 +48,9 @@ pub async fn auth(
         ErrorKind::InvalidSubject => "Invalid token subject",
         ErrorKind::ExpiredSignature => "Token expired",
         _ => "Invalid token",
-      }
-    ).into_response(),
+      },
+    )
+      .into_response(),
   }
 }
 
@@ -62,11 +65,10 @@ fn verify_token(headers: &HeaderMap, secret: &str, subject: &str) -> Result<Clai
         token,
         &DecodingKey::from_secret(secret.as_bytes()),
         &Validation::default(),
-      ).and_then(|data| {
-        match &data.claims.sub {
-          sub if sub == subject => Ok(data.claims),
-          _ => Err(JwtError::from(ErrorKind::InvalidSubject)),
-        }
+      )
+      .and_then(|data| match &data.claims.sub {
+        sub if sub == subject => Ok(data.claims),
+        _ => Err(JwtError::from(ErrorKind::InvalidSubject)),
       })
     })
 }

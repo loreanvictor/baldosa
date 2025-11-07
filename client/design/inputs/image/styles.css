@@ -1,0 +1,117 @@
+:host {
+  position: relative;
+}
+
+canvas {
+  border-radius: 7px;
+  touch-action: none;
+  max-width: 90vmin;
+  width: 100%;
+  height: auto;
+  background: #313131;
+  border: 1px solid transparent;
+  display: block;
+  transition: border-color .2s;
+
+  :invalid ~ div &.touched:not(.focused, .dnd) {
+    border-color: var(--red-fg, red);
+  }
+
+  &.focused {
+    border-color: var(--blue-fg, blue);
+  }
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 7px;
+  border: 4px dashed transparent;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  overscroll-behavior: contain;
+
+  .dnd ~ & {
+    border-color: var(--blue-fg, blue);
+  }
+
+  &::before, &::after {
+    content: ' ';
+    position: absolute;
+    border: 1px solid white;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    opacity: .1;
+    transition: opacity 3s;
+  }
+  &.loaded::before, &.loaded::after {
+    opacity: 0;
+  }
+  &.mod::before, &.mod::after {
+    opacity: .2;
+    transition: opacity .2s;
+  }
+  &::before {
+    top: 0;
+    bottom: 0;
+    left: 33%;
+    right: 33%;
+    border-top: none;
+    border-bottom: none;
+  }
+  &::after {
+    top: 33%;
+    bottom: 33%;
+    left: 0;
+    right: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  #placeholder {
+    position: absolute;
+    left: 25%; right: 25%;
+    top: 25%; bottom: 25%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &.loaded #placeholder {
+    opacity: 0;
+  }
+}
+
+#tools {
+  position: absolute;
+  top: .5ch;
+  left: .5ch;
+  display: flex;
+  flex-direction: column;
+  gap: 1ch;
+
+  button {
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, .75);
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  .loaded ~ & button {
+    opacity: .5;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

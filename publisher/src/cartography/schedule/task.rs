@@ -2,7 +2,6 @@ use async_trait::async_trait;
 
 use super::super::Coords;
 
-
 ///
 /// An async unit of work conducted on some coordinates.
 ///

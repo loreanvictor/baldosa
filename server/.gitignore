@@ -1,4 +1,0 @@
-*.db
-server/data/
-config.yaml
-*.private.env.json

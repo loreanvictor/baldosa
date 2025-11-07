@@ -1,0 +1,47 @@
+use axum::{
+  extract::{Extension, Json, Path},
+  response::IntoResponse,
+};
+use chrono::{DateTime, Utc};
+use serde::Serialize;
+
+use super::super::book::{ Book, Bid, bid::next_auction_time, Coords };
+use super::super::config::Config;
+use super::super::error::BiddingError;
+use super::validate::validate_coords;
+
+
+#[derive(Serialize, Debug)]
+pub struct BiddingInfo {
+  pub last_bid: Option<Bid>,
+  pub next_auction: Option<DateTime<Utc>>,
+  pub minimum_bid: u32,
+}
+
+
+///
+/// Returns information required for
+/// bidding on a specific coordinate, including:
+/// - The last winning bid on the coordinate (if any)
+/// - The next auction time (`None` means as soon as possible)
+/// - The minimum bid required to participate in the auction
+/// 
+pub async fn bidding_info(
+  Extension(book): Extension<Book>,
+  Extension(config): Extension<Config>,
+  Path(coords): Path<Coords>,
+) -> Result<impl IntoResponse, BiddingError> {
+  validate_coords(coords, &config)?;
+  let Ok(occupant) = book.get_occupant_bid(coords).await else {
+    return Err(BiddingError::Unknown);
+  };
+
+  // TODO: `last_bid` isn't necessarily the current occupant,
+  //        the column should be separated and used as such.
+
+  Ok(Json(BiddingInfo {
+    next_auction: next_auction_time(occupant.as_ref(), &config),
+    last_bid: occupant,
+    minimum_bid: config.minimum_bid,
+  }))
+}

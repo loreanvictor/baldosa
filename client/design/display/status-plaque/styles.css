@@ -1,0 +1,24 @@
+.holder {
+  background: #333;
+  padding: 1ch;
+  padding-left: 2ex;
+  border-radius: 32px;
+  display: flex;
+  align-items: center;
+  gap: 2ex;
+
+  :host([success]) & {
+    color: var(--blue-fg);
+    --color: var(--blue-fg);
+  }
+
+  :host([danger]) & {
+    color: var(--red-fg);
+    --color: var(--red-fg);
+  }
+
+  ::slotted(i-con) {
+    width: 3ex;
+    flex-shrink: 0;
+  }
+}
