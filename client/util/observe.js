@@ -30,8 +30,11 @@ export const observe = (target, event, callback, options) => {
       query(target)
 
   if (element) {
+    const dc = () => (isRef(target) ? target.current : element).removeEventListener(event, callback)
     onConnected(() => (isRef(target) ? target.current : element).addEventListener(event, callback, options))
-    onDisconnected(() => (isRef(target) ? target.current : element).removeEventListener(event, callback))
+    onDisconnected(dc)
+
+    return dc
   } else {
     throw new Error(`target ${target} not found.`)
   }

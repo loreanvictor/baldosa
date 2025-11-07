@@ -25,7 +25,7 @@ export const createImageCache = (size, ttl = 10_000) => {
   const touch = record => record ? (record.t = Date.now(), record) : record
   const isLoaded = (record, size) => record[size] && record[size] !== 'loading'
   const isLoading = (record, size) => record[size] === 'loading'
-  const load = (record, size, url) => {
+  const load = (record, size, url, reload) => {
     if (!record[size]) {
       record[size] = 'loading'
       setTimeout(async () => {
@@ -34,7 +34,7 @@ export const createImageCache = (size, ttl = 10_000) => {
         }
 
         record[size] = 'loading'
-        const img = await fetchImage(url)
+        const img = await fetchImage(url, reload)
         record[size] = img.bitmap
         if (img.meta) {
           record.meta ??= {}
@@ -85,7 +85,26 @@ export const createImageCache = (size, ttl = 10_000) => {
 
   const limit = s => size = s
 
-  const control = { add, find, get, touch, isLoaded, isLoading, load, clear, dispose, listen, limit }
+  const patch = (key, meta, urlmap) => {
+    const record = find(key)
+    if (record) {
+      record.meta ??= {}
+      record.meta.title ??= meta.title
+      record.meta.subtitle ??= meta.subtitle
+      record.meta.description ??= meta.description
+      record.meta.link ??= meta.link
+      record.meta.details ??= meta.details
+
+      Object.keys(IMG_SIZES).forEach(size => {
+        if (record[size] && record[size] !== 'loading') {
+          record[size].close()
+          load(record, size, urlmap(size), true)
+        }
+      })
+    }
+  }
+
+  const control = { add, find, get, touch, patch, isLoaded, isLoading, load, clear, dispose, listen, limit }
   control[Symbol.dispose] = dispose
 
   return control

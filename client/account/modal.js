@@ -1,9 +1,9 @@
 import { onConnected, attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../design/glass/modal/component.js'
-import '../design/button/components.js'
-import '../design/misc/icon/component.js'
+import '../design/overlays/modal/component.js'
+import '../design/buttons/button/components.js'
+import '../design/display/icon/component.js'
 
 import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
@@ -11,6 +11,8 @@ import { modal as uc } from '../util/under-construction.js'
 import { init, login, register, logout, user } from './auth/index.js'
 import { authenticate as emaillogin } from './email/index.js'
 import { modal as wallet } from './wallet/modal.js'
+import { modal as tiles } from './tiles/modal.js'
+import { modal as bids } from './bids/modal.js'
 import { modal as settings } from './settings/modal.js'
 import { modal as terms } from './terms.js'
 import { modal as about } from './about.js'
@@ -44,6 +46,7 @@ export const modal = singleton('account-modal', () => {
   onConnected(update)
   onBroadcast('account:login', update)
   onBroadcast('account:logout', update)
+  onBroadcast('tile:goto', () => modal.current.controls.close())
 
   attachControls({ open: () => modal.current.controls.open() })
 
@@ -70,11 +73,11 @@ export const modal = singleton('account-modal', () => {
           <i-con src='coin' dark thick slot='icon'></i-con>
           Wallet
         </secondary-button>
-        <secondary-button row onclick=${() => uc().controls.open()}>
+        <secondary-button row onclick=${() => bids().controls.open()}>
           <i-con src='bid' dark thick slot='icon'></i-con>
           Bids
         </secondary-button>
-        <secondary-button row onclick=${() => uc().controls.open()}>
+        <secondary-button row onclick=${() => tiles().controls.open()}>
           <i-con src='four-squares' dark thick slot='icon'></i-con>
           Tiles
         </secondary-button>

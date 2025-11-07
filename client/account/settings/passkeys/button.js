@@ -1,9 +1,9 @@
 import { define, useDispatch } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../../../design/button/components.js'
-import '../../../design/misc/icon/component.js'
-import '../../../design/glass/toast/component.js'
+import '../../../design/buttons/button/components.js'
+import '../../../design/display/icon/component.js'
+import '../../../design/overlays/toast/component.js'
 
 import { add } from './index.js'
 

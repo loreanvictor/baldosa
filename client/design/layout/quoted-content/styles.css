@@ -1,0 +1,7 @@
+div {
+  background: linear-gradient(180deg, #1118, #5554);
+  box-shadow: 0 0 0 1px #5554;
+  padding: 2ch;
+  border-radius: 8px;
+  opacity:.5;
+}

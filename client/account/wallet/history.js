@@ -1,23 +1,26 @@
 import { attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
+import { waitForOne } from '../../util/wait-for-one.js'
 import { singleton } from '../../util/singleton.js'
-
+import { midtrim } from '../../util/format.js'
 import '../../util/keyed-list.js'
-import '../../design/glass/modal/component.js'
-import '../../design/misc/icon/component.js'
+
+import '../../design/overlays/modal/component.js'
+import '../../design/display/icon/component.js'
 
 import * as service from './index.js'
-
-
-const trim = name => name.length > 10 ? `${name.slice(0, 6)}...${name.slice(-4)}` : name
+import { modal as rescindmodal } from './rescind.js'
 
 
 export const modal = singleton('wallet-history-modal', () => {
   const modal = ref()
   const list = ref()
   const note = ref()
+  const notext = ref()
+  const rescindbtn = ref()
   let balance
+  let selected
 
   attachControls({
     open: async () => {
@@ -43,13 +46,14 @@ export const modal = singleton('wallet-history-modal', () => {
     if (tx.is_state) {
       return 'balance'
     } else if (tx.meta.type === 'incoming') {
-      return `from ${trim(tx.sender ?? tx.sender_sys)}`
+      return `from ${midtrim(tx.sender ?? tx.sender_sys, 10, 6)}`
     } else {
-      return `to ${trim(tx.receiver ?? tx.receiver_sys)}`
+      return `to ${midtrim(tx.receiver ?? tx.receiver_sys, 10, 6)}`
     }
   }
 
   const highlight = tx => {
+    selected = tx
     const highlighted = !!list.current.querySelector(`.tx[key="${tx.id}"].sel`)
     list.current.querySelectorAll('.tx.sel, .tx.hl').forEach(el => el.classList.remove('sel', 'hl'))
 
@@ -60,8 +64,28 @@ export const modal = singleton('wallet-history-modal', () => {
     }
 
     if (!highlighted && !!tx.note) {
-      note.current.textContent = 'Note: ' + tx.note
+      notext.current.textContent = 'Note: ' + tx.note
       note.current.classList.add('visible')
+
+      if (!tx.consumed && !tx.merged && !tx.is_state && tx.meta.type === 'outgoing') {
+        rescindbtn.current.style = 'display: block'
+      } else {
+        rescindbtn.current.style = 'display: none'
+      }
+    } else {
+      note.current.classList.remove('visible')
+    }
+  }
+
+  const rescind = async () => {
+    rescindmodal().controls.open(selected)
+    await waitForOne(rescindmodal(), 'close')
+
+    const txs = await service.history()
+    list.current.controls.init(txs)
+    selected = txs.find(tx => tx.id === selected.id) || null;
+    if (selected) {
+      highlight(selected)
     } else {
       note.current.classList.remove('visible')
     }
@@ -121,7 +145,9 @@ export const modal = singleton('wallet-history-modal', () => {
 
       .note {
         opacity: 0;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         position: absolute;
         background: #00000088;
         backdrop-filter: blur(12px);
@@ -135,6 +161,15 @@ export const modal = singleton('wallet-history-modal', () => {
         transition: opacity .2s;
 
         &.visible { opacity: 1; }
+
+        span {
+          display: block;
+          flex: 1;
+        }
+
+        i-con {
+          width: 4ch;
+        }
       }
     </style>
     <glass-modal class="glass-modal" ref=${modal}>
@@ -155,7 +190,10 @@ export const modal = singleton('wallet-history-modal', () => {
         `
       }>
       </keyed-list>
-      <div class='note' ref=${note}></div>
+      <div class='note' ref=${note}>
+        <span ref=${notext}></span>
+        <i-con src='arrow-uturn-left' dark thick ref=${rescindbtn} onclick=${rescind}></i-con>
+      </div>
     </glas-modal>
   `
 })

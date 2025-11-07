@@ -1,8 +1,8 @@
 import { define } from 'minicomp'
 import { html } from 'rehtm'
 
-import '../design/glass/pane.js'
-import '../design/button/components.js'
+import '../design/overlays/pane.js'
+import '../design/buttons/button/components.js'
 
 import { broadcast } from '../util/broadcast.js'
 import { loader } from '../util/loader.js'

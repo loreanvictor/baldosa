@@ -1,7 +1,7 @@
 import { define, currentNode } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../../design/glass/pane.js'
+import '../../design/overlays/pane.js'
 import { observe } from '../../util/observe.js'
 import { constantly } from '../../util/constantly.js'
 

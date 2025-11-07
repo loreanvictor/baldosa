@@ -1,4 +1,4 @@
-import { errmodal } from '../../../design/misc/errmodal.js'
+import { errmodal } from '../../../design/overlays/errmodal.js'
 import { broadcast } from '../../../util/broadcast.js'
 import { waitForOne } from '../../../util/wait-for-one.js'
 

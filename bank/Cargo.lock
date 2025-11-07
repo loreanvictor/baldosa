@@ -311,6 +311,7 @@ dependencies = [
  "dotenvy",
  "env_logger",
  "figment",
+ "futures",
  "humantime-serde",
  "jsonwebtoken",
  "log",

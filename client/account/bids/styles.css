@@ -1,0 +1,34 @@
+swipe-card {
+  margin-bottom: 1ch;
+  i-con {
+    vertical-align: middle;
+    width: 32px;
+  }
+  h1 { font-size: 1.2em; }
+  p {
+    font-size: 0.75em;
+    color: #999;
+
+    i-con {
+      width: 3ex;
+      opacity: .35;
+      vertical-align: sub;
+      margin-left: -.25ex;
+    }
+  }
+  h1, p {
+    padding: 0;
+    margin: 0;
+  }
+  [slot=image] {
+    font-size: 1.5rem;
+    font-weight: bold;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .published & { --color: var(--blue-fg); }
+    .rejected & { --color: var(--red-fg); }
+  }
+}

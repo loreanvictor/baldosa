@@ -8,7 +8,7 @@ import { niceKeyName } from '../../auth/util.js'
 export const backendURL = () => `${authBackendURL()}/passkeys`
 
 export const getPasskeys = async () => {
-  const res = await fetch(backendURL(), authenticated({ method: 'GET' }))
+  const res = await fetch(backendURL(), await authenticated({ method: 'GET' }))
   const keys = await res.json()
 
   return keys
@@ -18,7 +18,7 @@ export const startAddingPasskey = async () => {
   const { Base64 } = await import('js-base64')
 
   const res = await fetch(`${backendURL()}/start`,
-    authenticated({
+    await authenticated({
       method: 'POST',
       credentials: 'include'
     })
@@ -43,7 +43,7 @@ export const finishAddingPasskey = async credential => {
   const { Base64 } = await import('js-base64')
 
   const res = await fetch(`${backendURL()}/finish`,
-    authenticated({
+    await authenticated({
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -74,7 +74,7 @@ export const finishAddingPasskey = async credential => {
 
 export const removePasskey = async passkey => {
   await fetch(`${backendURL()}/${passkey.id}`,
-    authenticated({
+    await authenticated({
       method: 'DELETE',
     })
   )

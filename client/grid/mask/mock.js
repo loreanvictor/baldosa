@@ -4,5 +4,6 @@ export const createMockGridMask = () => {
   return {
     has: (x, y) => MOCK_PUBLISHED.includes(`${x}:${y}`),
     listen: () => {},
+    patch: (x, y) => MOCK_PUBLISHED.push(`${x}:${y}`),
   }
 }

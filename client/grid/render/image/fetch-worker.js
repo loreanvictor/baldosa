@@ -10,7 +10,7 @@ const parseDetails = encoded => {
 }
 
 self.onmessage = async ({ data }) => {
-  const { url } = data
+  const { url, reload } = data
 
   const err = (error) => {
     console.error('error in loading image ' + url)
@@ -19,7 +19,7 @@ self.onmessage = async ({ data }) => {
   }
 
   try {
-    const response = await fetch(url)
+    const response = reload ? await fetch(url, { cache: 'reload' }) : await fetch(url)
     if (response.ok) {
       const meta = {
         title: response.headers.get('x-amz-meta-title'),

@@ -3,9 +3,10 @@ initial_balance = 32
 
 [bidding]
 blocked_coords = ["0:0"]
-guaranteed_occupancy = "1day"
+guaranteed_occupancy = "5min"
+minimum_bid = 1
 
 [bidding.image_upload]
 content_type = "image/jpeg"
-max_file_size = "5mb"
+max_file_size = "1mb"
 url_expiration = "20min"

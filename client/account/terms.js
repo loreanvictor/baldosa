@@ -2,8 +2,8 @@ import { attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
 import { singleton } from '../util/singleton.js'
-import '../design/glass/modal/component.js'
-import '../design/misc/mark-down/component.js'
+import '../design/overlays/modal/component.js'
+import '../design/display/mark-down/component.js'
 
 
 export const modal = singleton('terms-modal', () => {

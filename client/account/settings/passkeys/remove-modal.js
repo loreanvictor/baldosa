@@ -2,9 +2,9 @@ import { attachControls, useDispatch } from 'minicomp'
 import { ref, html } from 'rehtm'
 
 import { singleton } from '../../../util/singleton.js'
-import '../../../design/glass/modal/component.js'
-import '../../../design/button/components.js'
-import '../../../design/confirm/component.js'
+import '../../../design/overlays/modal/component.js'
+import '../../../design/buttons/button/components.js'
+import '../../../design/buttons/confirm/component.js'
 
 export const modal = singleton('remove-passkey-modal', () => {
   const onconfirm = useDispatch('confirm')

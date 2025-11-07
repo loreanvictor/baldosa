@@ -24,7 +24,7 @@ async fn main() {
   let mode = std::env::args().nth(1);
 
   if mode == Some("auctions".to_string()) {
-    run_auctions::run_auctions().await;
+    run_auctions::run_auctions(&conf, &db).await;
   } else {
     router::start_server(&conf, &db).await;
   }

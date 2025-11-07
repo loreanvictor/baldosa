@@ -2,29 +2,30 @@ use axum::{
   extract::{Extension, Json, Path},
   response::IntoResponse,
 };
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 
-use super::super::bid::Bid;
-use super::super::book::Book;
+use super::super::book::{ Book, Bid, bid::next_auction_time, Coords };
 use super::super::config::Config;
-use super::super::coords::Coords;
 use super::super::error::BiddingError;
 use super::validate::validate_coords;
 
-pub fn should_publish_immediately(occupant: Option<&Bid>, config: &Config) -> bool {
-  occupant.is_none()
-    || occupant.unwrap().published_at.is_none()
-    || Utc::now() - occupant.unwrap().published_at.unwrap()
-      > Duration::from_std(config.guaranteed_occupancy).unwrap_or_default()
-}
 
 #[derive(Serialize, Debug)]
 pub struct BiddingInfo {
   pub last_bid: Option<Bid>,
   pub next_auction: Option<DateTime<Utc>>,
+  pub minimum_bid: u32,
 }
 
+
+///
+/// Returns information required for
+/// bidding on a specific coordinate, including:
+/// - The last winning bid on the coordinate (if any)
+/// - The next auction time (`None` means as soon as possible)
+/// - The minimum bid required to participate in the auction
+/// 
 pub async fn bidding_info(
   Extension(book): Extension<Book>,
   Extension(config): Extension<Config>,
@@ -35,12 +36,12 @@ pub async fn bidding_info(
     return Err(BiddingError::Unknown);
   };
 
+  // TODO: `last_bid` isn't necessarily the current occupant,
+  //        the column should be separated and used as such.
+
   Ok(Json(BiddingInfo {
-    next_auction: if should_publish_immediately(occupant.as_ref(), &config) {
-      None
-    } else {
-      Some(occupant.as_ref().unwrap().published_at.unwrap() + config.guaranteed_occupancy)
-    },
+    next_auction: next_auction_time(occupant.as_ref(), &config),
     last_bid: occupant,
+    minimum_bid: config.minimum_bid,
   }))
 }

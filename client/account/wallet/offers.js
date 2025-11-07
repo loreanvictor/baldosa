@@ -1,18 +1,17 @@
 import { define, onConnected } from 'minicomp'
 import { html, ref } from 'rehtm'
 
+import { midtrim } from '../../util/format.js'
 import '../../util/keyed-list.js'
-import '../../design/glass/modal/component.js'
-import '../../design/glass/toast/component.js'
-import '../../design/misc/swipe-card/component.js'
-import '../../design/button/components.js'
-import '../../design/misc/icon/component.js'
-import '../../design/misc/textual.js'
+
+import '../../design/overlays/modal/component.js'
+import '../../design/overlays/toast/component.js'
+import '../../design/layout/swipe-card/component.js'
+import '../../design/buttons/button/components.js'
+import '../../design/display/icon/component.js'
+import '../../design/display/textual.js'
 
 import * as service from './index.js'
-
-
-const trim = name => name.length > 10 ? `${name.slice(0, 6)}...${name.slice(-4)}` : name
 
 
 define('offer-list', () => {
@@ -34,7 +33,8 @@ define('offer-list', () => {
   const details = offer => {
     selected = offer
     deets.current.querySelector('h1 span').textContent = `${offer.meta.total}`
-    deets.current.querySelector('p label[name=sender]').textContent = `from ${trim(offer.sender || offer.sender_sys)}`
+    deets.current.querySelector('p label[name=sender]').textContent =
+      `from ${midtrim(offer.sender || offer.sender_sys, 10, 6)}`
     deets.current.querySelector('p label[name=note]').textContent = offer.note ? 'Note: ' + offer.note : ''
     deets.current.querySelector('p small').textContent = offer.meta.time.toLocaleString()
     deets.current.controls.open()

@@ -52,7 +52,7 @@ export const authenticateWithCode = async (email, code) => {
 
 export const sendVerificationCode = async () => {
   const res = await fetch(`${backendURL()}/verification-code`,
-    authenticated({
+    await authenticated({
       method: 'POST',
       credentials: 'include',
     })
@@ -67,7 +67,7 @@ export const sendVerificationCode = async () => {
 
 export const verifyEmailWithCode = async (code) => {
   const res = await fetch(`${backendURL()}/verify`, 
-    authenticated({
+    await authenticated({
       method: 'POST',
       credentials: 'include',
       headers: {

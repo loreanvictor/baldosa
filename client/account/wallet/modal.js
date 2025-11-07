@@ -3,15 +3,15 @@ import { ref, html } from 'rehtm'
 
 import { singleton } from '../../util/singleton.js'
 import { onBroadcast } from '../../util/broadcast.js'
-
 import { modal as uc } from '../../util/under-construction.js'
 import '../../util/keyed-list.js'
-import '../../design/glass/modal/component.js'
-import '../../design/glass/toast/component.js'
-import '../../design/button/components.js'
-import '../../design/misc/icon/component.js'
-import '../../design/misc/swipe-card/component.js'
-import '../../design/misc/textual.js'
+
+import '../../design/overlays/modal/component.js'
+import '../../design/overlays/toast/component.js'
+import '../../design/buttons/button/components.js'
+import '../../design/layout/swipe-card/component.js'
+import '../../design/display/icon/component.js'
+import '../../design/display/textual.js'
 
 import './offers.js'
 import { modal as history } from './history.js'

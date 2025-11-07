@@ -3,8 +3,8 @@ import { html, ref } from 'rehtm'
 
 import { onBroadcast, broadcast } from '../util/broadcast.js'
 
-import '../tile/preview/component.js'
-import '../tile/empty.js'
+import '../tile/preview/modal.js'
+import '../tile/preview/empty.js'
 
 import './render/index.js'
 import './control/camera-control.js'
@@ -27,6 +27,7 @@ define('controlled-grid', () => {
   const panind = ref()
   const prev = ref()
   const empty = ref()
+  const mask = ref()
 
   let scale = SMALL_DEVICE ? Math.min(WMIN / 2.5, MAX_SCALE) : Math.min(WMIN / 3.5, MAX_SCALE)
 
@@ -37,7 +38,7 @@ define('controlled-grid', () => {
 
     // TODO: add cleanup logic as well.
 
-    const mask = createGridMask({
+    mask.current = createGridMask({
       mapUrl: (x, y) => `${baseURL}/tilemap-${x}-${y}.bin`,
       chunkSize: 256
     })
@@ -45,7 +46,7 @@ define('controlled-grid', () => {
     grid.current.setAttribute('src', baseURL)
     grid.current.setAttribute('zoom', scale)
     grid.current.setAttribute('image-cache-size', IMG_CACHE_SIZE)
-    grid.current.setProperty('mask', mask)
+    grid.current.setProperty('mask', mask.current)
   
     camera.current.setAttribute('camx', .5)
     camera.current.setAttribute('camy', .5)
@@ -78,9 +79,9 @@ define('controlled-grid', () => {
   
     empty.current.setAttribute('base-url', baseURL)
     prev.current.setAttribute('base-url', baseURL)
-    prev.current.setProperty('mask', mask)
+    prev.current.setProperty('mask', mask.current)
     grid.current.addEventListener('tile-click', ({ detail }) => {
-      if (mask.has(detail.x, detail.y) && detail.meta?.details?.preview !== false) {
+      if (mask.current.has(detail.x, detail.y) && detail.meta?.details?.preview !== false) {
         prev.current.setProperty('tile', detail)
       } else {
         empty.current.setProperty('tile', detail)
@@ -101,6 +102,9 @@ define('controlled-grid', () => {
     camera.current.setAttribute('camx', (x ?? 0) + .5)
     camera.current.setAttribute('camy', (y ?? 0) + .5)
   })
+
+  onBroadcast('tile:published', ({ x, y }) => mask.current?.patch(x, y, true))
+  onBroadcast('tile:unpublished', ({ x, y }) => mask.current?.patch(x, y, false))
 
   return html`
     <infinite-grid ref=${grid}></infinite-grid>

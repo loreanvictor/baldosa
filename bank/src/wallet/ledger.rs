@@ -88,8 +88,8 @@ impl Ledger {
             limit $3
           ",
           user_id,
-          i64::try_from(offset).unwrap_or_default(),
-          i64::try_from(limit).unwrap_or_default(),
+          i64::from(offset),
+          i64::from(limit),
         )
         .fetch_all(&self.pool)
         .await
@@ -105,8 +105,8 @@ impl Ledger {
             limit $3
           ",
           sys_id,
-          i64::try_from(offset).unwrap_or_default(),
-          i64::try_from(limit).unwrap_or_default(),
+          i64::from(offset),
+          i64::from(limit),
         )
         .fetch_all(&self.pool)
         .await
@@ -136,8 +136,8 @@ impl Ledger {
         limit $3
       ",
       user_id,
-      i64::try_from(offset).unwrap_or_default(),
-      i64::try_from(limit).unwrap_or_default(),
+      i64::from(offset),
+      i64::from(limit),
     )
     .fetch_all(&self.pool)
     .await

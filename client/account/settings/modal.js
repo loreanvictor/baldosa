@@ -2,9 +2,9 @@ import { attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
 import { singleton } from '../../util/singleton.js'
-import '../../design/glass/modal/component.js'
-import '../../design/button/components.js'
-import '../../design/misc/textual.js'
+import '../../design/overlays/modal/component.js'
+import '../../design/buttons/button/components.js'
+import '../../design/display/textual.js'
 
 import '../email/verify.js'
 import './passkeys/button.js'

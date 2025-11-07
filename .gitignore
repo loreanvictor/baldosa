@@ -133,3 +133,7 @@ dist
 .pnp.*
 
 .VSCodeCounter/*
+
+target/*
+
+**/.DS_Store

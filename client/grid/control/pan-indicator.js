@@ -1,11 +1,11 @@
 import { define, useDispatch, onAttribute, currentNode } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../../design/glass/pane.js'
-import '../../design/glass/modal/component.js'
-import '../../design/input/coord/component.js'
-import '../../design/button/components.js'
-import '../../design/misc/icon/component.js'
+import '../../design/overlays/pane.js'
+import '../../design/overlays/modal/component.js'
+import '../../design/inputs/coord/component.js'
+import '../../design/buttons/button/components.js'
+import '../../design/display/icon/component.js'
 import { observe } from '../../util/observe.js'
 
 

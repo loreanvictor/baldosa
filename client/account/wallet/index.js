@@ -52,3 +52,12 @@ export const accept = async offer => {
 
   return fmt
 }
+
+export const rescind = async tx => {
+  const balance = await backend.rescind(deformat(tx))
+  _balance = balance
+  const fmt = format(balance)
+  broadcast('wallet:balance_changed', fmt)
+
+  return fmt
+}

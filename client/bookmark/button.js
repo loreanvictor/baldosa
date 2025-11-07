@@ -1,8 +1,9 @@
 import { define, onProperty, onAttribute } from 'minicomp'
 import { html, ref } from 'rehtm'
 
-import '../design/glass/toast/component.js'
-import '../design/misc/icon/component.js'
+import '../design/overlays/toast/component.js'
+import '../design/buttons/button/components.js'
+import '../design/display/icon/component.js'
 
 import './toast.js'
 import { add, remove, is } from './db.js'

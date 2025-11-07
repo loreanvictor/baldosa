@@ -4,7 +4,7 @@ use log::error;
 use reqwest::{Client, StatusCode};
 use serde::Serialize;
 
-use super::super::bid::Bid;
+use super::super::book::{ Bid, Coords };
 use super::auth::Auth;
 use super::error::PublishError;
 
@@ -66,6 +66,37 @@ impl Publisher {
         response.text().await.unwrap_or(String::new())
       );
       return Err(PublishError::Unknown);
+    } else {
+      Ok(())
+    }
+  }
+
+  pub async fn unpublish(&self, coords: &Coords) -> Result<(), PublishError> {
+    let response = self
+      .auth
+      .apply(
+        self.client
+          .delete(format!("{}/{}:{}", self.url, coords.x, coords.y)),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to unpublish tile: {e}");
+        match e.status() {
+          Some(StatusCode::UNAUTHORIZED) => PublishError::Unauthorized,
+          _ => PublishError::Unknown,
+        }
+      })?;
+
+    if response.status() == StatusCode::UNAUTHORIZED {
+      Err(PublishError::Unauthorized)
+    } else if !response.status().is_success() {
+      error!("Failed to unpublish bid: {}", response.status());
+      error!(
+        "Response: {}",
+        response.text().await.unwrap_or(String::new())
+      );
+      Err(PublishError::Unknown)
     } else {
       Ok(())
     }

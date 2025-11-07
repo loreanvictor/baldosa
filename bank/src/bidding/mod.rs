@@ -14,13 +14,12 @@ use tower_http::cors::{Any, CorsLayer};
 use super::wallet::Ledger;
 
 mod api;
-mod bid;
 mod book;
 pub mod config;
-mod coords;
 pub mod error;
+pub mod auctions;
 mod publisher;
-mod tile_account;
+mod tile;
 mod upload;
 
 pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> Router {
@@ -30,7 +29,7 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
     .allow_origin(Any);
 
   let ledger = ledger.clone();
-  let book = Book::new(db.clone());
+  let book = Book::new(config.clone(), db.clone());
   let publisher = Publisher::from_env();
   let bucket = Bucket::new(
     env::var("S3_SUBMIT_BUCKET")
@@ -45,13 +44,15 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
   .unwrap();
 
   Router::new()
-    .route("/", get(|| async { "Not Implemented" })) // --> get my bids
-    .route("/live", get(|| async { "Not Implemented" })) // --> get my currently published bids
-    .route("/history", get(|| async { "Not Implemented" })) // --> get the history of all my bids
-    .route("/{coords}", get(api::bidding_info)) // --> get bidding info for a tile
-    .route("/{coords}/init", post(api::init_bid)) // --> initiate a bid on a tile
-    .route("/{coords}", post(api::post_bid)) // --> finalize bid on a tile
-    .route("/{coords}", delete(|| async { "Not Implemented" })) // --> rescind bid, unpublish if need be
+    .route("/", get(api::pending_bids))
+    .route("/live", get(api::live_bids))
+    .route("/history", get(api::all_bids))
+    .route("/{coords}", get(api::bidding_info))
+    .route("/{coords}/init", post(api::init_bid))
+    .route("/{coords}", post(api::post_bid))
+    .route("/{coords}", delete(api::unpublish)) // --> unpublish a published bid
+    .route("/{id}/rescind", delete(api::rescind_bid)) // --> rescind bid by id, if unpublished
+    .route("/{coords}/reject", delete(api::reject)) // --> admin rejects a bid published to some coords
     .layer(Extension(ledger))
     .layer(Extension(book))
     .layer(Extension(publisher))

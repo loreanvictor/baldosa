@@ -1,8 +1,8 @@
 import { define, attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
-import '../design/glass/toast/component.js'
-import '../design/misc/resizing-label.js'
+import '../design/overlays/toast/component.js'
+import '../design/display/resizing-label.js'
 
 
 define('bookmark-toast', () => {

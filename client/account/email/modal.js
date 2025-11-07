@@ -3,10 +3,10 @@ import { ref, html } from 'rehtm'
 
 import { singleton } from '../../util/singleton.js'
 
-import '../../design/glass/modal/component.js'
-import '../../design/confirm/component.js'
-import '../../design/input/text/component.js'
-import '../../design/misc/textual.js'
+import '../../design/overlays/modal/component.js'
+import '../../design/buttons/confirm/component.js'
+import '../../design/inputs/text/component.js'
+import '../../design/display/textual.js'
 
 
 export const modal = singleton('email-signin-modal', () => {

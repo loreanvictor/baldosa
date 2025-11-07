@@ -16,7 +16,7 @@ worker.onmessage = ({ data }) => {
 }
 
 
-export const fetchImage = async url => {
+export const fetchImage = async (url, reload) => {
   if (reqs.has(url)) {
     return reqs.get(url).promise
   }
@@ -25,7 +25,7 @@ export const fetchImage = async url => {
   const promise = new Promise((resolve, reject) => { res = resolve; rej = reject })
   reqs.set(url, { promise, resolve: res, reject: rej })
 
-  worker.postMessage({ url })
+  worker.postMessage({ url, reload })
 
   return promise
 }

@@ -2,8 +2,9 @@ import { broadcast } from '../../util/broadcast.js'
 import { waitForOne } from '../../util/wait-for-one.js'
 import { startAuthentication, finishAuthentication,
     startRegistration, finishRegistration } from './backend.js'
-import { modal } from './modal.js'
-import { errmodal } from '../../design/misc/errmodal.js'
+import { modal as registermodal } from './register-modal.js'
+import { modal as guardmodal } from './guard-modal.js'
+import { errmodal } from '../../design/overlays/errmodal.js'
 
 
 let _token = undefined
@@ -59,7 +60,7 @@ export const init = () => {
   }
 }
 
-export const login = async () => {
+export const login = async (opts) => {
   try {
     const authOpts = await startAuthentication()
     const credential = await navigator.credentials.get(authOpts)
@@ -67,17 +68,22 @@ export const login = async () => {
     const user = await finishAuthentication(credential)
     setAccount(user.email, `${user.firstname} ${user.lastname}`, user.verification, user.token)
   } catch (error) {
-    errmodal().controls.open(
-      `Could not login, because of the following error:`,
-      error
-    )
-    errmodal().addEventListener('retry', login, { once: true })
+    if (opts?.silent) {
+      throw error
+    } else {
+      errmodal().controls.open(
+        `Could not login, because of the following error:`,
+        error
+      )
+      errmodal().addEventListener('retry', login, { once: true })
+    }
   }
 }
 
-export const register = async () => {
-  modal().controls.open()
-  const { email, firstname, lastname } = await waitForOne(modal(), 'done', 'cancel')
+
+export const register = async (opts) => {
+  registermodal().controls.open()
+  const { email, firstname, lastname } = await waitForOne(registermodal(), 'done', 'cancel')
 
   try {
     const createCredentialOptions = await startRegistration({ email, firstname, lastname })
@@ -86,16 +92,25 @@ export const register = async () => {
     const user = await finishRegistration(credential)
     setAccount(user.email, `${user.firstname} ${user.lastname}`, user.verification, user.token)
   } catch (error) {
-    errmodal().controls.open(
-      `Could not register new user with email ${email}, because of the following error:`,
-      error
-    )
-    errmodal().addEventListener('retry', register, { once: true })
+    if (opts?.silent) {
+      throw error
+    } else {
+      errmodal().controls.open(
+        `Could not register new user with email ${email}, because of the following error:`,
+        error
+      )
+      errmodal().addEventListener('retry', register, { once: true })
+    }
   }
 }
 
 
-export const authenticated = (opts) => {
+export const authenticated = async (opts) => {
+  if (!_token) {
+    guardmodal().controls.open()
+    await waitForOne(guardmodal(), 'done', 'cancel')
+  }
+
   return {
     ...opts,
     headers: {

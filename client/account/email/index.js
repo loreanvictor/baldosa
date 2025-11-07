@@ -1,6 +1,6 @@
 import { waitForOne } from '../../util/wait-for-one.js'
-import { errmodal } from '../../design/misc/errmodal.js'
-import { waitoverlay } from '../../design/misc/wait-overlay.js'
+import { errmodal } from '../../design/overlays/errmodal.js'
+import { waitoverlay } from '../../design/overlays/wait-overlay.js'
 
 import { setAccount, addVerification } from '../auth/index.js'
 
@@ -13,7 +13,7 @@ import {
 } from './backend.js'
 
 
-export const authenticate = async () => {
+export const authenticate = async (opts) => {
   modal().controls.open()
   const email = await waitForOne(modal(), 'done', 'cancel')
 
@@ -31,12 +31,18 @@ export const authenticate = async () => {
         code().controls.close()
       } catch (error) {
         if (error.status === 429) {
+          code().removeEventListener('complete', listener)
           code().controls.close()
           errmodal().controls.open(
             `You've entered the wrong code too many times. For security reasons, your account is locked for a few minutes, and you can only authenticate using passkeys.`,
             error,
             'Retry Later'
           )
+
+          if (opts?.silent) {
+            await waitForOne(errmodal(), 'close')
+            throw error
+          }
         } else {
           code().controls.invalidate()
         }
@@ -62,6 +68,11 @@ export const authenticate = async () => {
         error
       )
       errmodal().addEventListener('retry', authenticate, { once: true })
+    }
+
+    if (opts?.silent) {
+      await waitForOne(errmodal(), 'close')
+      throw error
     }
   }
 }

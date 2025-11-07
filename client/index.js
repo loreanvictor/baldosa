@@ -20,6 +20,9 @@ if (isDevMode()) {
 
     const baseURL = envBaseURL ?? envBucketURL ?? DEFAULT_BASE_URL
     grid.setAttribute('base-url', baseURL)
+    configure({
+      'GRID_BASE_URL': baseURL,
+    })
   })
 } else {
   grid.setAttribute('base-url', DEFAULT_BASE_URL)
