@@ -3,7 +3,7 @@ initial_balance = 32
 
 [bidding]
 blocked_coords = ["0:0"]
-guaranteed_occupancy = "5min"
+guaranteed_occupancy = "1day"
 minimum_bid = 1
 
 [bidding.image_upload]
