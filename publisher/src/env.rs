@@ -33,14 +33,24 @@ pub fn init() -> Result<(), dotenvy::Error> {
   dotenv_override().ok();
   env_logger::init();
 
-  for item in from_path_iter(parent)? {
-    let (key, val) = item?;
-    debug_env_kv(&key, &val);
+  match from_path_iter(parent) {
+    Err(_) => debug!("No parent .env file."),
+    Ok(parent) => {
+      for item in parent {
+        let (key, val) = item?;
+        debug_env_kv(&key, &val);
+      }
+    }
   }
 
-  for item in dotenv_iter()? {
-    let (key, val) = item?;
-    debug_env_kv(&key, &val);
+  match dotenv_iter() {
+    Err(_) => debug!("No local .env file."),
+    Ok(local) => {
+      for item in local {
+        let (key, val) = item?;
+        debug_env_kv(&key, &val);
+      }
+    }
   }
 
   Ok(())

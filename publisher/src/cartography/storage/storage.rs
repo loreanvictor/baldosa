@@ -34,6 +34,10 @@ impl<P: Pixel + Send + Sync> Debug for Point<P> {
   }
 }
 
+// TODO: we should also have a method to regenerate the stored map from
+//       published chunks and tilemaps. This helps scaling publishers
+//       and recovering from data loss.
+
 ///
 /// A storage mechanism for storing a map. A map is a potentially
 /// infinite grid of potentially existing points, with each point potentially

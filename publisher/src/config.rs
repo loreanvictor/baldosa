@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::env;
 
 use serde::Deserialize;
 use tokio::fs;
@@ -21,7 +22,7 @@ pub struct WrittenConfig {
 }
 
 pub async fn init() -> Config {
-  let config = fs::read_to_string("config.toml")
+  let config = fs::read_to_string(env::var("CONFIG_FILE").unwrap_or("config.toml".to_string()))
     .await
     .expect("Config file `config.toml` not found.");
 
