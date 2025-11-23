@@ -42,9 +42,14 @@ pub fn init() -> Result<(), dotenvy::Error> {
     }
   }
 
-  for item in dotenv_iter()? {
-    let (key, val) = item?;
-    debug_env_kv(&key, &val);
+  match dotenv_iter() {
+    Err(_) => debug!("No local .env file."),
+    Ok(local) => {
+      for item in local {
+        let (key, val) = item?;
+        debug_env_kv(&key, &val);
+      }
+    }
   }
 
   Ok(())
