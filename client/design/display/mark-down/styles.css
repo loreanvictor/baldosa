@@ -1,17 +1,19 @@
 :host {
-  --link: #48A1D8;
+  --link: #48a1d8;
 
-  a { color: var(--link); }
+  a {
+    color: var(--link);
+  }
   img {
     max-width: 100%;
-    &[src$='#gh-dark-mode-only'] {
+    &[src$="#gh-dark-mode-only"] {
       display: none;
       @media (prefers-color-scheme: dark) {
         display: block;
       }
     }
 
-    &[src$='#gh-light-mode-only'] {
+    &[src$="#gh-light-mode-only"] {
       display: none;
       @media (prefers-color-scheme: light) {
         display: block;
@@ -22,42 +24,85 @@
 
 div.raw {
   --text: #9e9e9e;
-  --heading: #EFA73E;
+  --heading: #efa73e;
   --bold: #ffffff;
-  --italic: #F8EDE3;
-  --list-marker: #E53157;
-  --code: #7A73D1;
-  --font-size: .9rem;
+  --italic: #f8ede3;
+  --list-marker: #e53157;
+  --code: #7a73d1;
+  --font-size: 0.9rem;
 
   font-size: var(--font-size);
   font-weight: 100;
   font-family: monospace;
   color: var(--text);
 
-
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     color: var(--heading);
     font-weight: bold;
     font-size: var(--font-size);
   }
 
-  h1 { &::before { content: '# '; } }
-  h2 { color: color-mix(in srgb, var(--heading) 65%, var(--text)); &::before { content: '## '; } }
-  h3 { color: color-mix(in srgb, var(--heading) 45%, var(--text)); &::before { content: '### '; } }
-  h4 { color: color-mix(in srgb, var(--heading) 35%, var(--text)); &::before { content: '#### '; } }
-  h5 { color: color-mix(in srgb, var(--heading) 25%, var(--text)); &::before { content: '##### '; } }
-  h6 { color: color-mix(in srgb, var(--heading) 15%, var(--text)); &::before { content: '###### '; } }
-
-  b, strong {
-    color: var(--bold);
-    &::before { content: '**'; }
-    &::after { content: '**'; }
+  h1 {
+    &::before {
+      content: "# ";
+    }
+  }
+  h2 {
+    color: color-mix(in srgb, var(--heading) 65%, var(--text));
+    &::before {
+      content: "## ";
+    }
+  }
+  h3 {
+    color: color-mix(in srgb, var(--heading) 45%, var(--text));
+    &::before {
+      content: "### ";
+    }
+  }
+  h4 {
+    color: color-mix(in srgb, var(--heading) 35%, var(--text));
+    &::before {
+      content: "#### ";
+    }
+  }
+  h5 {
+    color: color-mix(in srgb, var(--heading) 25%, var(--text));
+    &::before {
+      content: "##### ";
+    }
+  }
+  h6 {
+    color: color-mix(in srgb, var(--heading) 15%, var(--text));
+    &::before {
+      content: "###### ";
+    }
   }
 
-  i, em {
+  b,
+  strong {
+    color: var(--bold);
+    &::before {
+      content: "**";
+    }
+    &::after {
+      content: "**";
+    }
+  }
+
+  i,
+  em {
     color: var(--italic);
-    &::before { content: '*'; }
-    &::after { content: '*'; }
+    &::before {
+      content: "*";
+    }
+    &::after {
+      content: "*";
+    }
   }
 
   ul {
@@ -65,7 +110,7 @@ div.raw {
     list-style: none;
 
     li:before {
-      content: '*';
+      content: "*";
       font-weight: bold;
       color: var(--list-marker);
       margin-right: 1ch;
@@ -73,8 +118,12 @@ div.raw {
   }
 
   code {
-    &::before { content: '`'; }
-    &::after { content: '`'; }
+    &::before {
+      content: "`";
+    }
+    &::after {
+      content: "`";
+    }
     color: var(--code);
   }
 
@@ -82,8 +131,14 @@ div.raw {
     display: block;
     max-width: 100%;
     overflow: auto;
-    &:before { content: '```'; display: block; }
-    &:after { content: '```'; display: block; }
+    &:before {
+      content: "```";
+      display: block;
+    }
+    &:after {
+      content: "```";
+      display: block;
+    }
   }
 
   blockquote {
@@ -97,14 +152,20 @@ div.raw {
     border: none;
     &:before {
       color: #757575;
-      content: '--------------------------------';
+      content: "--------------------------------";
     }
   }
 }
 
+a {
+  color: var(--link);
+}
+
 div:not(.raw) {
   font-weight: 100;
-  ul { padding: 0 1rem; }
+  ul {
+    padding: 0 1rem;
+  }
   hr {
     border: none;
     border-bottom: 1px solid #424242;
