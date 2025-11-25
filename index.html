@@ -1,23 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
     <title>Baldosa: the cloud city</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <style>
       :root {
-        --red-bg: #C7253E;
-        --red-fg: #F72C5B;
-        --blue-bg: #447ED3;
-        --blue-fg: #447ED3;
-        --yellow-fg: #FFC107;
-        --yellow-bg: #EAB413;
+        --red-bg: #c7253e;
+        --red-fg: #f72c5b;
+        --blue-bg: #447ed3;
+        --blue-fg: #447ed3;
+        --yellow-fg: #ffc107;
+        --yellow-bg: #eab413;
       }
-      html, body {
-        margin:0; padding:0; overflow:hidden; height:100%; width:100%;
-        background: #000; color: #fff;
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        background: #000;
+        color: #fff;
         * {
           font-family: "Open Sans", sans-serif;
         }
@@ -49,21 +58,51 @@
     <main-nav></main-nav>
 
     <div id="loading">
-      <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 256 256"><path fill="#fff" fill-rule="evenodd" d="M162 189c-3 0-6-3-6-6v-7c0-6-5-11-11-11h23a12 12 0 1 0 0-24h-24c7 0 12-5 12-12v-6c0-3 3-6 6-6h6a36 36 0 1 1 0 72h-6ZM84 81c0 7 5 12 12 12h6c3 0 6 3 6 6v12c0 3 3 6 6 6h12c3 0 6 3 6 6v6c0 7 5 12 12 12h-30c-3 0-6 3-6 6v12c0 3 3 6 6 6h30c-7 0-12 5-12 12v6c0 3-3 6-6 6h-12c-3 0-6-3-6-6v-12c0-3-3-6-6-6H90c-3 0-6 3-6 6v12c0 3-3 6-6 6H66c-3 0-6-3-6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3-3-6-6-6H90c-3 0-6-3-6-6V81Zm18-36c3 0 6 3 6 6v12c0 3-3 6-6 6h-6c-7 0-12 5-12 12V51c0-3 3-6 6-6h12Z"/></svg>
-      <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 256 256" class="red"><path fill="#EFA73E" fill-rule="evenodd" d="M162 189c-3 0-6-3-6-6v-7c0-6-5-11-11-11h23a12 12 0 1 0 0-24h-24c7 0 12-5 12-12v-6c0-3 3-6 6-6h6a36 36 0 1 1 0 72h-6ZM84 81c0 7 5 12 12 12h6c3 0 6 3 6 6v12c0 3 3 6 6 6h12c3 0 6 3 6 6v6c0 7 5 12 12 12h-30c-3 0-6 3-6 6v12c0 3 3 6 6 6h30c-7 0-12 5-12 12v6c0 3-3 6-6 6h-12c-3 0-6-3-6-6v-12c0-3-3-6-6-6H90c-3 0-6 3-6 6v12c0 3-3 6-6 6H66c-3 0-6-3-6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3-3-6-6-6H90c-3 0-6-3-6-6V81Zm18-36c3 0 6 3 6 6v12c0 3-3 6-6 6h-6c-7 0-12 5-12 12V51c0-3 3-6 6-6h12Z"/></svg>
-      <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 256 256" class="blue"><path fill="#A1E3F9" fill-rule="evenodd" d="M162 189c-3 0-6-3-6-6v-7c0-6-5-11-11-11h23a12 12 0 1 0 0-24h-24c7 0 12-5 12-12v-6c0-3 3-6 6-6h6a36 36 0 1 1 0 72h-6ZM84 81c0 7 5 12 12 12h6c3 0 6 3 6 6v12c0 3 3 6 6 6h12c3 0 6 3 6 6v6c0 7 5 12 12 12h-30c-3 0-6 3-6 6v12c0 3 3 6 6 6h30c-7 0-12 5-12 12v6c0 3-3 6-6 6h-12c-3 0-6-3-6-6v-12c0-3-3-6-6-6H90c-3 0-6 3-6 6v12c0 3-3 6-6 6H66c-3 0-6-3-6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3-3-6-6-6H90c-3 0-6-3-6-6V81Zm18-36c3 0 6 3 6 6v12c0 3-3 6-6 6h-6c-7 0-12 5-12 12V51c0-3 3-6 6-6h12Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 256 256">
+        <path
+          fill="#fff"
+          fill-rule="evenodd"
+          d="M162 189c-3 0-6-3-6-6v-7c0-6-5-11-11-11h23a12 12 0 1 0 0-24h-24c7 0 12-5 12-12v-6c0-3 3-6 6-6h6a36 36 0 1 1 0 72h-6ZM84 81c0 7 5 12 12 12h6c3 0 6 3 6 6v12c0 3 3 6 6 6h12c3 0 6 3 6 6v6c0 7 5 12 12 12h-30c-3 0-6 3-6 6v12c0 3 3 6 6 6h30c-7 0-12 5-12 12v6c0 3-3 6-6 6h-12c-3 0-6-3-6-6v-12c0-3-3-6-6-6H90c-3 0-6 3-6 6v12c0 3-3 6-6 6H66c-3 0-6-3-6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3-3-6-6-6H90c-3 0-6-3-6-6V81Zm18-36c3 0 6 3 6 6v12c0 3-3 6-6 6h-6c-7 0-12 5-12 12V51c0-3 3-6 6-6h12Z"
+        />
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 256 256" class="red">
+        <path
+          fill="#EFA73E"
+          fill-rule="evenodd"
+          d="M162 189c-3 0-6-3-6-6v-7c0-6-5-11-11-11h23a12 12 0 1 0 0-24h-24c7 0 12-5 12-12v-6c0-3 3-6 6-6h6a36 36 0 1 1 0 72h-6ZM84 81c0 7 5 12 12 12h6c3 0 6 3 6 6v12c0 3 3 6 6 6h12c3 0 6 3 6 6v6c0 7 5 12 12 12h-30c-3 0-6 3-6 6v12c0 3 3 6 6 6h30c-7 0-12 5-12 12v6c0 3-3 6-6 6h-12c-3 0-6-3-6-6v-12c0-3-3-6-6-6H90c-3 0-6 3-6 6v12c0 3-3 6-6 6H66c-3 0-6-3-6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3-3-6-6-6H90c-3 0-6-3-6-6V81Zm18-36c3 0 6 3 6 6v12c0 3-3 6-6 6h-6c-7 0-12 5-12 12V51c0-3 3-6 6-6h12Z"
+        />
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 256 256" class="blue">
+        <path
+          fill="#A1E3F9"
+          fill-rule="evenodd"
+          d="M162 189c-3 0-6-3-6-6v-7c0-6-5-11-11-11h23a12 12 0 1 0 0-24h-24c7 0 12-5 12-12v-6c0-3 3-6 6-6h6a36 36 0 1 1 0 72h-6ZM84 81c0 7 5 12 12 12h6c3 0 6 3 6 6v12c0 3 3 6 6 6h12c3 0 6 3 6 6v6c0 7 5 12 12 12h-30c-3 0-6 3-6 6v12c0 3 3 6 6 6h30c-7 0-12 5-12 12v6c0 3-3 6-6 6h-12c-3 0-6-3-6-6v-12c0-3-3-6-6-6H90c-3 0-6 3-6 6v12c0 3-3 6-6 6H66c-3 0-6-3-6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3 3-6 6-6h12c3 0 6-3 6-6v-12c0-3-3-6-6-6H90c-3 0-6-3-6-6V81Zm18-36c3 0 6 3 6 6v12c0 3-3 6-6 6h-6c-7 0-12 5-12 12V51c0-3 3-6 6-6h12Z"
+        />
+      </svg>
       <div class="progress">
         <div class="value"></div>
       </div>
       <div class="msg">loading...</div>
       <style>
         #loading {
-          position: fixed; top: 0; left: 0; bottom: 0; right: 0; z-index: 9999;
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          z-index: 9999;
           background: linear-gradient(180deg, #111111, #080808);
-          display: flex; align-items: center; justify-content: center; transition: opacity .5s;
-          svg { filter: blur(1px); }
-          .red, .blue {
-            position: absolute; mix-blend-mode: color-dodge;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: opacity 0.5s;
+          svg {
+            filter: blur(1px);
+          }
+          .red,
+          .blue {
+            position: absolute;
+            mix-blend-mode: color-dodge;
             filter: blur(3px);
             animation: loadingslide 6s infinite alternate;
           }
@@ -71,66 +110,95 @@
             animation-direction: alternate-reverse;
           }
           .progress {
-            position: absolute; bottom: 25vh; width: 72px;
+            position: absolute;
+            bottom: 25vh;
+            width: 72px;
             height: 2px;
             border-radius: 2px;
             overflow: hidden;
             background: #1a1a1a;
             .value {
-              position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-              background: white; transform: scaleX(0); transform-origin: left;
-              transition: transform .2s;
+              position: absolute;
+              top: 0;
+              left: 0;
+              bottom: 0;
+              right: 0;
+              background: white;
+              transform: scaleX(0);
+              transform-origin: left;
+              transition: transform 0.2s;
             }
           }
           .msg {
-            position: absolute; bottom: calc(25vh - 4ch); font-size: .7em; opacity: .2;
-            font-family: monospace; font-weight: bold;
+            position: absolute;
+            bottom: calc(25vh - 4ch);
+            font-size: 0.7em;
+            opacity: 0.2;
+            font-family: monospace;
+            font-weight: bold;
           }
         }
         @keyframes loadingslide {
-            0% { transform: translateX(0px) scale(1); }
-            33% { transform: translateX(-8px) scale(1.05); }
-            66% { transform: translateX(0px) scale(1); }
-            100% { transform: translateX(8px) scale(1.05); }
+          0% {
+            transform: translateX(0px) scale(1);
           }
+          33% {
+            transform: translateX(-8px) scale(1.05);
+          }
+          66% {
+            transform: translateX(0px) scale(1);
+          }
+          100% {
+            transform: translateX(8px) scale(1.05);
+          }
+        }
       </style>
     </div>
     <script type="module">
-      import { listenToBroadcast } from './client/util/broadcast.js'
-      import { loader } from './client/util/loader.js'
+      import { listenToBroadcast } from "./client/util/broadcast.js?v=0.1.1";
+      import { loader } from "./client/util/loader.js?v=0.1.1";
 
-      const load = loader((progress, message) => {
-        const loading = document.getElementById('loading')
-        const msg = loading?.querySelector('.msg')
-        const prog = loading?.querySelector('.progress .value')
-        prog && (prog.style.transform = `scaleX(${progress})`)
-        msg && message && (msg.textContent = message)
+      const load = loader(
+        (progress, message) => {
+          const loading = document.getElementById("loading");
+          const msg = loading?.querySelector(".msg");
+          const prog = loading?.querySelector(".progress .value");
+          prog && (prog.style.transform = `scaleX(${progress})`);
+          msg && message && (msg.textContent = message);
 
-        if (loading && progress === 1) {
-          setTimeout(() => {
-              loading.style.opacity = 0
-              loading.addEventListener('transitionend', () => {
-              loading.remove()
-            }, { once: true })
-          }, 300)
-        }
-      }, 'grid', 'nav', 'font')
+          if (loading && progress === 1) {
+            setTimeout(() => {
+              loading.style.opacity = 0;
+              loading.addEventListener(
+                "transitionend",
+                () => {
+                  loading.remove();
+                },
+                { once: true },
+              );
+            }, 300);
+          }
+        },
+        "grid",
+        "nav",
+        "font",
+      );
 
-      listenToBroadcast('grid:connected', () => load('grid', 1, 'grid connected'))
-      listenToBroadcast('nav:loaded', value => load('nav', value, 'assets loaded'))
+      listenToBroadcast("grid:connected", () => load("grid", 1, "grid connected"));
+      listenToBroadcast("nav:loaded", (value) => load("nav", value, "assets loaded"));
 
-      const font = document.createElement('link')
-      font.rel = 'stylesheet'
-      font.href = 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap'
-      font.onload = () => load('font', 1, 'fonts loaded')
-      document.head.appendChild(font)
+      const font = document.createElement("link");
+      font.rel = "stylesheet";
+      font.href = "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap";
+      font.onload = () => load("font", 1, "fonts loaded");
+      document.head.appendChild(font);
     </script>
     <script>
       // disable double click zooming
       document.addEventListener("dblclick", (event) => {
-        event.preventDefault()
-      })
+        event.preventDefault();
+      });
     </script>
-    <script type="module" src="./client/index.js"></script>
+    <script type="module" src="./client/index.js?v=0.1.1"></script>
   </body>
 </html>
