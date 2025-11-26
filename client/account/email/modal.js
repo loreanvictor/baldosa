@@ -8,7 +8,6 @@ import '../../design/buttons/confirm/component.js'
 import '../../design/inputs/text/component.js'
 import '../../design/display/textual.js'
 
-
 export const modal = singleton('email-signin-modal', () => {
   const modal = ref()
   const email = ref()
@@ -30,25 +29,25 @@ export const modal = singleton('email-signin-modal', () => {
 
   return html`
     <glass-modal ref=${modal} onclose=${() => cancel('login cancelled')}>
-      <span slot='title'>Sign in <br/> with Email</span>
+      <span slot="title">Login <br />with Email</span>
       <small-hint>
-        If you want to sign in on a device not supporting passkeys,
-        or without access to your passkeys, simply enter your email address,
-        and use the one time code that is sent to you. Note that you need
-        to already have an account to sing in this way.
+        If you want to login on a device not supporting passkeys, or without access to your passkeys, simply enter your
+        email address, and use the one time code that is sent to you. Note that you need to already have an account to
+        sing in this way.
       </small-hint>
-      <text-input ref=${email} name='email' label='Email'
-          required type='email' oncheck=${check}>
-        <span slot='hint'>
-          Make sure you enter your correct email address.
-        </span>
+      <text-input ref=${email} name="email" label="Email" required type="email" oncheck=${check}>
+        <span slot="hint"> Make sure you enter your correct email address. </span>
       </text-input>
-      <br/>
-      <confirm-button ref=${confirm} disabled label='Send One Time Code'
+      <br />
+      <confirm-button
+        ref=${confirm}
+        disabled
+        label="Send One Time Code"
         onconfirm=${() => {
-            done(email.current.value)
-            modal.current.controls.close()
-          }}></confirm-button>
+          done(email.current.value)
+          modal.current.controls.close()
+        }}
+      ></confirm-button>
     </glass-modal>
   `
 })

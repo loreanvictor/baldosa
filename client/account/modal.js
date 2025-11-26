@@ -17,8 +17,6 @@ import { modal as settings } from './settings/modal.js'
 import { modal as terms } from './terms.js'
 import { modal as about } from './about.js'
 
-
-
 export const modal = singleton('account-modal', () => {
   init()
 
@@ -64,59 +62,60 @@ export const modal = singleton('account-modal', () => {
       }
     </style>
     <glass-modal ref=${modal} aside>
-      <span slot='title'>Account</span>
-      <div ref=${userinfo} class='userinfo'>
-        <p></p><small></small>
+      <span slot="title">Account</span>
+      <div ref=${userinfo} class="userinfo">
+        <p></p>
+        <small></small>
       </div>
       <action-list ref=${loggedin} island>
         <secondary-button row onclick=${() => wallet().controls.open()}>
-          <i-con src='coin' dark thick slot='icon'></i-con>
+          <i-con src="coin" dark thick slot="icon"></i-con>
           Wallet
         </secondary-button>
         <secondary-button row onclick=${() => bids().controls.open()}>
-          <i-con src='bid' dark thick slot='icon'></i-con>
+          <i-con src="bid" dark thick slot="icon"></i-con>
           Bids
         </secondary-button>
         <secondary-button row onclick=${() => tiles().controls.open()}>
-          <i-con src='four-squares' dark thick slot='icon'></i-con>
+          <i-con src="four-squares" dark thick slot="icon"></i-con>
           Tiles
         </secondary-button>
         <secondary-button row onclick=${() => settings().controls.open()}>
-          <i-con src='gear' dark thick slot='icon'></i-con>
+          <i-con src="gear" dark thick slot="icon"></i-con>
           Settings
         </secondary-button>
         <secondary-button row onclick=${() => logout()}>
-          <i-con src='circle-arrow' dark thick slot='icon'></i-con>
+          <i-con src="circle-arrow" dark thick slot="icon"></i-con>
           Logout
         </secondary-button>
       </action-list>
       <action-list ref=${loggedout} island>
         <primary-button row onclick=${() => login()}>
-          <i-con src='key' dark thick slot='icon'></i-con>
+          <i-con src="key" dark thick slot="icon"></i-con>
           Login
         </primary-button>
+        <secondary-button row onclick=${() => emaillogin()}>
+          <i-con src="envelop" dark thick slot="icon"></i-con>
+          Login with Email
+        </secondary-button>
         <secondary-button row onclick=${() => register()}>
-          <i-con src='person-plus' dark thick slot='icon'></i-con>
+          <i-con src="person-plus" dark thick slot="icon"></i-con>
           Create New Account
         </secondary-button>
-        <secondary-button row onclick=${() => emaillogin()}>
-          <i-con src='envelop' dark thick slot='icon'></i-con>
-          Sign in with Email
-        </secondary-button>
       </action-list>
-      <br/>
+      <br />
       <action-list island>
         <secondary-button row faded onclick=${() => about().controls.open()}>
-          <i-con src='baldosa' dark fill slot='icon'></i-con>
+          <i-con src="baldosa" dark fill slot="icon"></i-con>
           About Baldosa
         </secondary-button>
         <secondary-button row faded onclick=${() => terms().controls.open()}>
-          <i-con src='scroll' dark thick slot='icon'></i-con>
+          <i-con src="scroll" dark thick slot="icon"></i-con>
           Terms and Conditions
         </secondary-button>
       </action-list>
-      <br/>
-      <small style='text-align: right; opacity: .35; display: block'>
+      <br />
+      <small style="text-align: right; opacity: .35; display: block">
         © 2024 - 2025 Baldosa. All rights reserved.
       </small>
     </glass-modal>
