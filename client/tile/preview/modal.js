@@ -1,24 +1,24 @@
-import { define, onProperty, onAttribute } from "minicomp"
-import { ref, html } from "rehtm"
+import { define, onProperty, onAttribute } from 'minicomp'
+import { ref, html } from 'rehtm'
 
-import { modal as uc } from "../../util/under-construction.js"
-import { onBroadcast } from "../../util/broadcast.js"
-import "../../util/show-only.js"
-import "../../design/overlays/modal/component.js"
-import "../../design/overlays/toast/component.js"
-import "../../design/buttons/button/components.js"
-import "../../design/buttons/copy-button.js"
-import "../../design/display/icon/component.js"
-import "../../design/display/mark-down/component.js"
-import "../../bookmark/button.js"
-import { isOwned } from "../../account/tiles/index.js"
+import { modal as uc } from '../../util/under-construction.js'
+import { onBroadcast } from '../../util/broadcast.js'
+import '../../util/show-only.js'
+import '../../design/overlays/modal/component.js'
+import '../../design/overlays/toast/component.js'
+import '../../design/buttons/button/components.js'
+import '../../design/buttons/copy-button.js'
+import '../../design/display/icon/component.js'
+import '../../design/display/mark-down/component.js'
+import '../../bookmark/button.js'
+import { isOwned } from '../../account/tiles/index.js'
 
-import { tilelink } from "../util/tile-link.js"
-import "../bid/button.js"
+import { tilelink } from '../util/tile-link.js'
+import '../bid/button.js'
 
-import "./unpublish.js"
+import './unpublish.js'
 
-define("tile-preview", () => {
+define('tile-preview', () => {
   const mask = ref()
   const baseURL = ref()
 
@@ -41,41 +41,41 @@ define("tile-preview", () => {
   const report = ref()
   const unpublish = ref()
 
-  onAttribute("base-url", (url) => (baseURL.current = url))
-  onProperty("mask", (m) => (mask.current = m))
-  onProperty("tile", (t) => {
+  onAttribute('base-url', (url) => (baseURL.current = url))
+  onProperty('mask', (m) => (mask.current = m))
+  onProperty('tile', (t) => {
     tile = t
-    bid.current.setProperty("tile", t)
-    bookmark.current.setProperty("tile", t)
-    link.current.setAttribute("content", t?.meta?.link ?? "")
-    tlink.current.setAttribute("content", tilelink(t))
+    bid.current.setProperty('tile', t)
+    bookmark.current.setProperty('tile', t)
+    link.current.setAttribute('content', t?.meta?.link ?? '')
+    tlink.current.setAttribute('content', tilelink(t))
 
     if (t?.meta && mask.current?.has(t.x, t.y)) {
-      article.current.classList.toggle("empty", !t.meta.title && !t.meta.subtitle)
+      article.current.classList.toggle('empty', !t.meta.title && !t.meta.subtitle)
       // TODO: this should come from config maybe?
       //       or for this component, passed from the caller?
       t.img = `${baseURL.current}/tile-${t.x}-${t.y}.jpg`
-      title.current.textContent = t.meta?.title ?? ""
-      title.current.style = t.meta?.title ? "" : "display: none"
+      title.current.textContent = t.meta?.title ?? ''
+      title.current.style = t.meta?.title ? '' : 'display: none'
       img.current.src = tile.img
-      deets.current.setAttribute("when", t.meta?.subtitle || t.meta?.description)
-      subtitle.current.textContent = t.meta?.subtitle ?? ""
-      description.current.setAttribute("content", t.meta?.description ?? "")
+      deets.current.setAttribute('when', t.meta?.subtitle || t.meta?.description)
+      subtitle.current.textContent = t.meta?.subtitle ?? ''
+      description.current.setAttribute('content', t.meta?.description ?? '')
       pos.current.textContent = `tile position: ${t.x}, ${t.y}`
-      prim.current.setAttribute("when", t?.meta?.link)
-      bid.current.style.display = t?.meta?.details?.bid === false ? "none" : ""
+      prim.current.setAttribute('when', t?.meta?.link)
+      bid.current.style.display = t?.meta?.details?.bid === false ? 'none' : ''
 
       modal.current.controls.open()
 
       isOwned(t.x, t.y).then((owned) => {
-        unpublish.current.style.display = owned ? "" : "none"
-        unpublish.current.setProperty("tile", t)
-        report.current.style.display = owned ? "none" : ""
+        unpublish.current.style.display = owned ? '' : 'none'
+        unpublish.current.setProperty('tile', t)
+        report.current.style.display = owned ? 'none' : ''
       })
     }
   })
 
-  onBroadcast("bid:submitted", () => opts.current.controls.close())
+  onBroadcast('bid:submitted', () => opts.current.controls.close())
 
   return html`
     <link rel="stylesheet" href="./client/tile/preview/styles.css" />
@@ -92,7 +92,7 @@ define("tile-preview", () => {
       </article>
       <div role="group">
         <secondary-button
-          onclick=${(e) => opts.current.controls.open({ anchor: e.target.closest("secondary-button") })}
+          onclick=${(e) => opts.current.controls.open({ anchor: e.target.closest('secondary-button') })}
         >
           <i-con src="ellipsis" dark thick slot="icon"></i-con>
         </secondary-button>

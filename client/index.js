@@ -3,12 +3,11 @@ import './nav/index.js'
 import { setDevMode, isDevMode, loadDevEnv } from './util/dev-mode.js'
 import { configure } from './config.js'
 
-
 const DEFAULT_BASE_URL = 'https://dp5ho7dvg88z2.cloudfront.net'
 const grid = document.querySelector('controlled-grid')
 
 if (isDevMode()) {
-  loadDevEnv().then(config => {
+  loadDevEnv().then((config) => {
     configure(config)
     const envBaseURL = config['S3_PUBLISH_URL_BASE']
     const envBucket = config['S3_PUBLISH_BUCKET']
@@ -21,11 +20,14 @@ if (isDevMode()) {
     const baseURL = envBaseURL ?? envBucketURL ?? DEFAULT_BASE_URL
     grid.setAttribute('base-url', baseURL)
     configure({
-      'GRID_BASE_URL': baseURL,
+      GRID_BASE_URL: baseURL,
     })
   })
 } else {
   grid.setAttribute('base-url', DEFAULT_BASE_URL)
+  configure({
+    GRID_BASE_URL: DEFAULT_BASE_URL,
+  })
 }
 
 window.setDevMode = setDevMode
