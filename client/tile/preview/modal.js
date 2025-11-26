@@ -51,7 +51,7 @@ define('tile-preview', () => {
     tlink.current.setAttribute('content', tilelink(t))
 
     if (t?.meta && mask.current?.has(t.x, t.y)) {
-      article.current.classList.toggle('empty', !t.meta.title && !t.meta.subtitle)
+      article.current.classList.toggle('empty', !t.meta.title && !t.meta.subtitle && !t.meta.description)
       // TODO: this should come from config maybe?
       //       or for this component, passed from the caller?
       t.img = `${baseURL.current}/tile-${t.x}-${t.y}.jpg`
