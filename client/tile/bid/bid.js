@@ -11,7 +11,6 @@ import '../../design/display/icon/component.js'
 
 import { loadBid, updateBid } from './draft.js'
 
-
 // FIXME: there is a bug where after submitting one bid, the form
 //        clears but adding new content to it doesn't make it valid
 //        so no submission can be made. the bug is possibly not
@@ -31,8 +30,8 @@ export const modal = singleton('bid-modal', () => {
   let tile
   let content
   let info
-  let amount = 32
-  let balance = 106
+  let amount = 1
+  let balance = 32
   let min = 1
 
   let isOpen = false
@@ -43,10 +42,13 @@ export const modal = singleton('bid-modal', () => {
     updateBid(tile, amount)
   }
 
-  const updateAuctionTime = info => {
+  const updateAuctionTime = (info) => {
     if (info.next_auction) {
       auctiontime.current?.setAttribute('value', eta(info.next_auction))
-      isOpen && setTimeout(() => { updateAuctionTime(info)}, 60_000) // Update every minute
+      isOpen &&
+        setTimeout(() => {
+          updateAuctionTime(info)
+        }, 60_000) // Update every minute
     } else {
       auctiontime.current?.setAttribute('value', 'soon')
     }
@@ -76,12 +78,12 @@ export const modal = singleton('bid-modal', () => {
     },
   })
 
-  const incr = fast => {
+  const incr = (fast) => {
     amount = Math.min(balance, amount + (fast ? 4 : 1))
     updateAmount()
   }
 
-  const decr = fast => {
+  const decr = (fast) => {
     amount = Math.max(min, amount - (fast ? 4 : 1))
     updateAmount()
   }
@@ -92,7 +94,7 @@ export const modal = singleton('bid-modal', () => {
         display: flex;
         user-select: none;
         -webkit-user-select: none;
-        gap: .5ex;
+        gap: 0.5ex;
         --btn-top-left-rad: 0;
         --btn-top-right-rad: 0;
         --btn-bot-left-rad: 0;
@@ -119,33 +121,29 @@ export const modal = singleton('bid-modal', () => {
       <key-vals>
         <key-val ref=${bid} primary>
           Bid
-          <i-con src='coin' dark fill slot='icon'></i-con>
+          <i-con src="coin" dark fill slot="icon"></i-con>
         </key-val>
-        <key-val ref=${coords}>
-          On Tile
-        </key-val>
-        <key-val value=${"in 17 hours"} ref=${auctiontime}>
-          Auction Time
-        </key-val>
+        <key-val ref=${coords}> On Tile </key-val>
+        <key-val value=${'in 17 hours'} ref=${auctiontime}> Auction Time </key-val>
         <key-val ref=${remaining}>
           Remaining Balance
-          <i-con src='coin' dark fill slot='icon'></i-con>
+          <i-con src="coin" dark fill slot="icon"></i-con>
         </key-val>
         <key-val value=${30} ref=${lastbid}>
           Last Winning Bid
-          <i-con src='coin' dark fill slot='icon'></i-con>
+          <i-con src="coin" dark fill slot="icon"></i-con>
         </key-val>
       </key-vals>
-      <br/><br/>
-      <div role='group'>
-        <secondary-button key='ArrowDown' onpress=${e => decr(e.detail?.deep)}>
-          <i-con src='arrow-down' thick dark></i-con>
+      <br /><br />
+      <div role="group">
+        <secondary-button key="ArrowDown" onpress=${(e) => decr(e.detail?.deep)}>
+          <i-con src="arrow-down" thick dark></i-con>
         </secondary-button>
-        <secondary-button key='ArrowUp' onpress=${e => incr(e.detail?.deep)}>
-          <i-con src='arrow-up' thick dark></i-con>
+        <secondary-button key="ArrowUp" onpress=${(e) => incr(e.detail?.deep)}>
+          <i-con src="arrow-up" thick dark></i-con>
         </secondary-button>
       </div>
-      <br/>
+      <br />
       <confirm-button label="Place Bid" onconfirm=${() => submit({ tile, amount, content, info })}></confirm-button>
     </glass-modal>
   `
