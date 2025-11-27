@@ -7,7 +7,6 @@ import '../../design/overlays/modal/component.js'
 import '../../design/buttons/button/components.js'
 import '../../design/display/textual.js'
 
-
 const modal = singleton('bid-help-modal', () => {
   const modal = ref()
 
@@ -27,7 +26,7 @@ const modal = singleton('bid-help-modal', () => {
         width: 3ch;
         height: 3ch;
         border-radius: 50%;
-        margin: .5ch;
+        margin: 0.5ch;
       }
 
       img {
@@ -37,21 +36,21 @@ const modal = singleton('bid-help-modal', () => {
       }
     </style>
     <glass-modal ref=${modal}>
-      <img src='./client/assets/bidding-guide.svg'/>
+      <img src="./client/assets/bidding-guide.svg" />
       <h2>Bidding on a Tile</h2>
       <small-hint>
-        You can post your own content to each tile by bidding on it, using your coins. You can
-        also bid for tiles that already have content, to have your content be displayed next.
-        <br/><br/>
+        You can post your own content to each tile by bidding on it, using your coins. You can also bid for tiles that
+        already have content, to have your content be displayed next.
+        <br /><br />
         <span>1</span> Choose the content you want published,
-        <br/>
+        <br />
         <span>2</span> Use coins to bid on the tile,
-        <br/>
-        <span>3</span> If you win, your content is displayed for a day.
-        <br/>
+        <br />
+        <span>3</span> If you win, your content is displayed for at least a day.
+        <br />
         <span>4</span> If you don't win, your bid remains for the next auction.
       </small-hint>
-      <br/>
+      <br />
       <primary-button onclick=${() => modal.current?.controls.close()}>Got it</primary-button>
     </glass-modal>
   `
