@@ -13,7 +13,6 @@ import '../../design/display/textual.js'
 
 import * as service from './index.js'
 
-
 define('offer-list', () => {
   const list = ref()
   const opts = ref()
@@ -30,7 +29,7 @@ define('offer-list', () => {
     opts.current.controls.open({ anchor: element })
   }
 
-  const details = offer => {
+  const details = (offer) => {
     selected = offer
     deets.current.querySelector('h1 span').textContent = `${offer.meta.total}`
     deets.current.querySelector('p label[name=sender]').textContent =
@@ -40,7 +39,7 @@ define('offer-list', () => {
     deets.current.controls.open()
   }
 
-  const accept = async offer => {
+  const accept = async (offer) => {
     await service.accept(offer)
     deets.current.controls.close()
     list.current.controls.collapse(offer.id)
@@ -50,7 +49,7 @@ define('offer-list', () => {
   return html`
     <style>
       swipe-card {
-        [slot=image] {
+        [slot='image'] {
           --color: var(--blue-fg, blue);
         }
 
@@ -59,28 +58,35 @@ define('offer-list', () => {
             font-size: 1.5rem;
             i-con {
               width: 26px;
-              opacity: .35;
+              opacity: 0.35;
               margin-left: -6px;
               vertical-align: -2px;
             }
           }
           margin: 0;
           small {
-            opacity: .35;
+            opacity: 0.35;
           }
         }
 
-        [slot=left], [slot=right] {
+        [slot='left'],
+        [slot='right'] {
           display: flex;
           align-items: center;
-          i-con { width: 32px; }
+          i-con {
+            width: 32px;
+          }
         }
-        [slot=right] {
+        [slot='right'] {
           color: var(--blue-fg, blue);
           --color: var(--blue-fg, blue);
         }
-        [slot=left] i-con { margin-left: 1ch }
-        [slot=right] i-con {margin-right: 1ch }
+        [slot='left'] i-con {
+          margin-left: 1ch;
+        }
+        [slot='right'] i-con {
+          margin-right: 1ch;
+        }
       }
 
       .details {
@@ -90,23 +96,25 @@ define('offer-list', () => {
             font-size: 3rem;
           }
           i-con {
-            vertical-align: -.25rem;
-            opacity: .35;
+            vertical-align: -0.25rem;
+            opacity: 0.35;
           }
         }
         p {
           margin: 0;
         }
-        [name=note] {
-          opacity: .75;
+        [name='note'] {
+          opacity: 0.75;
         }
         small {
-            opacity: .35;
+          opacity: 0.35;
         }
       }
     </style>
-    <keyed-list ref=${list} each=${offer => {
-      return html`
+    <keyed-list
+      ref=${list}
+      each=${(offer) => {
+        return html`
         <swipe-card key=${offer.id} right="slide"
           onswiperight=${() => accept(offer)}
           onswipeleft=${() => details(offer)}>
@@ -115,7 +123,7 @@ define('offer-list', () => {
           </div>
           <p>
             <label>${offer.meta.total} <i-con src='coin' dark fill></i-con></label><br/>
-            <small>from ${trim(offer.sender || offer.sender_sys)}</small>
+            <small>from ${midtrim(offer.sender || offer.sender_sys, 10, 6)}</small>
           </p>
           <div slot='actions'>
             <secondary-button onclick=${(event) => select(offer, event.target.closest('secondary-button'))}>
@@ -126,40 +134,37 @@ define('offer-list', () => {
           <div slot='right'><i-con src='arrow-right-join' dark thick></i-con> Accept Offer</div>
         </swipe-card>
       `
-    }}>
+      }}
+    >
     </keyed-list>
     <glass-modal ref=${opts} noheader>
       <action-list>
         <secondary-button onclick=${() => accept(selected)} row>
           Accept Offer
-          <i-con src='arrow-right-join' dark thick slot='icon'></i-con>
+          <i-con src="arrow-right-join" dark thick slot="icon"></i-con>
         </secondary-button>
         <secondary-button onclick=${() => details(selected)} row>
           View Details
-          <i-con src='receipt' dark thick slot='icon'></i-con>
+          <i-con src="receipt" dark thick slot="icon"></i-con>
         </secondary-button>
-        <secondary-button onclick=${() => opts.current.controls.close()} row faded>
-          Cancel
-        </secondary-button>
+        <secondary-button onclick=${() => opts.current.controls.close()} row faded> Cancel </secondary-button>
       </action-list>
     </glass-modal>
-    <glass-modal ref=${deets} class='details' noheader>
-      <div style='overflow: hidden'>
-        <h1><span></span><i-con src='coin' dark fill></i-con></h1>
+    <glass-modal ref=${deets} class="details" noheader>
+      <div style="overflow: hidden">
+        <h1><span></span><i-con src="coin" dark fill></i-con></h1>
         <p>
-          <label name='sender'></label><br/>
-          <label name='note'></label><br/>
+          <label name="sender"></label><br />
+          <label name="note"></label><br />
           <small></small>
         </p>
         <h-r></h-r>
         <primary-button onclick=${() => accept(selected)}>
           Accept Offer
-          <i-con src='arrow-right-join' thick slot='icon'></i-con>
+          <i-con src="arrow-right-join" thick slot="icon"></i-con>
         </primary-button>
       </div>
     </glass-modal>
-    <glass-toast ref=${toast}>
-      Offer successfully accepted!
-    </glass-toast>
+    <glass-toast ref=${toast}> Offer successfully accepted! </glass-toast>
   `
 })
