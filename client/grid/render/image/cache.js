@@ -2,7 +2,6 @@ import { IMG_SIZES } from './constants.js'
 import { fetchImage } from './fetch.js'
 import { createTopic } from '../../../util/topic.js'
 
-
 // TODO: use Quick-LRU here instead of manually implementing
 //       a cache mechanism. the performance should be analysed of course,
 //       perhaps its better to first test on demo/picsum-infinite branch.
@@ -19,10 +18,10 @@ export const createImageCache = (size, ttl = 10_000) => {
     cache.set(key, record)
     load(record, 'i', iurl)
   }
-  const find = key => touch(cache.get(key))
-  const get = (record, size) => (size && isLoaded(record, size)) ? record[size] :
-    (record.i === 'loading' ? undefined : record.i)
-  const touch = record => record ? (record.t = Date.now(), record) : record
+  const find = (key) => touch(cache.get(key))
+  const get = (record, size) =>
+    size && isLoaded(record, size) ? record[size] : record.i === 'loading' ? undefined : record.i
+  const touch = (record) => (record ? ((record.t = Date.now()), record) : record)
   const isLoaded = (record, size) => record[size] && record[size] !== 'loading'
   const isLoading = (record, size) => record[size] === 'loading'
   const load = (record, size, url, reload) => {
@@ -48,13 +47,14 @@ export const createImageCache = (size, ttl = 10_000) => {
       }, 1)
     }
   }
-  const clear = (record) => Object.keys(IMG_SIZES).forEach(size => {
-    if (record[size] && record[size] !== 'loading') {
-      record[size].close()
-    }
-  })
+  const clear = (record) =>
+    Object.keys(IMG_SIZES).forEach((size) => {
+      if (record[size] && record[size] !== 'loading') {
+        record[size].close()
+      }
+    })
 
-  const _cleanEntry = entry => {
+  const _cleanEntry = (entry) => {
     setTimeout(() => {
       clear(entry[1])
       cache.delete(entry[0])
@@ -68,39 +68,49 @@ export const createImageCache = (size, ttl = 10_000) => {
       target.forEach(_cleanEntry)
     } else {
       const now = Date.now()
-      ;[...cache.entries()]
-        .filter(i => now - i[1].t > ttl)
-        .forEach(_cleanEntry)
+      ;[...cache.entries()].filter((i) => now - i[1].t > ttl).forEach(_cleanEntry)
     }
   }, 200)
 
   const dispose = () => {
     clearInterval(cleaner)
-    cache.entries.forEach(entry => {
+    cache.entries.forEach((entry) => {
       clear(entry[1])
       cache.delete(entry[0])
     })
     cache.clear()
   }
 
-  const limit = s => size = s
+  const limit = (s) => (size = s)
 
   const patch = (key, meta, urlmap) => {
     const record = find(key)
     if (record) {
       record.meta ??= {}
-      record.meta.title ??= meta.title
-      record.meta.subtitle ??= meta.subtitle
-      record.meta.description ??= meta.description
-      record.meta.link ??= meta.link
-      record.meta.details ??= meta.details
+      record.meta.title = meta.title ?? ' '
+      record.meta.subtitle = meta.subtitle ?? ''
+      record.meta.description = meta.description ?? ''
+      record.meta.link = meta.link ?? ''
+      record.meta.details = meta.details ?? {}
 
-      Object.keys(IMG_SIZES).forEach(size => {
-        if (record[size] && record[size] !== 'loading') {
-          record[size].close()
-          load(record, size, urlmap(size), true)
-        }
-      })
+      if (meta.localimg) {
+        createImageBitmap(meta.localimg)
+          .then((bitmap) => {
+            Object.keys(IMG_SIZES).forEach((size) => {
+              record[size].close()
+              record[size] = bitmap
+              notify(record.key, size)
+            })
+          })
+          .catch(() => {})
+      } else {
+        Object.keys(IMG_SIZES).forEach((size) => {
+          if (record[size] && record[size] !== 'loading') {
+            record[size].close()
+            load(record, size, urlmap(size), true)
+          }
+        })
+      }
     }
   }
 

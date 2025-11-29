@@ -1,6 +1,5 @@
 import { fillSquareWithImage } from './image/util.js'
 
-
 const SPACING = 0.025
 const RADIUS = 0.05
 
@@ -15,15 +14,14 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
   const cx = actX + size / 2
   const cy = actY + size / 2
 
-  const active = actX < mouse.x && mouse.x < actX + size &&
-                  actY < mouse.y && mouse.y < actY + size
+  const active = actX < mouse.x && mouse.x < actX + size && actY < mouse.y && mouse.y < actY + size
   const hover = mouse.supportsHover && active
-  const hoverK = (1 - Math.min(
-    Math.sqrt(2 *
-      (cx - mouse.x) * (cx - mouse.x) +
-      (cy - mouse.y) * (cy - mouse.y)
-    ) / ((zoomedOut ? 2 : 1) * size), 1
-  ))
+  const hoverK =
+    1 -
+    Math.min(
+      Math.sqrt(2 * (cx - mouse.x) * (cx - mouse.x) + (cy - mouse.y) * (cy - mouse.y)) / ((zoomedOut ? 2 : 1) * size),
+      1,
+    )
 
   const rx = actX
   const ry = mouse.supportsHover ? actY - hoverK * (zoomedOut ? 8 : 4) : actY
@@ -40,7 +38,8 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
   ctx.textAlign = 'right'
   ctx.textBaseline = 'middle'
   ctx.fillStyle = '#616161'
-  ctx.fillText(`${tile.x},${tile.y}`,
+  ctx.fillText(
+    `${tile.x},${tile.y}`,
     rx + size - (SPACING + RADIUS) * camera.zoom,
     ry + size - (SPACING + RADIUS) * camera.zoom,
   )
@@ -52,14 +51,11 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
     ctx.fillRect(rx, ry, size, size)
     const img = gallery?.get(tile.x, tile.y, camera.zoom / Math.max(1, camera.v * 64))
     if (img && img.bitmap) {
-      const [dx, dy, dw, dh] = fillSquareWithImage(
-        img.bitmap, rx, ry, size
-      )
+      const [dx, dy, dw, dh] = fillSquareWithImage(img.bitmap, rx, ry, size)
       try {
         ctx.drawImage(img.bitmap, dx, dy, dw, dh)
       } catch (err) {
-        console.log(img)
-        throw err
+        // Silent error
       }
 
       if (img.meta) {
@@ -71,9 +67,9 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
           ctx.fillStyle = gradient
           ctx.fillRect(rx, ry, size, size)
         }
-    
+
         if (img.meta.title) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (camera.v * 64)))})`
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.5 + 0.5 / Math.max(1, camera.v * 64))})`
           ctx.font = `bold ${camera.zoom / 12}px "Open Sans"`
           ctx.textAlign = 'left'
           ctx.fillText(
@@ -82,28 +78,26 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
             img.meta.subtitle ? ry + size - (SPACING * 4 + 0.1) * camera.zoom : ry + size - SPACING * 2 * camera.zoom,
           )
         }
-        
+
         if (img.meta.subtitle) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, .5 + .5 / Math.max(1, (camera.v * 64)))})`
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.5 + 0.5 / Math.max(1, camera.v * 64))})`
           ctx.font = `${camera.zoom / 16}px "Open Sans"`
           ctx.textAlign = 'left'
 
           const MAX_TEXT_LENGTH = 28
-          const truncated = img.meta.subtitle.length > MAX_TEXT_LENGTH ?
-            img.meta.subtitle.slice(0, MAX_TEXT_LENGTH - 3) + '…' : img.meta.subtitle
- 
-          ctx.fillText(
-            truncated,
-            rx + SPACING * 2 * camera.zoom,
-            ry + size - SPACING * 4 * camera.zoom,
-          )
+          const truncated =
+            img.meta.subtitle.length > MAX_TEXT_LENGTH
+              ? img.meta.subtitle.slice(0, MAX_TEXT_LENGTH - 3) + '…'
+              : img.meta.subtitle
+
+          ctx.fillText(truncated, rx + SPACING * 2 * camera.zoom, ry + size - SPACING * 4 * camera.zoom)
         }
       }
     }
   }
 
   if (hover) {
-    ctx.fillStyle = `rgba(255, 255, 255, ${hoverK * (zoomedOut ? .5 : .25) })`
+    ctx.fillStyle = `rgba(255, 255, 255, ${hoverK * (zoomedOut ? 0.5 : 0.25)})`
     ctx.globalCompositeOperation = 'overlay'
     ctx.rect(rx, ry, size, size)
     ctx.fill()
@@ -112,6 +106,6 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
   if (active) {
     mouse.onHover({ ...tile, meta })
   }
-  
+
   ctx.restore()
 }

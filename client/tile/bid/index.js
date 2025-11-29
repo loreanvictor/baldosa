@@ -9,19 +9,17 @@ import { modal as bidmodal } from './bid.js'
 import { modal as successmodal } from './success.js'
 import { showHelpIfNeeded } from './help.js'
 
-
 export const bidOn = async (tile) => {
   contentmodal().controls.open(tile)
   setTimeout(() => showHelpIfNeeded(), 500)
   attachListeners()
 }
 
-
 const payIfNeeded = async (tile, amount) => {
   const txhistory = await history()
   const receiver = `tile:${tile.x}:${tile.y}`
 
-  const candidate = txhistory.find(tx => tx.receiver_sys === receiver && tx.consumed_value === amount && !tx.consumed)
+  const candidate = txhistory.find((tx) => tx.receiver_sys === receiver && tx.consumed_value === amount && !tx.consumed)
 
   // TODO: check if the candidate transaction is not already
   //       earmarked by a bid. generally speaking, if the user
@@ -42,10 +40,7 @@ const attachListeners = () => {
 
   contentmodal().addEventListener('submit', async ({ detail }) => {
     const { content, tile } = detail
-    const [b, i] = await Promise.all([
-      balance(),
-      info(tile),
-    ])
+    const [b, i] = await Promise.all([balance(), info(tile)])
     bidmodal().controls.open(tile, b, i, content)
   })
 
@@ -59,9 +54,8 @@ const attachListeners = () => {
     const { upload_url, upload_fields } = await init(tile, tx)
 
     waitoverlay().controls.show('Uploading Image ...')
-    const uploaded = await upload(
-      upload_url, upload_fields, content.image,
-      p => waitoverlay().controls.show(`Uploading Image ... ${Math.round(p)}%`)
+    const uploaded = await upload(upload_url, upload_fields, content.image, (p) =>
+      waitoverlay().controls.show(`Uploading Image ... ${Math.round(p)}%`),
     )
 
     waitoverlay().controls.show('Placing Bid ...')
@@ -76,10 +70,11 @@ const attachListeners = () => {
       bid.next_auction = info.next_auction
     }
 
-    broadcast('bid:submitted', bid)
+    const local = { ...bid, content: { ...bid.content, localimg: content.image } }
+    broadcast('bid:submitted', local)
 
     if (bid.published_at) {
-      broadcast('tile:published', bid)
+      broadcast('tile:published', local)
     }
 
     successmodal().controls.open(bid)
