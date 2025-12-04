@@ -2,6 +2,7 @@ use axum::{
   extract::{Extension, Json, Query},
   response::IntoResponse,
 };
+use log::error;
 use serde::Deserialize;
 
 use super::super::book::Book;
@@ -37,7 +38,10 @@ pub async fn pending_bids(
   let mut pending = book
     .get_user_pending_bids(&user, offset.unwrap_or(0), limit.unwrap_or(32))
     .await
-    .map_err(|_| BiddingError::Unknown)?;
+    .map_err(|err| {
+      error!("Can't retrieve user's pending bids {err}");
+      BiddingError::Unknown
+    })?;
 
   for p in &mut pending {
     p.populate_next_auction(&config);

@@ -1,6 +1,7 @@
+use anyhow::Context;
 use sqlx::types::Uuid;
 
-use super::bid::{ Bid, BidContent, PendingBid };
+use super::bid::{Bid, BidContent, PendingBid};
 use super::core::Book;
 use crate::auth::AuthenticatedUser;
 
@@ -10,7 +11,7 @@ impl Book {
     user: &AuthenticatedUser,
     offset: u32,
     limit: u32,
-  ) -> Result<Vec<Bid>, sqlx::Error> {
+  ) -> Result<Vec<Bid>, anyhow::Error> {
     sqlx::query_as!(
       Bid,
       "
@@ -26,6 +27,7 @@ impl Book {
     )
     .fetch_all(&self.pool)
     .await
+    .context("Failed to fetch published bids for user")
   }
 
   pub async fn get_user_pending_bids(
@@ -33,7 +35,7 @@ impl Book {
     user: &AuthenticatedUser,
     offset: u32,
     limit: u32,
-  ) -> Result<Vec<PendingBid>, sqlx::Error> {
+  ) -> Result<Vec<PendingBid>, anyhow::Error> {
     let rows = sqlx::query!(
       r#"
         select
@@ -50,35 +52,41 @@ impl Book {
       i64::from(offset)
     )
     .fetch_all(&self.pool)
-    .await?;
+    .await
+    .context("Failed to fetch user pending bids.")?;
 
-    Ok(rows.iter().map(|row| PendingBid {
-      bid: Bid {
-        id: row.id,
-        x: row.x,
-        y: row.y,
-        bidder: row.bidder,
-        amount: row.amount,
-        tx: row.tx,
-        created_at: row.created_at,
-        content: BidContent::from(row.content.clone()),
-        published_at: None,
-        rejection: None
-      },
-      occupant: row.o_id.map(|id| Bid {
-        id,
-        x: row.x,
-        y: row.y,
-        bidder: row.o_bidder,
-        amount: row.o_amount,
-        tx: row.tx,
-        created_at: row.o_created_at,
-        content: BidContent::from(row.o_content.clone()),
-        published_at: row.o_published_at,
-        rejection: None
-      }),
-      next_auction: None,
-    }).collect())
+    Ok(
+      rows
+        .iter()
+        .map(|row| PendingBid {
+          bid: Bid {
+            id: row.id,
+            x: row.x,
+            y: row.y,
+            bidder: row.bidder,
+            amount: row.amount,
+            tx: row.tx,
+            created_at: row.created_at,
+            content: BidContent::from(row.content.clone()),
+            published_at: None,
+            rejection: None,
+          },
+          occupant: row.o_id.map(|id| Bid {
+            id,
+            x: row.x,
+            y: row.y,
+            bidder: row.o_bidder,
+            amount: row.o_amount,
+            tx: row.tx,
+            created_at: row.o_created_at,
+            content: BidContent::from(row.o_content.clone()),
+            published_at: row.o_published_at,
+            rejection: None,
+          }),
+          next_auction: None,
+        })
+        .collect(),
+    )
   }
 
   pub async fn get_all_user_bids(
@@ -86,7 +94,7 @@ impl Book {
     user: &AuthenticatedUser,
     offset: u32,
     limit: u32,
-  ) -> Result<Vec<Bid>, sqlx::Error> {
+  ) -> Result<Vec<Bid>, anyhow::Error> {
     sqlx::query_as!(
       Bid,
       "select * from bids where bidder = $1 order by created_at desc limit $2 offset $3",
@@ -96,5 +104,6 @@ impl Book {
     )
     .fetch_all(&self.pool)
     .await
+    .context("Failed to fetch all bids for user")
   }
 }

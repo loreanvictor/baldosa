@@ -1,4 +1,5 @@
 import createError from 'https://esm.run/http-errors@2'
+import { decode as decodeBase64 } from 'https://esm.run/js-base64@3'
 
 const decodeDetails = (encoded) => {
   try {
@@ -6,11 +7,6 @@ const decodeDetails = (encoded) => {
   } catch (error) {
     return undefined
   }
-}
-
-const decodeBase64 = (str) => {
-  const bytes = Uint8Array.from(atob(str), (c) => c.charCodeAt(0))
-  return new TextDecoder().decode(bytes)
 }
 
 const decodeMIME = (str) => {
