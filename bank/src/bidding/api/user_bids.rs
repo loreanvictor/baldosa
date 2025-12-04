@@ -39,7 +39,7 @@ pub async fn pending_bids(
     .get_user_pending_bids(&user, offset.unwrap_or(0), limit.unwrap_or(32))
     .await
     .map_err(|err| {
-      error!("Can't retrieve user's pending bids {err}");
+      error!("Can't retrieve user's pending bids {:#}", err);
       BiddingError::Unknown
     })?;
 
