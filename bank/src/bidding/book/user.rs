@@ -40,7 +40,7 @@ impl Book {
       r#"
         select
           bids.id, bids.x, bids.y, bids.amount, bids.tx, bids.created_at, bids.content, bids.bidder,
-          ocb.id as "o_id? : Uuid", ocb.amount as o_amount, ocb.created_at as o_created_at, ocb.content as o_content, ocb.published_at as o_published_at, ocb.bidder as o_bidder from bids
+          ocb.id as "o_id?: Uuid", ocb.amount as o_amount, ocb.created_at as o_created_at, ocb.content as o_content, ocb.published_at as o_published_at, ocb.bidder as o_bidder from bids
         left join published_tiles on bids.x = published_tiles.x and bids.y = published_tiles.y
         left join bids ocb on published_tiles.occupant_bid = ocb.id
         where bids.bidder = $1 and bids.published_at is null and bids.rejection is null
