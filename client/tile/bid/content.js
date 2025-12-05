@@ -14,7 +14,6 @@ import '../../design/inputs/image/component.js'
 import { loadDraft, updateDraft } from './draft.js'
 import { showHelp } from './help.js'
 
-
 export const modal = singleton('bid-content-modal', () => {
   const submit = useDispatch('submit')
   const close = useDispatch('close')
@@ -63,7 +62,8 @@ export const modal = singleton('bid-content-modal', () => {
   })
 
   const check = () => {
-    const valid = image.current?.validity?.valid &&
+    const valid =
+      image.current?.validity?.valid &&
       title.current?.validity?.valid &&
       subtitle.current?.validity?.valid &&
       url.current?.validity?.valid &&
@@ -119,11 +119,11 @@ export const modal = singleton('bid-content-modal', () => {
   const manageSubmitBtn = () => {
     if (formScrolledToEnd()) {
       btnlabel.current.textContent = 'Bid on'
-      btnicon.current.style='transform: rotate(-90deg)'
+      btnicon.current.style = 'transform: rotate(-90deg)'
       coords.current.style.display = 'block'
     } else {
       btnlabel.current.textContent = 'Scroll Down'
-      btnicon.current.style=''
+      btnicon.current.style = ''
       coords.current.style.display = 'none'
     }
   }
@@ -137,7 +137,7 @@ export const modal = singleton('bid-content-modal', () => {
         scrollbar-width: none;
       }
 
-      [role=group] {
+      [role='group'] {
         display: flex;
         gap: 1ch;
         primary-button {
@@ -147,7 +147,7 @@ export const modal = singleton('bid-content-modal', () => {
 
       small {
         font-size: 0.8em;
-        opacity: .5;
+        opacity: 0.5;
         /* margin: 1ch 0; */
         margin-top: 2ch;
         margin-bottom: -1ch;
@@ -160,35 +160,58 @@ export const modal = singleton('bid-content-modal', () => {
       }
     </style>
     <glass-modal ref=${modal} onclose=${() => (untouch(), close())}>
-      <span slot='title'>Bid on Tile</span>
+      <span slot="title">Bid on Tile</span>
       <form ref=${form} onscroll=${manageSubmitBtn}>
         <small-hint onclick=${showHelp}>
-          Choose what you want published to this tile and place your bid.
-          If your win, your content is displayed for a day.
+          Choose what you want published to this tile and place your bid. If your win, your content is displayed for a
+          day.
         </small-hint>
         <image-input required ref=${image} oncheck=${check} oninput=${({ detail }) => input('image', detail)}>
-          <div slot='placeholder'>
-            <i-con src='image' dark fill style='width: 92px'></i-con><br/>
+          <div slot="placeholder">
+            <i-con src="image" dark fill style="width: 92px"></i-con><br />
             Pick the tile's image
           </div>
         </image-input>
-        <text-input label='Title' required ref=${title} oncheck=${check}
-          oninput=${({ detail }) => input('title', detail)}></text-input>
-        <text-input label='Subtitle' ref=${subtitle} oncheck=${check}
-          oninput=${({ detail }) => input('subtitle', detail)}>
-          <span slot='hint'>Displayed on the grid, under title</span>
+        <text-input
+          label="Title"
+          required
+          maxlength="100"
+          ref=${title}
+          oncheck=${check}
+          oninput=${({ detail }) => input('title', detail)}
+        ></text-input>
+        <text-input
+          label="Subtitle"
+          ref=${subtitle}
+          maxlength="200"
+          oncheck=${check}
+          oninput=${({ detail }) => input('subtitle', detail)}
+        >
+          <span slot="hint">Displayed on the grid, under title</span>
         </text-input>
-        <text-input label='URL' ref=${url} oncheck=${check} style='margin-top: -3ex'
-          oninput=${({ detail }) => input('url', detail)}></text-input>
-        <text-area label='Description' ref=${description} oncheck=${check}
-          oninput=${({ detail }) => input('description', detail)}>
-          <span slot='hint'>Supports markdown</span>
+        <text-input
+          label="URL"
+          maxlength="500"
+          type="url"
+          ref=${url}
+          oncheck=${check}
+          style="margin-top: -3ex"
+          oninput=${({ detail }) => input('url', detail)}
+        ></text-input>
+        <text-area
+          label="Description"
+          maxlength="900"
+          ref=${description}
+          oncheck=${check}
+          oninput=${({ detail }) => input('description', detail)}
+        >
+          <span slot="hint">Supports markdown</span>
         </text-area>
       </form>
       <primary-button ref=${btn} onclickdirty=${scrollOrSubmit}>
-        <span style='margin: 0 .5ex' ref=${btnlabel}>Scroll Down</span>
-        <span ref=${coords} style='display: none'></span>
-        <i-con src='arrow-down' light thick slot='icon' ref=${btnicon}></i-con>
+        <span style="margin: 0 .5ex" ref=${btnlabel}>Scroll Down</span>
+        <span ref=${coords} style="display: none"></span>
+        <i-con src="arrow-down" light thick slot="icon" ref=${btnicon}></i-con>
       </primary-button>
     </glass-modal>
   `
