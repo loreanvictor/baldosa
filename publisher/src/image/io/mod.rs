@@ -3,12 +3,13 @@ use std::env;
 use aws_sdk_s3::Client as S3Client;
 use url::Url;
 
+pub mod error;
 pub mod interface;
+pub mod meta;
 
 mod fs_jpeg;
 mod fs_png;
 mod s3_jpeg;
-mod util;
 
 #[allow(unused_imports)]
 pub use fs_jpeg::FsJpegInterface;

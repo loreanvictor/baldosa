@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use futures::future::join_all;
 use image::Pixel;
@@ -6,6 +6,7 @@ use serde::Serialize;
 use tokio::{sync::Mutex, task::spawn};
 
 use super::super::config::Config;
+use super::io::error::ImageIoError;
 use super::io::interface::ImageInterface;
 
 ///
@@ -27,7 +28,7 @@ pub async fn unpublish<P: Pixel + Send + Sync + 'static>(
   y: i32,
   io: Arc<dyn ImageInterface<Pixel = P>>,
   config: Arc<Config>,
-) -> Result<UnPublishResult, Box<dyn Error + Send + Sync>>
+) -> Result<UnPublishResult, ImageIoError>
 where
   P::Subpixel: Send + Sync,
 {

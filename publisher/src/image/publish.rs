@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use futures::future::try_join_all;
 use image::{
@@ -12,7 +12,10 @@ use tokio::{
 };
 
 use super::super::config::Config;
-use super::io::interface::{ImageInterface, Metadata};
+use super::error::ImageError;
+use super::io::error::ImageIoError;
+use super::io::interface::ImageInterface;
+use super::io::meta::Metadata;
 use super::util::crop_to_square;
 
 ///
@@ -53,7 +56,7 @@ pub async fn publish<P: Pixel + Send + Sync + 'static>(
   details: &Option<serde_json::Value>,
   io: Arc<dyn ImageInterface<Pixel = P>>,
   config: Arc<Config>,
-) -> Result<PublishResult<P>, Box<dyn Error + Send + Sync>>
+) -> Result<PublishResult<P>, ImageError>
 where
   P::Subpixel: Send + Sync + Serialize,
 {
@@ -108,13 +111,9 @@ where
         *color_shared.lock().await = Some(color);
       }
 
-      match io.save(&image, &meta, &target).await {
-        Ok(saved) => {
-          published.lock().await.insert(size, saved);
-          Ok(())
-        }
-        Err(e) => Err(e),
-      }
+      let saved = io.save(&image, &meta, &target).await?;
+      published.lock().await.insert(size, saved);
+      Ok::<(), ImageIoError>(())
     }));
   }
 
@@ -124,36 +123,28 @@ where
   let meta = Arc::clone(&meta);
   let published = Arc::clone(&published_shared);
   let original_handle = spawn(async move {
-    match io.save(&square, &meta, &target).await {
-      Ok(saved) => {
-        published.lock().await.insert(0, saved);
-        Ok(())
-      }
-      Err(e) => Err(e),
-    }
+    let saved = io.save(&square, &meta, &target).await?;
+    published.lock().await.insert(0, saved);
+    Ok::<(), ImageIoError>(())
   });
   handles.push(original_handle);
 
   // Wait for all tasks to complete
-  match try_join_all(handles).await {
-    Ok(res) => {
-      // Check for errors
-      for r in res {
-        r?;
-      }
-      // Prepare the result
-      let color = color_shared.lock().await;
-      let color = match &*color {
-        Some(color) => Some(vec![color.0[0], color.0[1], color.0[2]]),
-        None => None,
-      };
-      let published = published_shared.lock().await;
-
-      Ok(PublishResult {
-        color,
-        images: published.clone(),
-      })
-    }
-    Err(e) => Err(e.into()),
+  let res = try_join_all(handles).await.map_err(ImageError::from)?;
+  // Check for errors
+  for r in res {
+    r?;
   }
+  // Prepare the result
+  let color = color_shared.lock().await;
+  let color = match &*color {
+    Some(color) => Some(vec![color.0[0], color.0[1], color.0[2]]),
+    None => None,
+  };
+  let published = published_shared.lock().await;
+
+  Ok(PublishResult {
+    color,
+    images: published.clone(),
+  })
 }

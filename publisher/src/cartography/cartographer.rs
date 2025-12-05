@@ -11,6 +11,9 @@ use super::bitmask::{
 use super::schedule::Scheduler;
 use super::{Coords, Point, Storage};
 
+// FIXME: fix the error handling on this, we should
+//        NOT have Box<dyn Error>, but fully specified error types.
+
 ///
 /// A cartographer that schedules a bitmask generation task
 /// for each affected chunk of the map when a point is stored or deleted

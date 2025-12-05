@@ -1,9 +1,5 @@
-use std::{
-  io::{Error as IOError, ErrorKind},
-  sync::Arc,
-};
+use std::sync::Arc;
 
-use aws_sdk_s3::error::BuildError;
 use axum::{
   extract::{Json, Path},
   http::StatusCode,
@@ -17,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use super::super::cartography::Storage as MapStorage;
 use super::super::config::Config;
 use super::{
-  io::interface::ImageInterface, publish::publish, unpublish::unpublish,
+  error::ImageError, io::interface::ImageInterface, publish::publish, unpublish::unpublish,
   util::parse_coords_from_path,
 };
 
@@ -76,7 +72,7 @@ pub async fn publish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageInt
   Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
   Json(body): Json<PublishBody>,
-) -> Result<impl IntoResponse, (StatusCode, String)>
+) -> Result<impl IntoResponse, ImageError>
 where
   IO: 'static,
   <IO as ImageInterface>::Pixel: 'static,
@@ -85,7 +81,7 @@ where
   match parse_coords_from_path(coords.as_str()) {
     Some((Ok(x), Ok(y))) => {
       info!("Publishing {} to ({}, {})", body.source, x, y);
-      match publish(
+      let result = publish(
         &body.source,
         x,
         y,
@@ -98,51 +94,23 @@ where
         config,
       )
       .await
-      {
-        Ok(result) => {
-          info!("Published {} to ({}, {})", body.source, x, y);
-          match &result.color {
-            Some(color) => match map.put(&(x, y), color).await {
-              Ok(()) => info!("Updated tilemap for ({}, {})", x, y),
-              Err(err) => {
-                error!("Failed to update tilemap for ({}, {}): {}", x, y, err)
-              }
-            },
-            None => {}
+      .map_err(|err| {
+        error!("Failed to publish {}, {:#}", body.source, err);
+        err
+      })?;
+      info!("Published {} to ({}, {})", body.source, x, y);
+      match &result.color {
+        Some(color) => match map.put(&(x, y), color).await {
+          Ok(()) => info!("Updated tilemap for ({}, {})", x, y),
+          Err(err) => {
+            error!("Failed to update tilemap for ({}, {}): {:#}", x, y, err)
           }
-          Ok((StatusCode::OK, Json(result)))
-        }
-        Err(err) => {
-          error!("Failed to publish {}, {}", body.source, err);
-          match err.downcast_ref::<IOError>() {
-            Some(err) if err.kind() == ErrorKind::NotFound => {
-              Err((StatusCode::NOT_FOUND, "Image not found".to_string()))
-            }
-            Some(err) if err.kind() == ErrorKind::InvalidInput => {
-              Err((StatusCode::BAD_REQUEST, "Invalid file format".to_string()))
-            }
-            _ => match err.source() {
-              Some(src) => {
-                if let Some(err) = src.downcast_ref::<BuildError>() {
-                  Err((StatusCode::BAD_REQUEST, format!("Bad metadata: {}", err)))
-                } else {
-                  error!("Failed to publish {}, {}", body.source, err);
-                  Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Something went wrong".to_string(),
-                  ))
-                }
-              }
-              _ => Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Something went wrong".to_string(),
-              )),
-            },
-          }
-        }
+        },
+        None => {}
       }
+      Ok((StatusCode::OK, Json(result)))
     }
-    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates".to_string())),
+    _ => Err(ImageError::InvalidCoordinates),
   }
 }
 
@@ -171,7 +139,7 @@ pub async fn unpublish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageI
   Extension(io): Extension<Arc<IO>>,
   Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
-) -> Result<impl IntoResponse, (StatusCode, String)>
+) -> Result<impl IntoResponse, ImageError>
 where
   IO: 'static,
   <IO as ImageInterface>::Pixel: 'static,
@@ -180,22 +148,16 @@ where
   match parse_coords_from_path(coords.as_str()) {
     Some((Ok(x), Ok(y))) => {
       info!("Unpublishing ({}, {})", x, y);
-      match unpublish(x, y, io, config).await {
-        Ok(result) => {
-          info!("UnPublished ({}, {})", x, y);
-          match map.delete(&(x, y)).await {
-            Ok(()) => info!("Deleted tilemap for ({}, {})", x, y),
-            Err(err) => error!("Failed to delete tilemap for ({}, {}): {}", x, y, err),
-          }
-          Ok((StatusCode::OK, Json(result)))
-        }
-        // TODO: improve error handling here
-        _ => Err((
-          StatusCode::INTERNAL_SERVER_ERROR,
-          "Something went wrong".to_string(),
-        )),
+      let result = unpublish(x, y, io, config)
+        .await
+        .map_err(|err| ImageError::IoError(err))?;
+      info!("UnPublished ({}, {})", x, y);
+      match map.delete(&(x, y)).await {
+        Ok(()) => info!("Deleted tilemap for ({}, {})", x, y),
+        Err(err) => error!("Failed to delete tilemap for ({}, {}): {}", x, y, err),
       }
+      Ok((StatusCode::OK, Json(result)))
     }
-    _ => Err((StatusCode::BAD_REQUEST, "Invalid coordinates".to_string())),
+    _ => Err(ImageError::InvalidCoordinates),
   }
 }

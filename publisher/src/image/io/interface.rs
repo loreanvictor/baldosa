@@ -1,22 +1,8 @@
 use async_trait::async_trait;
 use image::{ImageBuffer, Pixel};
 
-///
-/// Metadata for an image.
-///
-#[derive(Debug, Clone)]
-pub struct Metadata {
-  /// Title of the image.
-  pub title: Option<String>,
-  /// Subtitle of the image (typically displayed under the title)
-  pub subtitle: Option<String>,
-  /// the URL that corresponding tiles should point to.
-  pub link: Option<String>,
-  /// Description of the image.
-  pub description: Option<String>,
-  /// Details of the image.
-  pub details: Option<serde_json::Value>,
-}
+use super::error::ImageIoError;
+use super::meta::Metadata;
 
 ///
 /// An interface for loading and saving images.
@@ -37,10 +23,7 @@ pub trait ImageInterface: Sync + Send {
   async fn load(
     &self,
     source: &str,
-  ) -> Result<
-    ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
-    Box<dyn std::error::Error + Send + Sync>,
-  >;
+  ) -> Result<ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>, ImageIoError>;
 
   ///
   /// Save an image to the given target.
@@ -52,12 +35,12 @@ pub trait ImageInterface: Sync + Send {
     image: &ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
     meta: &Metadata,
     target: &str,
-  ) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
+  ) -> Result<String, ImageIoError>;
 
   ///
   /// Delete an image from the given target.
   /// The `target` might denote different things based on the interface,
   /// for example it might be some fs path, or some URL, etc.
   ///
-  async fn delete(&self, target: &str) -> Result<String, Box<dyn std::error::Error + Send + Sync>>;
+  async fn delete(&self, target: &str) -> Result<String, ImageIoError>;
 }

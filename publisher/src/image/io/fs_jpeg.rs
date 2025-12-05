@@ -1,4 +1,4 @@
-use std::{env, error::Error, io::Cursor, path::Path};
+use std::{env, io::Cursor, path::Path};
 
 use async_trait::async_trait;
 use image::{load_from_memory, ImageFormat::Jpeg, Rgb, RgbImage};
@@ -8,7 +8,9 @@ use tokio::{
   io::AsyncWriteExt,
 };
 
-use super::interface::{ImageInterface, Metadata};
+use super::error::ImageIoError;
+use super::interface::ImageInterface;
+use super::meta::Metadata;
 
 pub struct FsJpegInterface {
   source_dir: String,
@@ -33,10 +35,13 @@ impl FsJpegInterface {
 impl ImageInterface for FsJpegInterface {
   type Pixel = Rgb<u8>;
 
-  async fn load(&self, source: &str) -> Result<RgbImage, Box<dyn Error + Send + Sync>> {
+  async fn load(&self, source: &str) -> Result<RgbImage, ImageIoError> {
     let path = Path::new(&self.source_dir).join(source);
-    let file = read(path).await?;
-    let img = load_from_memory(&file)?;
+    let file = read(path).await.map_err(|err| match err.kind() {
+      std::io::ErrorKind::NotFound => ImageIoError::NotFound,
+      _ => ImageIoError::ReadError(Box::new(err)),
+    })?;
+    let img = load_from_memory(&file).map_err(|err| ImageIoError::ReadError(Box::new(err)))?;
     let rgb = img.into_rgb8();
 
     Ok(rgb)
@@ -47,25 +52,34 @@ impl ImageInterface for FsJpegInterface {
     image: &RgbImage,
     _meta: &Metadata,
     target: &str,
-  ) -> Result<String, Box<dyn Error + Send + Sync>> {
+  ) -> Result<String, ImageIoError> {
     let path = Path::new(&self.target_dir)
       .join(target)
       .with_extension("jpg");
-    let mut target = File::create(&path).await?;
+    let mut target = File::create(&path)
+      .await
+      .map_err(|err| ImageIoError::WriteError(Box::new(err)))?;
     let mut buffer = Vec::new();
-    image.write_to(&mut Cursor::new(&mut buffer), Jpeg)?;
-    target.write_all(&buffer).await?;
+    image
+      .write_to(&mut Cursor::new(&mut buffer), Jpeg)
+      .map_err(|err| ImageIoError::WriteError(Box::new(err)))?;
+    target
+      .write_all(&buffer)
+      .await
+      .map_err(|err| ImageIoError::WriteError(Box::new(err)))?;
 
     warn!("Metadata not supported, skipped for {}", &path.display());
 
     Ok(path.display().to_string())
   }
 
-  async fn delete(&self, source: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
+  async fn delete(&self, source: &str) -> Result<String, ImageIoError> {
     let path = Path::new(&self.target_dir)
       .join(source)
       .with_extension("jpg");
-    remove_file(&path).await?;
+    remove_file(&path)
+      .await
+      .map_err(|err| ImageIoError::DeleteError(Box::new(err)))?;
 
     Ok(path.display().to_string())
   }
