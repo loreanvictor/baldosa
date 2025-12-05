@@ -193,6 +193,7 @@ export const modal = singleton('bid-content-modal', () => {
           label="URL"
           maxlength="500"
           type="url"
+          pattern="https://.+"
           ref=${url}
           oncheck=${check}
           style="margin-top: -3ex"
