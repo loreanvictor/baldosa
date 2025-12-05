@@ -58,6 +58,8 @@ define('tile-preview', () => {
       title.current.textContent = t.meta?.title ?? ''
       title.current.style = t.meta?.title ? '' : 'display: none'
       img.current.src = tile.img
+      img.current.style = 'opacity: 0'
+      img.current.onload = () => (img.current.style = '')
       deets.current.setAttribute('when', t.meta?.subtitle || t.meta?.description)
       subtitle.current.textContent = t.meta?.subtitle ?? ''
       description.current.setAttribute('content', t.meta?.description ?? '')

@@ -6,6 +6,7 @@ article > img {
   object-fit: cover;
   object-position: center top;
   animation: pan 16s infinite alternate;
+  transition: opacity 0.3s ease-in-out;
 
   @media screen and (max-width: 600px) {
     margin-top: initial;
@@ -43,24 +44,29 @@ article {
 
 span {
   white-space: pre-line;
-  font-size: .9rem;
-  opacity: .5;
+  font-size: 0.9rem;
+  opacity: 0.5;
 }
 
 sub {
-  opacity: .5;
+  opacity: 0.5;
 }
 
-[role=group] {
+[role='group'] {
   display: flex;
-  gap: .5ch;
+  gap: 0.5ch;
 
-  > primary-button, :has(primary-button) {
+  > primary-button,
+  :has(primary-button) {
     flex: 1;
   }
 }
 
 @keyframes pan {
-  from { object-position: center top; }
-  to   { object-position: center bottom; }
+  from {
+    object-position: center top;
+  }
+  to {
+    object-position: center bottom;
+  }
 }
