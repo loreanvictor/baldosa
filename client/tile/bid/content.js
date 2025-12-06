@@ -99,6 +99,8 @@ export const modal = singleton('bid-content-modal', () => {
       description: description.current?.value,
     }
 
+    Object.keys(content).forEach((key) => !content[key] && delete content[key])
+
     untouch()
     submit({ tile, content })
   }

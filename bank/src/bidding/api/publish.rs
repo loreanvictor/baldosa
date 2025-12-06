@@ -27,12 +27,16 @@ pub async fn publish(
     note: Some(format!("bid {} published", bid.id)),
     ..Default::default()
   };
-  commit_tx! [forward; to ledger].map_err(|_| BiddingError::Unknown)?;
 
   publisher
     .publish(bid)
     .await
     .map_err(|_| BiddingError::Unknown)?;
+  // TODO: this will cause the bid to be retried upon the next auction run.
+  //       however, in some cases we should stop retrying and instead reject the
+  //       bid due to inherent issues with the bid content. this is basically
+  //       based on the error returned by the publisher sdk.
+  commit_tx! [forward; to ledger].map_err(|_| BiddingError::Unknown)?;
   book
     .mark_as_published(bid)
     .await

@@ -4,7 +4,7 @@ use log::error;
 use reqwest::{Client, StatusCode};
 use serde::Serialize;
 
-use super::super::book::{ Bid, Coords };
+use super::super::book::{Bid, Coords};
 use super::auth::Auth;
 use super::error::PublishError;
 
@@ -12,9 +12,9 @@ use super::error::PublishError;
 struct PublishRequest {
   source: String,
   title: String,
-  subtitle: String,
-  description: String,
-  link: String,
+  subtitle: Option<String>,
+  description: Option<String>,
+  link: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -42,9 +42,9 @@ impl Publisher {
           .json(&PublishRequest {
             source: bid.content.image.clone().expect("Missing image"),
             title: bid.content.title.clone().unwrap_or_default(),
-            subtitle: bid.content.subtitle.clone().unwrap_or_default(),
-            description: bid.content.description.clone().unwrap_or_default(),
-            link: bid.content.url.clone().unwrap_or_default(),
+            subtitle: bid.content.subtitle.clone(),
+            description: bid.content.description.clone(),
+            link: bid.content.url.clone(),
           }),
       )
       .send()
@@ -75,7 +75,8 @@ impl Publisher {
     let response = self
       .auth
       .apply(
-        self.client
+        self
+          .client
           .delete(format!("{}/{}:{}", self.url, coords.x, coords.y)),
       )
       .send()

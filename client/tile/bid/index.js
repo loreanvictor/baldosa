@@ -1,5 +1,6 @@
 import { broadcast } from '../../util/broadcast.js'
 import { waitoverlay } from '../../design/overlays/wait-overlay.js'
+import { errmodal } from '../../design/overlays/errmodal.js'
 import { balance, history } from '../../account/wallet/index.js'
 
 import { info, pay, init, upload, post } from './backend.js'
@@ -59,24 +60,30 @@ const attachListeners = () => {
     )
 
     waitoverlay().controls.show('Placing Bid ...')
-    const bid = await post(tile, tx, content, uploaded)
+    try {
+      const bid = await post(tile, tx, content, uploaded)
 
-    waitoverlay().controls.close()
-    contentmodal().controls.clear()
-    contentmodal().controls.close()
-    bidmodal().controls.close()
+      waitoverlay().controls.close()
+      contentmodal().controls.clear()
+      contentmodal().controls.close()
+      bidmodal().controls.close()
 
-    if (!bid.published_at) {
-      bid.next_auction = info.next_auction
+      if (!bid.published_at) {
+        bid.next_auction = info.next_auction
+      }
+
+      const local = { ...bid, content: { ...bid.content, localimg: content.image } }
+      broadcast('bid:submitted', local)
+
+      if (bid.published_at) {
+        broadcast('tile:published', local)
+      }
+
+      successmodal().controls.open(bid)
+    } catch (error) {
+      errmodal().controls.open(`Could not post bid because of the following error:`, error, 'Ok')
+    } finally {
+      waitoverlay().controls.close()
     }
-
-    const local = { ...bid, content: { ...bid.content, localimg: content.image } }
-    broadcast('bid:submitted', local)
-
-    if (bid.published_at) {
-      broadcast('tile:published', local)
-    }
-
-    successmodal().controls.open(bid)
   })
 }

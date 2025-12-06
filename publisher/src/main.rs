@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use axum::{
-  routing::{delete, put},
+  routing::{delete, get, put},
   Extension, Router,
 };
 use log::info;
@@ -33,14 +33,16 @@ async fn main() {
 
   info!("starting server");
 
-  let app = auth::protect(
-    Router::new()
-      .route("/{coords}", put(publish_handler::<IO, Map>))
-      .route("/{coords}", delete(unpublish_handler::<IO, Map>))
-      .layer(Extension(Arc::new(config)))
-      .layer(Extension(Arc::new(io)))
-      .layer(Extension(Arc::new(map))),
-  );
+  let app = Router::new()
+    .route("/health", get(|| async { "OK" }))
+    .merge(auth::protect(
+      Router::new()
+        .route("/{coords}", put(publish_handler::<IO, Map>))
+        .route("/{coords}", delete(unpublish_handler::<IO, Map>))
+        .layer(Extension(Arc::new(config)))
+        .layer(Extension(Arc::new(io)))
+        .layer(Extension(Arc::new(map))),
+    ));
 
   let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
   let port = std::env::var("PORT")

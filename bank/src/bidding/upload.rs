@@ -17,17 +17,17 @@ use super::error::BiddingError;
 /// (per [http semantics spec](https://httpwg.org/specs/rfc9110.html#field.content-type)).
 /// Can be a prefix, for example `image/` or an exact match, for example `image/jpeg`.
 /// <br><br>
-/// 
+///
 /// ```rs
 /// let all_images = ContenType::Prefix("image/".to_string());
 /// let jpeg = ContentType::Exact("image/jpeg".to_string());
 /// ```
 /// <br>
-/// 
+///
 /// Can also be parsed from a string, in which case the string must be either a valid MIME type
 /// or a prefix ending with `"*"`, for example `"image/*"`.
 /// <br><br>
-/// 
+///
 /// ```rs
 /// let all_images = "image/*".parse::<ContentType>().unwrap();
 /// let jpeg = "image/jpeg".parse::<ContentType>().unwrap();
@@ -38,12 +38,12 @@ pub enum ContentType {
   ///
   /// A prefix content type, for example `image/`.
   /// This matches any content type that starts with the prefix, such as `image/jpeg`, `image/png`, etc.
-  /// 
+  ///
   Prefix(String),
 
   ///
   /// An exact content type, for example `image/jpeg`.
-  /// 
+  ///
   Exact(String),
 }
 
@@ -73,14 +73,14 @@ impl FromStr for ContentType {
 /// - The maximum file size for the uploaded image,
 /// - The expiration time for the presigned URL used for upload,
 /// - The content type filter for the uploaded image.
-/// 
+///
 /// ### Example (TOML):
 /// ```toml
 /// max_file_size = "5MB"
 /// url_expiration = "1h"
 /// content_type = "image/jpeg"
 /// ```
-/// 
+///
 #[derive(Clone, Deserialize, Debug)]
 pub struct Config {
   #[serde(with = "bytesize_serde")]
@@ -94,7 +94,7 @@ pub struct Config {
 /// Generates a presigned URL for uploading an image to given S3 bucket,
 /// for given coordinates and transaction.
 /// The URL will be valid for the duration specified in the `Config`.
-/// 
+///
 /// ### Usage
 /// First, you generate the URL and the fields:
 /// ```rs
@@ -120,7 +120,7 @@ pub async fn generate_url(
   config: &Config,
 ) -> Result<PresignedPost, BiddingError> {
   let Some(txid) = transaction.id else {
-    return Err(BiddingError::InvalidBid);
+    return Err(BiddingError::IncorrectTransaction);
   };
 
   let key = format!("tile-{}-{}-{}.jpg", coords.x, coords.y, txid);

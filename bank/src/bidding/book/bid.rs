@@ -1,13 +1,18 @@
 use std::string::ToString;
 
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::types::Uuid;
 
-use crate::wallet::Transaction;
 use super::super::config::Config;
 use super::coords::Coords;
+use crate::wallet::Transaction;
+
+// FIxME: bid content's title and image should not be optional.
+//        this, however, will need error handling on the db extraction
+//        point, or some intermediary struct to extract from db and then
+//        check to proper bid content with error handling.
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BidContent {
@@ -55,9 +60,11 @@ impl Bid {
 }
 
 pub fn next_auction_time(occupant: Option<&Bid>, config: &Config) -> Option<DateTime<Utc>> {
-  if occupant.is_none() || occupant.unwrap().published_at.is_none() || 
-      Utc::now() - occupant.unwrap().published_at.unwrap() >
-        Duration::from_std(config.guaranteed_occupancy).unwrap_or_default() {
+  if occupant.is_none()
+    || occupant.unwrap().published_at.is_none()
+    || Utc::now() - occupant.unwrap().published_at.unwrap()
+      > Duration::from_std(config.guaranteed_occupancy).unwrap_or_default()
+  {
     None
   } else {
     occupant
@@ -82,5 +89,5 @@ impl PendingBid {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WinningBid {
   pub bid: Bid,
-  pub transaction: Transaction
+  pub transaction: Transaction,
 }

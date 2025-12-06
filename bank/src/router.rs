@@ -1,4 +1,4 @@
-use axum::{extract::Extension, Router};
+use axum::{extract::Extension, routing::get, Router};
 use log::info;
 use sqlx::{postgres::Postgres, Pool};
 
@@ -20,6 +20,7 @@ pub async fn start_server(config: &Config, db: &Pool<Postgres>) {
       "/bids",
       bidding::router(config.bidding.clone(), &ledger, db),
     )
+    .route("/health", get(|| async { "OK" }))
     .layer(Extension(admin));
 
   let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
