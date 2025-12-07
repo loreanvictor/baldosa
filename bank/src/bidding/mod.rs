@@ -14,10 +14,10 @@ use tower_http::cors::{Any, CorsLayer};
 use super::wallet::Ledger;
 
 mod api;
+pub mod auctions;
 mod book;
 pub mod config;
 pub mod error;
-pub mod auctions;
 mod publisher;
 mod tile;
 mod upload;
@@ -48,11 +48,12 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
     .route("/live", get(api::live_bids))
     .route("/history", get(api::all_bids))
     .route("/{coords}", get(api::bidding_info))
+    .route("/{coords}/occupant", get(api::occupant_bid))
     .route("/{coords}/init", post(api::init_bid))
     .route("/{coords}", post(api::post_bid))
     .route("/{coords}", delete(api::unpublish)) // --> unpublish a published bid
     .route("/{id}/rescind", delete(api::rescind_bid)) // --> rescind bid by id, if unpublished
-    .route("/{coords}/reject", delete(api::reject)) // --> admin rejects a bid published to some coords
+    .route("/{id}/reject", delete(api::reject)) // --> admin rejects a bid by id, unpublish if need be
     .layer(Extension(ledger))
     .layer(Extension(book))
     .layer(Extension(publisher))

@@ -77,6 +77,8 @@ pub enum BiddingError {
   UnauthorizedTransaction,
   #[error("Unauthorized Coordinates")]
   UnauthorizedCoords,
+  #[error("Not Found")]
+  NotFound,
 }
 
 impl IntoResponse for BiddingError {
@@ -107,6 +109,7 @@ impl IntoResponse for BiddingError {
         StatusCode::UNAUTHORIZED,
         "Unauthorized coordinates".to_string(),
       ),
+      BiddingError::NotFound => (StatusCode::NOT_FOUND, "Not Found".to_string()),
     })
     .into_response()
   }

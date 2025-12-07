@@ -7,11 +7,12 @@ use sqlx::types::Uuid;
 
 use super::super::book::{Bid, Book, Coords};
 use super::super::error::BiddingError;
-use crate::auth::AuthenticatedUser;
+use crate::auth::admin::AdminUser;
 
-pub struct OwnedBidById(pub Bid, pub AuthenticatedUser);
+#[allow(unused)]
+pub struct BidByIdForAdmin(pub Bid, pub AdminUser);
 
-impl<S> FromRequestParts<S> for OwnedBidById
+impl<S> FromRequestParts<S> for BidByIdForAdmin
 where
   S: Send + Sync,
 {
@@ -27,7 +28,7 @@ where
     let Extension(book) = Extension::<Book>::from_request_parts(parts, state)
       .await
       .map_err(IntoResponse::into_response)?;
-    let bidder = AuthenticatedUser::from_request_parts(parts, state)
+    let admin = AdminUser::from_request_parts(parts, state)
       .await
       .map_err(IntoResponse::into_response)?;
 
@@ -36,18 +37,14 @@ where
       .await
       .map_err(|_| BiddingError::NotFound.into_response())?;
 
-    if bid.bidder != bidder.id {
-      return Err(BiddingError::UnauthorizedBid.into_response());
-    }
-
-    Ok(OwnedBidById(bid, bidder))
+    Ok(BidByIdForAdmin(bid, admin))
   }
 }
 
 #[allow(unused)]
-pub struct OwnedLiveBidByCoords(pub Bid, pub AuthenticatedUser);
+pub struct LiveBidByCoordsForAdmin(pub Bid, pub AdminUser);
 
-impl<S> FromRequestParts<S> for OwnedLiveBidByCoords
+impl<S> FromRequestParts<S> for LiveBidByCoordsForAdmin
 where
   S: Send + Sync,
 {
@@ -60,7 +57,7 @@ where
     let Extension(book) = Extension::<Book>::from_request_parts(parts, state)
       .await
       .map_err(IntoResponse::into_response)?;
-    let bidder = AuthenticatedUser::from_request_parts(parts, state)
+    let admin = AdminUser::from_request_parts(parts, state)
       .await
       .map_err(IntoResponse::into_response)?;
 
@@ -70,13 +67,9 @@ where
       .map_err(|_| BiddingError::Unknown.into_response())?;
 
     if let Some(bid) = bid {
-      if bid.bidder != bidder.id {
-        return Err(BiddingError::UnauthorizedCoords.into_response());
-      }
-
-      Ok(OwnedLiveBidByCoords(bid, bidder))
+      Ok(LiveBidByCoordsForAdmin(bid, admin))
     } else {
-      Err(BiddingError::UnauthorizedBid.into_response())
+      Err(BiddingError::NotFound.into_response())
     }
   }
 }

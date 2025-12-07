@@ -5,11 +5,11 @@ use axum::{
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 
-use super::super::book::{ Book, Bid, bid::next_auction_time, Coords };
+use super::super::book::{bid::next_auction_time, Bid, Book, Coords};
 use super::super::config::Config;
 use super::super::error::BiddingError;
+use super::admin::LiveBidByCoordsForAdmin;
 use super::validate::validate_coords;
-
 
 #[derive(Serialize, Debug)]
 pub struct BiddingInfo {
@@ -18,21 +18,20 @@ pub struct BiddingInfo {
   pub minimum_bid: u32,
 }
 
-
 ///
 /// Returns information required for
 /// bidding on a specific coordinate, including:
 /// - The last winning bid on the coordinate (if any)
 /// - The next auction time (`None` means as soon as possible)
 /// - The minimum bid required to participate in the auction
-/// 
+///
 pub async fn bidding_info(
   Extension(book): Extension<Book>,
   Extension(config): Extension<Config>,
   Path(coords): Path<Coords>,
 ) -> Result<impl IntoResponse, BiddingError> {
   validate_coords(coords, &config)?;
-  let Ok(occupant) = book.get_occupant_bid(coords).await else {
+  let Ok(occupant) = book.get_occupant_bid(&coords).await else {
     return Err(BiddingError::Unknown);
   };
 
@@ -44,4 +43,14 @@ pub async fn bidding_info(
     last_bid: occupant,
     minimum_bid: config.minimum_bid,
   }))
+}
+
+///
+/// Returns the current occupant bid for the specified coordinates.
+/// Requires admin authentication.
+///
+pub async fn occupant_bid(
+  LiveBidByCoordsForAdmin(bid, _): LiveBidByCoordsForAdmin,
+) -> Result<impl IntoResponse, BiddingError> {
+  Ok(Json(bid))
 }

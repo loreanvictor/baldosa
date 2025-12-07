@@ -1,15 +1,17 @@
 use axum::{
-  extract::{Extension, Json, Path},
+  extract::{Extension, Json},
   response::IntoResponse,
 };
 use serde::Deserialize;
 
-use super::super::book::{Bid, Book, Coords};
+use super::super::book::{Bid, Book};
 use super::super::error::BiddingError;
 use super::super::publisher::Publisher;
+use super::admin::BidByIdForAdmin;
 use super::auth::OwnedLiveBidByCoords;
+use crate::auth::admin::AdminUser;
+use crate::commit_tx;
 use crate::wallet::{Ledger, Transaction};
-use crate::{auth::admin::AdminUser, commit_tx};
 
 pub async fn publish(
   bid: &mut Bid,
@@ -67,28 +69,34 @@ pub struct RejectBody {
   pub reason: String,
 }
 
-// TODO: this should also support bid ids for unpublished bids
 pub async fn reject(
   Extension(book): Extension<Book>,
   Extension(publisher): Extension<Publisher>,
-  AdminUser(user): AdminUser,
-  Path(coords): Path<Coords>,
+  BidByIdForAdmin(mut bid, AdminUser(user)): BidByIdForAdmin,
   Json(body): Json<RejectBody>,
 ) -> Result<impl IntoResponse, BiddingError> {
-  let bid = book
-    .get_occupant_bid(coords)
+  if !bid.rejection.is_none() {
+    return Err(BiddingError::UnauthorizedBid);
+  }
+
+  let coords = bid.coords();
+  let occupant_bid = book
+    .get_occupant_bid(&coords)
     .await
     .map_err(|_| BiddingError::Unknown)?;
 
-  if let Some(mut bid) = bid {
-    book
-      .reject(&mut bid, &user, &body.reason)
-      .await
-      .map_err(|_| BiddingError::Unknown)?;
-    publisher
-      .unpublish(&coords)
-      .await
-      .map_err(|_| BiddingError::Unknown)?;
+  book
+    .reject(&mut bid, &user, &body.reason)
+    .await
+    .map_err(|_| BiddingError::Unknown)?;
+
+  if let Some(occupant_bid) = occupant_bid {
+    if occupant_bid.id == bid.id {
+      publisher
+        .unpublish(&coords)
+        .await
+        .map_err(|_| BiddingError::Unknown)?;
+    }
   }
 
   Ok(())

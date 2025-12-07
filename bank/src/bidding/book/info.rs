@@ -1,10 +1,10 @@
+use futures::{Stream, TryStreamExt};
 use sqlx::postgres::types::PgInterval as Interval;
-use futures::{ Stream, TryStreamExt };
 
-use crate::wallet::Transaction;
-use super::bid::{ Bid, WinningBid };
+use super::bid::{Bid, WinningBid};
 use super::coords::Coords;
 use super::core::Book;
+use crate::wallet::Transaction;
 
 impl Book {
   pub async fn get_earmarked(&self, tx: &Transaction) -> Result<Option<Bid>, sqlx::Error> {
@@ -19,7 +19,7 @@ impl Book {
     .await
   }
 
-  pub async fn get_occupant_bid(&self, coords: Coords) -> Result<Option<Bid>, sqlx::Error> {
+  pub async fn get_occupant_bid(&self, coords: &Coords) -> Result<Option<Bid>, sqlx::Error> {
     sqlx::query_as!(
       Bid,
       "
@@ -35,7 +35,8 @@ impl Book {
   }
 
   pub async fn should_publish_immediately(&self, bid: &Bid) -> Result<bool, sqlx::Error> {
-    let guaranteed_occupancy: Interval = Interval::try_from(self.config.guaranteed_occupancy).unwrap();
+    let guaranteed_occupancy: Interval =
+      Interval::try_from(self.config.guaranteed_occupancy).unwrap();
     let publish_now: Option<bool> = sqlx::query_scalar!(
       "
         with
@@ -63,15 +64,19 @@ impl Book {
         as publish_now
       ",
       bid.id,
-      bid.x, bid.y,
+      bid.x,
+      bid.y,
       guaranteed_occupancy,
-    ).fetch_one(&self.pool)
+    )
+    .fetch_one(&self.pool)
     .await?;
 
     Ok(publish_now.unwrap_or(false))
   }
 
-  pub fn stream_auction_winners(&self) -> impl Stream<Item=Result<WinningBid, sqlx::Error>> + use<'_> {
+  pub fn stream_auction_winners(
+    &self,
+  ) -> impl Stream<Item = Result<WinningBid, sqlx::Error>> + use<'_> {
     // TODO: this might be a bit too much abstract.
     //       the necessary transaction data for updating the ledger already
     //       exists in the bid itself and there is no need for retrieving the
@@ -79,7 +84,8 @@ impl Book {
     //       tightly couple this query and method to how the ledger operates, which
     //       has its own downsides.
 
-    let guaranteed_occupancy: Interval = Interval::try_from(self.config.guaranteed_occupancy).unwrap();
+    let guaranteed_occupancy: Interval =
+      Interval::try_from(self.config.guaranteed_occupancy).unwrap();
     sqlx::query!(
       "
         with auctions as materialized (
@@ -143,7 +149,7 @@ impl Book {
         note: row.tx_note,
         consumed: false,
         merged: false,
-      }
+      },
     })
   }
 
