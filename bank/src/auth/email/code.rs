@@ -5,7 +5,6 @@ use dashmap::{
 };
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use ring::digest;
-use webauthn_rs::prelude::Uuid;
 
 use super::super::error::AuthError;
 
@@ -44,8 +43,8 @@ struct Attempt {
 ///
 #[derive(Clone)]
 pub struct CodesRepository {
-  codes: DashMap<Uuid, Vec<OneTimeCode>>,
-  attempts: DashMap<Uuid, Attempt>,
+  codes: DashMap<String, Vec<OneTimeCode>>,
+  attempts: DashMap<String, Attempt>,
 }
 
 impl CodesRepository {
@@ -61,15 +60,15 @@ impl CodesRepository {
   /// A user is locked out when they have entered the wrong code too many times,
   /// in which case they will be locked for a certain duration.
   ///
-  fn check_locked(&self, user_id: &Uuid) -> Result<(), AuthError> {
+  fn check_locked(&self, email: &String) -> Result<(), AuthError> {
     // check if we have records of failed attempts
-    let Occupied(attempt) = self.attempts.entry(*user_id) else {
+    let Some(attempt) = self.attempts.get(email) else {
       // no records of failed attempts
       return Ok(());
     };
 
     // check if the user is locked out
-    let Some(lock_until) = attempt.get().lock_until else {
+    let Some(lock_until) = attempt.lock_until else {
       // they are not locked out
       return Ok(());
     };
@@ -90,13 +89,16 @@ impl CodesRepository {
   /// - `AuthError::TooManyAttempts` if the user has failed too many times
   /// - `AuthError::InvalidCredentials` otherwise
   ///
-  fn fail_attempt(&self, user_id: &Uuid) -> AuthError {
+  fn fail_attempt(&self, email: &String) -> AuthError {
     // get the current record of failed attempts,
     // create one if need be
-    let mut attempt = self.attempts.entry(*user_id).or_insert_with(|| Attempt {
-      attempts: 0,
-      lock_until: None,
-    });
+    let mut attempt = self
+      .attempts
+      .entry(email.to_owned())
+      .or_insert_with(|| Attempt {
+        attempts: 0,
+        lock_until: None,
+      });
 
     let attempt = attempt.value_mut();
     attempt.attempts += 1;
@@ -117,8 +119,8 @@ impl CodesRepository {
   /// If the user is locked out due to too many failed attempts,
   /// appropriate error is returned.
   ///
-  pub fn create(&self, user_id: &Uuid, subject: &str) -> Result<String, AuthError> {
-    self.check_locked(user_id)?;
+  pub fn create(&self, email: &String, subject: &str) -> Result<String, AuthError> {
+    self.check_locked(email)?;
 
     let mut rng = StdRng::from_os_rng();
     let code = format!("{:06}", rng.random_range(0..1_000_000));
@@ -126,7 +128,7 @@ impl CodesRepository {
       .as_ref()
       .to_vec();
 
-    let mut codes = self.codes.entry(*user_id).or_default();
+    let mut codes = self.codes.entry(email.to_owned()).or_default();
     codes.push(OneTimeCode {
       code_hash,
       subject: subject.to_string(),
@@ -141,18 +143,18 @@ impl CodesRepository {
   /// If the user is locked out due to too many failed attempts,
   /// appropriate error is returned.
   ///
-  pub fn verify(&self, user_id: &Uuid, code: &str, subject: &str) -> Result<(), AuthError> {
-    self.check_locked(user_id)?;
+  pub fn verify(&self, email: &String, code: &str, subject: &str) -> Result<(), AuthError> {
+    self.check_locked(email)?;
 
     let hash = digest::digest(&digest::SHA256, code.as_bytes())
       .as_ref()
       .to_vec();
-    match self.codes.entry(*user_id) {
+    match self.codes.entry(email.to_owned()) {
       Occupied(codes) => {
         for code in codes.get() {
           if code.code_hash == hash && code.subject == subject && code.expires_at > Utc::now() {
             codes.remove();
-            self.attempts.remove(user_id);
+            self.attempts.remove(email);
             return Ok(());
           }
         }
@@ -160,6 +162,6 @@ impl CodesRepository {
       Vacant(_) => {}
     };
 
-    Err(self.fail_attempt(user_id))
+    Err(self.fail_attempt(email))
   }
 }

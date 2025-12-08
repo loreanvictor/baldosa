@@ -26,7 +26,7 @@ pub async fn authenticate(
     return Err(AuthError::UserNotFound);
   };
 
-  codes.verify(&user.id, &body.code, "auth_with_email")?;
+  codes.verify(&body.email, &body.code, "auth_with_email")?;
 
   match storage.verify_user_email(user.id).await {
     Ok(Some(user)) => {

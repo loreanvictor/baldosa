@@ -6,6 +6,7 @@ use resend_rs::Resend;
 
 mod authenticate;
 mod code;
+mod register;
 mod send;
 mod verify;
 
@@ -15,8 +16,10 @@ pub fn router() -> Router {
 
   Router::new()
     .route("/code", post(send::send_auth_otc))
-    .route("/authenticate", post(authenticate::authenticate))
+    .route("/registration-code", post(send::send_reg_otc))
     .route("/verification-code", post(send::send_verification_code))
+    .route("/authenticate", post(authenticate::authenticate))
+    .route("/register", post(register::register))
     .route("/verify", post(verify::verify))
     .layer(Extension(resend))
     .with_state(Arc::new(codes))

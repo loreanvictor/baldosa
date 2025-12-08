@@ -8,7 +8,7 @@ import '../../design/buttons/confirm/component.js'
 import '../../design/inputs/text/component.js'
 import '../../design/display/textual.js'
 
-export const modal = singleton('email-signin-modal', () => {
+export const modal = singleton('email-login-modal', () => {
   const modal = ref()
   const email = ref()
   const confirm = ref()

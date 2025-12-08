@@ -157,18 +157,10 @@ pub async fn all(
   Extension(storage): Extension<AuthStorage>,
   user: AuthenticatedUser,
 ) -> Result<impl IntoResponse, AuthError> {
-  let passkeys = match storage.get_passkeys(user.id).await {
-    Ok(passkeys) => {
-      if passkeys.is_empty() {
-        return Err(AuthError::UserNotFound);
-      }
-      passkeys
-    }
-    Err(_) => {
-      return Err(AuthError::UserNotFound);
-    }
-  };
-
+  let passkeys = storage
+    .get_passkeys(user.id)
+    .await
+    .map_err(|_| AuthError::UserNotFound)?;
   Ok(Json(passkeys))
 }
 

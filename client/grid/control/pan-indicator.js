@@ -8,7 +8,6 @@ import '../../design/buttons/button/components.js'
 import '../../design/display/icon/component.js'
 import { observe } from '../../util/observe.js'
 
-
 define('pan-indicator', ({ camera }) => {
   const onPan = useDispatch('pan')
   const x = ref()
@@ -28,8 +27,8 @@ define('pan-indicator', ({ camera }) => {
     set(y, detail.camera.y)
   })
 
-  onAttribute('x', value => set(x, parseInt(value)))
-  onAttribute('y', value => set(y, parseInt(value)))
+  onAttribute('x', (value) => set(x, parseInt(value)))
+  onAttribute('y', (value) => set(y, parseInt(value)))
 
   const go = () => {
     const target = coord.current.value
@@ -56,6 +55,13 @@ define('pan-indicator', ({ camera }) => {
           font-size: 0.8rem;
           font-weight: bold;
         }
+
+        @media screen and (max-width: 600px) {
+          bottom: auto;
+          top: 0;
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 12px;
+        }
       }
 
       glass-modal {
@@ -68,12 +74,14 @@ define('pan-indicator', ({ camera }) => {
         }
       }
     </style>
-    <glass-pane onclick=${() => {
-      coord.current.setAttribute('placeholder', `${x.current.textContent},${y.current.textContent}`)
-      modal.current.controls.open()
-      coord.current.controls.reset()
-      coord.current.focus()
-    }}>
+    <glass-pane
+      onclick=${() => {
+        coord.current.setAttribute('placeholder', `${x.current.textContent},${y.current.textContent}`)
+        modal.current.controls.open()
+        coord.current.controls.reset()
+        coord.current.focus()
+      }}
+    >
       <span ref=${x}>0</span> , <span ref=${y}>0</span>
     </glass-pane>
     <glass-modal ref=${modal}>
@@ -81,7 +89,7 @@ define('pan-indicator', ({ camera }) => {
         <coord-input ref=${coord} oncomplete=${go}></coord-input>
       </p>
       <primary-button onclick=${go}>
-        <i-con src='arrow-right' thick slot='icon'></i-con>
+        <i-con src="arrow-right" thick slot="icon"></i-con>
         Jump to Location
       </primary-button>
     </glass-modal>

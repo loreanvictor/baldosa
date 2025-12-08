@@ -32,6 +32,12 @@ impl VerificationStatus {
       email_verified_at: user.email_verified_at,
     }
   }
+
+  pub fn verified(at: DateTime<Utc>) -> Self {
+    Self {
+      email_verified_at: Some(at),
+    }
+  }
 }
 
 ///

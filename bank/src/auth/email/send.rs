@@ -7,6 +7,8 @@ use axum::{
 use resend_rs::{types::CreateEmailBaseOptions, Resend};
 use serde::Deserialize;
 
+use crate::auth::register::StartRegistrationBody;
+
 use super::super::error::AuthError;
 use super::super::storage::AuthStorage;
 use super::super::AuthenticatedUser;
@@ -44,6 +46,45 @@ fn email_html_for_code(first_name: &str, last_name: &str, code: &str, msg: &str)
   ")
 }
 
+pub async fn send_reg_otc(
+  State(codes): State<Arc<CodesRepository>>,
+  Extension(storage): Extension<AuthStorage>,
+  Extension(resend): Extension<Resend>,
+  Json(body): Json<StartRegistrationBody>,
+) -> Result<impl IntoResponse, AuthError> {
+  if let Some(_) = storage
+    .find_user_by_email(body.email.as_str())
+    .await
+    .map_err(|_| AuthError::Unknown)?
+  {
+    return Err(AuthError::UserExists);
+  }
+
+  let code = codes.create(&body.email, "reg_with_email")?;
+
+  let from = "Baldosa <auth@baldosa.city>";
+  let to = [body.email];
+  let subject = format!("Baldosa Registration Code: {code}");
+
+  resend
+    .emails
+    .send(
+      CreateEmailBaseOptions::new(from, to, subject).with_html(&email_html_for_code(
+        &body.first_name,
+        &body.last_name,
+        &code,
+        "
+        Here is your registration code for <a href='https://baldosa.city'>Baldosa</a>.
+        If you didn't request try to register on Baldosa, please ignore this message.
+        ",
+      )),
+    )
+    .await
+    .map_err(|_| AuthError::Unknown)?;
+
+  Ok(())
+}
+
 pub async fn send_auth_otc(
   State(codes): State<Arc<CodesRepository>>,
   Extension(storage): Extension<AuthStorage>,
@@ -54,13 +95,13 @@ pub async fn send_auth_otc(
     return Err(AuthError::UserNotFound);
   };
 
-  let code = codes.create(&user.id, "auth_with_email")?;
+  let code = codes.create(&body.email, "auth_with_email")?;
 
   let from = "Baldosa <auth@baldosa.city>";
   let to = [body.email];
   let subject = format!("Baldosa Login Code: {code}");
 
-  match resend.emails.send(
+  resend.emails.send(
     CreateEmailBaseOptions::new(from, to, subject)
       .with_html(&email_html_for_code(&user.first_name, &user.last_name, &code,
         "
@@ -68,10 +109,9 @@ pub async fn send_auth_otc(
         If you didn't request this code, please ignore this message.
         "
       ))
-  ).await {
-    Ok(_) => Ok(()),
-    Err(_) => Err(AuthError::Unknown),
-  }
+  ).await.map_err(|_| AuthError::Unknown)?;
+
+  Ok(())
 }
 
 pub async fn send_verification_code(
@@ -83,13 +123,13 @@ pub async fn send_verification_code(
     return Err(AuthError::AlreadyVerified);
   }
 
-  let code = codes.create(&user.id, "verify_email")?;
+  let code = codes.create(&user.email, "verify_email")?;
 
   let from = "Baldosa <auth@baldosa.city>";
   let to = [user.email];
   let subject = format!("Baldosa Verification Code: {code}");
 
-  match resend.emails.send(
+  resend.emails.send(
     CreateEmailBaseOptions::new(from, to, subject)
       .with_html(&email_html_for_code(&user.first_name, &user.last_name, &code,
         "
@@ -97,8 +137,7 @@ pub async fn send_verification_code(
         If you didn't request this code, or don't have a Baldosa account, please ignore this message.
         "
       ))
-  ).await {
-    Ok(_) => Ok(()),
-    Err(_) => Err(AuthError::Unknown),
-  }
+  ).await.map_err(|_| AuthError::Unknown)?;
+
+  Ok(())
 }

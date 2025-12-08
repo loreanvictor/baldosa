@@ -1,7 +1,4 @@
-import {
-  define, useDispatch,
-  onAttribute, onProperty, onConnected, onCleanup,
-} from 'minicomp'
+import { define, useDispatch, onAttribute, onProperty, onConnected, onCleanup } from 'minicomp'
 import { html, ref } from 'rehtm'
 
 import { observe } from '../../util/observe.js'
@@ -12,7 +9,6 @@ import '../util/track-cursor.js'
 import '../control/click-control.js'
 import { createGallery } from './image/gallery.js'
 import { drawTile } from './tile.js'
-
 
 define('infinite-grid', () => {
   const WMIN = Math.min(window.innerWidth, window.innerHeight)
@@ -27,7 +23,7 @@ define('infinite-grid', () => {
   const ANIMATION_SMOOTHNESS = SMALL_DEVICE ? 2 : 32
 
   const mask = ref()
-  mask.current= { has: () => false }
+  mask.current = { has: () => false }
   const gallery = ref()
 
   let imageCacheSize = 100
@@ -38,19 +34,21 @@ define('infinite-grid', () => {
   const canvas = ref()
   const ctx = ref()
 
-  const camera = { x: .5, y: .5, v: 0, zoom: 200 }
+  const camera = { x: 0.5, y: 0.5, v: 0, zoom: 200 }
   let width, height
 
   let _last_hovered_tile
   const mouse = {
-    x: -Infinity, y: -Infinity, supportsHover: SUPPORTS_HOVER,
-    onHover: tile => {
+    x: -Infinity,
+    y: -Infinity,
+    supportsHover: SUPPORTS_HOVER,
+    onHover: (tile) => {
       if (tile !== _last_hovered_tile) {
         onHover(tile)
       }
 
       _last_hovered_tile = tile
-    }
+    },
   }
 
   const resize = () => {
@@ -78,17 +76,17 @@ define('infinite-grid', () => {
 
     for (let x = left; x <= right; x++) {
       for (let y = top; y <= bottom; y++) {
-        drawTile(ctx.current, {x, y}, bounds, camera, mouse, gallery.current, mask.current)
+        drawTile(ctx.current, { x, y }, bounds, camera, mouse, gallery.current, mask.current)
       }
     }
   }
 
   let _drawReq = 0
-  const draw = () => _drawReq = ANIMATION_SMOOTHNESS
+  const draw = () => (_drawReq = ANIMATION_SMOOTHNESS)
 
   constantly(() => _drawReq > 0 && (_drawReq--, _draw()))
   /** generally repaint every second, so images in view remain cached. */
-  constantly(_draw, f => setTimeout(f, 1000))
+  constantly(_draw, (f) => setTimeout(f, 1000))
 
   observe(window, 'resize', resize)
   onConnected(() => {
@@ -98,27 +96,27 @@ define('infinite-grid', () => {
   })
   onCleanup(() => gallery.current?.dispose())
 
-  const valid = (n, prev) => n !== undefined && !isNaN(n) ? n : prev
-  onAttribute('camx', x => (camera.x = valid(parseFloat(x), camera.x), draw()))
-  onAttribute('camy', y => (camera.y = valid(parseFloat(y), camera.y), draw()))
-  onAttribute('zoom', zoom => (camera.zoom = valid(parseFloat(zoom), camera.zoom), draw()))
+  const valid = (n, prev) => (n !== undefined && !isNaN(n) ? n : prev)
+  onAttribute('camx', (x) => ((camera.x = valid(parseFloat(x), camera.x)), draw()))
+  onAttribute('camy', (y) => ((camera.y = valid(parseFloat(y), camera.y)), draw()))
+  onAttribute('zoom', (zoom) => ((camera.zoom = valid(parseFloat(zoom), camera.zoom)), draw()))
 
   let speedytimer
   let toofast = false
   const SPEED_LIMIT = 0.003
-  onAttribute('panv', v => {
+  onAttribute('panv', (v) => {
     camera.v = valid(parseFloat(v), camera.v)
     if (camera.v > SPEED_LIMIT) {
       toofast = true
       clearTimeout(speedytimer)
-      speedytimer = setTimeout(() => toofast = false, 500)
+      speedytimer = setTimeout(() => (toofast = false), 500)
     }
 
     draw()
   })
 
-  onProperty('mask', m => m && (mask.current = m, m.listen(draw), draw()))
-  onAttribute('src', src => {
+  onProperty('mask', (m) => m && ((mask.current = m), m.listen(draw), draw()))
+  onAttribute('src', (src) => {
     if (src) {
       gallery.current?.dispose()
       gallery.current = createGallery(src, imageCacheSize)
@@ -126,7 +124,7 @@ define('infinite-grid', () => {
     }
   })
 
-  onAttribute('image-cache-size', s => gallery.current?.limit(imageCacheSize = valid(parseInt(s), imageCacheSize)))
+  onAttribute('image-cache-size', (s) => gallery.current?.limit((imageCacheSize = valid(parseInt(s), imageCacheSize))))
 
   onBroadcast('tile:open', ({ x, y }) => {
     if (mask.current.has(x, y)) {
@@ -141,15 +139,14 @@ define('infinite-grid', () => {
   return html`
     <style>
       canvas {
-        display:block;
-        width:100vw;
-        height:100vh;
+        display: block;
+        width: 100vw;
         cursor: pointer;
         touch-action: none; /* Prevent default gestures */
       }
     </style>
     <canvas ref=${canvas}></canvas>
     <click-control target="canvas" onclick=${() => !toofast && onClick(_last_hovered_tile)}></click-control>
-    <track-cursor onmove=${({ detail }) => (mouse.x = detail.x, mouse.y = detail.y, draw())}></track-cursor>
+    <track-cursor onmove=${({ detail }) => ((mouse.x = detail.x), (mouse.y = detail.y), draw())}></track-cursor>
   `
 })

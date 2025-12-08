@@ -1,13 +1,14 @@
 import { onConnected, attachControls } from 'minicomp'
 import { ref, html } from 'rehtm'
 
+import '../util/show-only.js'
 import '../design/overlays/modal/component.js'
 import '../design/buttons/button/components.js'
 import '../design/display/icon/component.js'
 
 import { onBroadcast } from '../util/broadcast.js'
 import { singleton } from '../util/singleton.js'
-import { modal as uc } from '../util/under-construction.js'
+import { passkeySupported } from './auth/passkeys.js'
 import { init, login, register, logout, user } from './auth/index.js'
 import { authenticate as emaillogin } from './email/index.js'
 import { modal as wallet } from './wallet/modal.js'
@@ -90,10 +91,12 @@ export const modal = singleton('account-modal', () => {
         </secondary-button>
       </action-list>
       <action-list ref=${loggedout} island>
-        <primary-button row onclick=${() => login()}>
-          <i-con src="key" dark thick slot="icon"></i-con>
-          Login
-        </primary-button>
+        <show-only when=${passkeySupported()}>
+          <primary-button row onclick=${() => login()}>
+            <i-con src="key" dark thick slot="icon"></i-con>
+            Login
+          </primary-button>
+        </show-only>
         <secondary-button row onclick=${() => emaillogin()}>
           <i-con src="envelop" dark thick slot="icon"></i-con>
           Login with Email

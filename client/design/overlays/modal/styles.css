@@ -1,5 +1,5 @@
 dialog {
-  animation: grow-in .3s;
+  animation: grow-in 0.3s;
   width: 512px;
   background: linear-gradient(180deg, #31313166, #2e2e2e66);
   border-radius: 16px;
@@ -9,7 +9,9 @@ dialog {
   color: white;
   border: none;
   outline: none;
-  transition: opacity .3s, transform .3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 
   --backdrop-blur: 5px;
   --backdrop-opacity: 1;
@@ -20,7 +22,10 @@ dialog {
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
     opacity: var(--backdrop-opacity);
     animation: show-dialog-backdrop 3s;
-    transition: backdrop-filter .2s, -webkit-backdrop-filter .2s, opacity .2s;
+    transition:
+      backdrop-filter 0.2s,
+      -webkit-backdrop-filter 0.2s,
+      opacity 0.2s;
   }
 
   header {
@@ -45,10 +50,10 @@ dialog {
   &.anchored {
     width: 320px;
     --backdrop-blur: 0;
-    animation: slide-from-top .3s;
+    animation: slide-from-top 0.3s;
 
     &.bottom {
-      animation: slide-from-bottom .3s;
+      animation: slide-from-bottom 0.3s;
     }
   }
 }
@@ -60,7 +65,7 @@ dialog {
     height: 100vh;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    animation: slide-from-right .3s;
+    animation: slide-from-right 0.3s;
 
     &.closing {
       opacity: 0;
@@ -72,13 +77,15 @@ dialog {
 @media (max-width: 600px) {
   dialog {
     width: 100vw;
-    animation: come-up .2s;
+    animation: come-up 0.2s;
     bottom: 0;
     top: auto;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    transition: opacity 1s, transform .3s;
-  
+    transition:
+      opacity 1s,
+      transform 0.3s;
+
     &::before {
       content: ' ';
       display: block;
@@ -94,16 +101,16 @@ dialog {
       -webkit-backdrop-filter: blur(16px);
     }
 
-     header > close-pin {
-        position: absolute;
-        right: 2ch;
-        top: 2ch;
-     }
+    header > close-pin {
+      position: absolute;
+      right: 2ch;
+      top: 2ch;
+    }
 
-     &.closing {
-       transform: translateY(15vh);
-       opacity: 0;
-     }
+    &.closing {
+      transform: translateY(15vh);
+      opacity: 0;
+    }
   }
 }
 
@@ -126,26 +133,56 @@ dialog {
 }
 
 @keyframes come-up {
-  from { opacity: 0; transform: translateY(15vh); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes grow-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slide-from-right {
-  from { opacity: 0; transform: translateX(5vh); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(5vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes slide-from-top {
-  from { opacity: 0; transform: translateY(-5vh); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slide-from-bottom {
-  from { opacity: 0; transform: translateY(5vh); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
