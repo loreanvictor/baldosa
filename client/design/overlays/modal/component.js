@@ -9,7 +9,6 @@ import { push } from './context.js'
 import { anchor, unanchor } from './anchor.js'
 import { triggerPrimaryActionOnEnter } from './util.js'
 
-
 define('glass-modal', ({ noheader }) => {
   const self = currentNode()
   const onclose = useDispatch('close')
@@ -29,7 +28,7 @@ define('glass-modal', ({ noheader }) => {
       dialog.current.showModal()
       dialog.current.focus()
       clearTimeout(warmup)
-      warmup = setTimeout(() => opened = true, 50)
+      warmup = setTimeout(() => (opened = true), 50)
       push(self)
     },
     close: (synthetic = true) => {
@@ -52,7 +51,7 @@ define('glass-modal', ({ noheader }) => {
         dialog.current.style.setProperty('--backdrop-opacity', '')
         dialog.current.close()
       }, 200)
-    }
+    },
   }
 
   attachControls({
@@ -60,7 +59,11 @@ define('glass-modal', ({ noheader }) => {
     close: () => controls.close(),
   })
 
-  onClickOutOf(dialog, () => controls.close(false), () => opened)
+  onClickOutOf(
+    dialog,
+    () => controls.close(false),
+    () => opened,
+  )
   triggerPrimaryActionOnEnter()
 
   const onswipestart = ({ detail }) => {
@@ -79,19 +82,19 @@ define('glass-modal', ({ noheader }) => {
     dialog.current.style.setProperty('--backdrop-opacity', `${rate / 1.5}`)
   }
   const onrelease = ({ detail }) => {
-      dialog.current.style.transition = ''
+    dialog.current.style.transition = ''
 
-      const rect = dialog.current.getBoundingClientRect()
-      const dy = detail.d.y
-      const vy = detail.velocity.y
+    const rect = dialog.current.getBoundingClientRect()
+    const dy = detail.d.y
+    const vy = detail.velocity.y
 
-      if ((vy > 5 || dy > rect.height * .6) && detail.aligned && dy > 75 && vy > 0) {
-        controls.close(false)
-      } else {
-        dialog.current.style.setProperty('--backdrop-blur', '')
-        dialog.current.style.setProperty('--backdrop-opacity', '')
-        dialog.current.style.transform = ''
-      }
+    if ((vy > 5 || dy > rect.height * 0.6) && detail.aligned && dy > 75 && vy > 0) {
+      controls.close(false)
+    } else {
+      dialog.current.style.setProperty('--backdrop-blur', '')
+      dialog.current.style.setProperty('--backdrop-opacity', '')
+      dialog.current.style.transform = ''
+    }
   }
 
   return html`
@@ -103,7 +106,13 @@ define('glass-modal', ({ noheader }) => {
       </header>
       <slot></slot>
     </dialog>
-    <swipe-control direction='vertical' target=${dialog} nopropagate='false'
-      onstart=${onswipestart} onswipe=${onswipe} onrelease=${onrelease}></swipe-control>
+    <swipe-control
+      direction="vertical"
+      target=${dialog}
+      nopropagate="false"
+      onstart=${onswipestart}
+      onswipe=${onswipe}
+      onrelease=${onrelease}
+    ></swipe-control>
   `
 })

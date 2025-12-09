@@ -52,8 +52,9 @@ define('infinite-grid', () => {
   }
 
   const resize = () => {
-    width = window.innerWidth
-    height = window.innerHeight + (SMALL_DEVICE ? 80 : 0)
+    const rect = document.body.getBoundingClientRect()
+    width = rect.width
+    height = rect.height + (SMALL_DEVICE ? 160 : 0)
 
     canvas.current.width = width * devicePixelRatio
     canvas.current.height = height * devicePixelRatio
@@ -147,6 +148,8 @@ define('infinite-grid', () => {
     </style>
     <canvas ref=${canvas}></canvas>
     <click-control target="canvas" onclick=${() => !toofast && onClick(_last_hovered_tile)}></click-control>
-    <track-cursor onmove=${({ detail }) => ((mouse.x = detail.x), (mouse.y = detail.y), draw())}></track-cursor>
+    <track-cursor
+      onmove=${({ detail }) => ((mouse.x = detail.x), (mouse.y = detail.y + window.scrollY), draw())}
+    ></track-cursor>
   `
 })

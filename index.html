@@ -22,8 +22,8 @@
       body {
         margin: 0;
         padding: 0;
+        height: 100vh;
         overflow: hidden;
-        height: 150dvh;
         width: 100%;
         background: #000;
         color: #fff;
@@ -34,6 +34,14 @@
         *:not(:defined) {
           visibility: hidden;
         }
+      }
+
+      body.--ios-safari {
+        height: calc(100vh + 160px);
+      }
+
+      body.--ios-safari-active-el {
+        height: 100vh;
       }
     </style>
     <script type="importmap">
@@ -200,5 +208,45 @@
       });
     </script>
     <script type="module" src="./client/index.js?v=0.1.1"></script>
+    <script type="text/javascript">
+      // behavioural fixes for iOS safari
+      const ua = navigator.userAgent;
+
+      const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+      const isIOSSafari = isIOS && isSafari;
+
+      if (isIOSSafari) {
+        document.body.classList.add("--ios-safari");
+        function deepActiveElement(root = document) {
+          let el = root.activeElement;
+          while (el && el.shadowRoot && el.shadowRoot.activeElement) {
+            el = el.shadowRoot.activeElement;
+          }
+          return el;
+        }
+
+        if (visualViewport.width < 800) {
+          setTimeout(() => window.scrollTo({ top: 80 }), 50);
+
+          document.addEventListener("focusin", () => {
+            const active = deepActiveElement();
+            if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
+              document.body.classList.add("--ios-safari-active-el");
+            }
+          });
+
+          document.addEventListener("focusout", () => {
+            const active = deepActiveElement();
+            if (active && active === document.body) {
+              document.body.classList.remove("--ios-safari-active-el");
+              window.scrollTo({ top: 80 });
+              setTimeout(() => window.scrollTo({ top: 80 }), 50);
+            }
+          });
+        }
+      }
+    </script>
   </body>
 </html>
