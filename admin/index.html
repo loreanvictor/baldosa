@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="/admin/" />
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+    <title>Baldosa: the cloud city</title>
+  </head>
+  <body>
+    <main>
+      <pre watermark>
+   ╭─╮
+   ╰─╯
+   ╭─╮
+   ╰─┼─╮ ╭─╮
+   ╭─┼─╯ ╰─┼─╮
+ ╭─┼─┼─╮ ╭─┼─╯
+ ╰─╯ ╰─╯ ╰─╯
+      </pre>
+      <admin-terminal>
+        <div slot="status-bar" style="text-align: right">
+          <health-check name="bank" url="https://bank.baldosa.city/health"></health-check>
+          <health-check name="publisher" url="https://publisher.baldosa.city/health"></health-check>
+        </div>
+      </admin-terminal>
+    </main>
+    <style>
+      :root {
+        --bg: black;
+        --fg: #9e9e9e;
+        --hl: white;
+        --border: #212121;
+        --font: monospace;
+        --primary: #447ed3;
+        --secondary: #9929ea;
+        --error: #e53157;
+        --warn: #efa73e;
+        --success: #a7e399;
+      }
+      html {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font);
+      }
+
+      a {
+        color: var(--fg);
+      }
+
+      main {
+        width: 80vw;
+        margin: 0 auto;
+        margin-top: 8ch;
+      }
+
+      [watermark] {
+        color: var(--hl);
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "minicomp": "https://esm.run/minicomp@0.4",
+          "rehtm": "https://esm.run/rehtm@0.5",
+          "envfile": "https://esm.run/envfile@7",
+          "haken": "https://esm.run/haken@0.1",
+          "sleep-promise": "https://esm.run/sleep-promise",
+          "yargs": "https://esm.run/yargs@18/browser.mjs"
+        }
+      }
+    </script>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

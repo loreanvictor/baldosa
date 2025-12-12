@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use axum::{
-  routing::{delete, get, put},
+  routing::{delete, put},
   Extension, Router,
 };
 use log::info;
@@ -13,6 +13,7 @@ mod cartography;
 mod config;
 mod db;
 mod env;
+mod health;
 mod image;
 mod s3;
 
@@ -34,7 +35,7 @@ async fn main() {
   info!("starting server");
 
   let app = Router::new()
-    .route("/health", get(|| async { "OK" }))
+    .nest("/health", health::router())
     .merge(auth::protect(
       Router::new()
         .route("/{coords}", put(publish_handler::<IO, Map>))

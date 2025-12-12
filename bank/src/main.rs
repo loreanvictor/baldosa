@@ -7,6 +7,7 @@ mod router;
 
 mod auth;
 mod bidding;
+mod health;
 mod run_auctions;
 mod wallet;
 

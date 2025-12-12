@@ -28,7 +28,7 @@
         background: #000;
         color: #fff;
         * {
-          font-family: "Open Sans", sans-serif;
+          font-family: 'Open Sans', sans-serif;
         }
 
         *:not(:defined) {
@@ -163,88 +163,88 @@
       </style>
     </div>
     <script type="module">
-      import { listenToBroadcast } from "./client/util/broadcast.js?v=0.1.1";
-      import { loader } from "./client/util/loader.js?v=0.1.1";
+      import { listenToBroadcast } from './client/util/broadcast.js?v=0.1.1'
+      import { loader } from './client/util/loader.js?v=0.1.1'
 
       const load = loader(
         (progress, message) => {
-          const loading = document.getElementById("loading");
-          const msg = loading?.querySelector(".msg");
-          const prog = loading?.querySelector(".progress .value");
-          prog && (prog.style.transform = `scaleX(${progress})`);
-          msg && message && (msg.textContent = message);
+          const loading = document.getElementById('loading')
+          const msg = loading?.querySelector('.msg')
+          const prog = loading?.querySelector('.progress .value')
+          prog && (prog.style.transform = `scaleX(${progress})`)
+          msg && message && (msg.textContent = message)
 
           if (loading && progress === 1) {
             setTimeout(() => {
-              loading.style.opacity = 0;
+              loading.style.opacity = 0
               loading.addEventListener(
-                "transitionend",
+                'transitionend',
                 () => {
-                  loading.remove();
+                  loading.remove()
                 },
                 { once: true },
-              );
-            }, 300);
+              )
+            }, 300)
           }
         },
-        "grid",
-        "nav",
-        "font",
-      );
+        'grid',
+        'nav',
+        'font',
+      )
 
-      listenToBroadcast("grid:connected", () => load("grid", 1, "grid connected"));
-      listenToBroadcast("nav:loaded", (value) => load("nav", value, "assets loaded"));
+      listenToBroadcast('grid:connected', () => load('grid', 1, 'grid connected'))
+      listenToBroadcast('nav:loaded', (value) => load('nav', value, 'assets loaded'))
 
-      const font = document.createElement("link");
-      font.rel = "stylesheet";
-      font.href = "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap";
-      font.onload = () => load("font", 1, "fonts loaded");
-      document.head.appendChild(font);
+      const font = document.createElement('link')
+      font.rel = 'stylesheet'
+      font.href = 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap'
+      font.onload = () => load('font', 1, 'fonts loaded')
+      document.head.appendChild(font)
     </script>
     <script>
       // disable double click zooming
-      document.addEventListener("dblclick", (event) => {
-        event.preventDefault();
-      });
+      document.addEventListener('dblclick', (event) => {
+        event.preventDefault()
+      })
     </script>
     <script type="module" src="./client/index.js?v=0.1.1"></script>
     <script type="text/javascript">
       // behavioural fixes for iOS safari
-      const ua = navigator.userAgent;
+      const ua = navigator.userAgent
 
-      const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const isSafari = /^((?!chrome|android).)*safari/i.test(ua)
+      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
-      const isIOSSafari = isIOS && isSafari;
+      const isIOSSafari = isIOS && isSafari
 
       if (isIOSSafari) {
-        document.body.classList.add("--ios-safari");
+        document.body.classList.add('--ios-safari')
         function deepActiveElement(root = document) {
-          let el = root.activeElement;
+          let el = root.activeElement
           while (el && el.shadowRoot && el.shadowRoot.activeElement) {
-            el = el.shadowRoot.activeElement;
+            el = el.shadowRoot.activeElement
           }
-          return el;
+          return el
         }
 
         if (visualViewport.width < 800) {
-          setTimeout(() => window.scrollTo({ top: 80 }), 50);
+          setTimeout(() => window.scrollTo({ top: 80 }), 50)
 
-          document.addEventListener("focusin", () => {
-            const active = deepActiveElement();
-            if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
-              document.body.classList.add("--ios-safari-active-el");
+          document.addEventListener('focusin', () => {
+            const active = deepActiveElement()
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+              document.body.classList.add('--ios-safari-active-el')
             }
-          });
+          })
 
-          document.addEventListener("focusout", () => {
-            const active = deepActiveElement();
+          document.addEventListener('focusout', () => {
+            const active = deepActiveElement()
             if (active && active === document.body) {
-              document.body.classList.remove("--ios-safari-active-el");
-              window.scrollTo({ top: 80 });
-              setTimeout(() => window.scrollTo({ top: 80 }), 50);
+              document.body.classList.remove('--ios-safari-active-el')
+              window.scrollTo({ top: 80 })
+              setTimeout(() => window.scrollTo({ top: 80 }), 50)
             }
-          });
+          })
         }
       }
     </script>
