@@ -11,7 +11,7 @@ define('health-check', () => {
   const check = async () => {
     if (url) {
       holder.current.setAttribute('class', 'undefined')
-      await sleep(100)
+      await sleep(Math.random() * 400)
       const start = Date.now()
       let ok = false
       try {
@@ -55,24 +55,24 @@ define('health-check', () => {
         text-decoration: none;
       }
       [circle] {
-        width: 1ch;
-        height: 1ch;
-        border-radius: 1ch;
+        width: 1ex;
+        height: 1ex;
+        border-radius: 1ex;
         display: inline-block;
-        background: var(--fg);
+        background: var(--border);
         margin-right: 1ex;
         transition:
-          background 0.2s,
-          box-shadow 0.2s;
+          background 0.1s,
+          box-shadow 0.1s;
 
         .ok & {
           background: var(--success);
-          box-shadow: 0 0 8px 2px var(--success);
+          box-shadow: 0 0 8px 1px var(--success);
         }
 
         .error & {
           background: var(--error);
-          box-shadow: 0 0 8px 2px var(--error);
+          box-shadow: 0 0 8px 1px var(--error);
         }
       }
 

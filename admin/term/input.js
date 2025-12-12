@@ -12,7 +12,7 @@ define('main-input', () => {
   let readrej
   let history
 
-  onAttribute('shellname', (name) => ((shellname = name), setpref()))
+  onAttribute('shellname', (name) => ((shellname = name ?? ''), setpref()))
   onProperty('history', (h) => (history = h))
 
   const setpref = (pref) => {

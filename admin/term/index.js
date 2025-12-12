@@ -42,7 +42,7 @@ define('admin-terminal', () => {
 
   attachControls(term)
 
-  onAttribute('shellname', (name) => term.name(name))
+  onAttribute('shellname', (name) => term.name(name ?? ''))
 
   return html`
     <style>
@@ -75,6 +75,10 @@ define('admin-terminal', () => {
             min-height: 0;
             overflow-y: auto;
             border-bottom: 1px solid var(--border);
+          }
+
+          @media screen and (max-width: 600px) {
+            display: none;
           }
         }
       }
