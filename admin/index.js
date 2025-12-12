@@ -28,7 +28,7 @@ const loadenv = async () => {
 }
 
 const DEFAULT_ENV = {
-  BANK_URL: 'https://bank.balodsa.city',
+  BANK_URL: 'https://bank.baldosa.city',
   BASE_URL: 'https://dp5ho7dvg88z2.cloudfront.net',
 }
 
