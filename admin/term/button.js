@@ -9,6 +9,7 @@ define('t-btn', () => {
       button {
         padding: 1ch;
         min-width: 12ch;
+        border: none;
         border-radius: 0.75ch;
         cursor: pointer;
         font-family: var(--font);

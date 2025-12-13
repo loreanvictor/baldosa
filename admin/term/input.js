@@ -2,11 +2,12 @@ import { define, useDispatch, attachControls, onAttribute, onProperty } from 'mi
 import { html, ref } from 'rehtm'
 
 define('main-input', () => {
+  const cmd = useDispatch('cmd')
+  const defocus = useDispatch('defocus')
   const holder = ref()
   const input = ref()
   const suggestion = ref()
   const prefix = ref()
-  const cmd = useDispatch('cmd')
   let shellname = ''
   let mode = 'cmd'
   let readres
@@ -46,8 +47,12 @@ define('main-input', () => {
     const command = input.current?.value.trim()
     if (e.key === 'Tab' && mode === 'cmd' && completer) {
       e.preventDefault()
-      const suggestion = completer.next(command)
-      suggestion && (input.current.value = suggestion)
+      if (e.shiftKey) {
+        defocus()
+      } else {
+        const suggestion = completer.next(command)
+        suggestion && (input.current.value = suggestion)
+      }
     } else if (e.key === 'Enter' && command !== '') {
       e.preventDefault()
       history?.reset()
@@ -127,6 +132,7 @@ define('main-input', () => {
       }
       input.current.focus()
     },
+    focus: () => input.current.focus(),
   })
 
   return html`

@@ -29,16 +29,16 @@ export const users = async (...args) => {
 
   const users = await res.json()
   if (users.length > 0) {
-    term.log(html`<hr />`)
+    term.hr()
     users.forEach((user) => {
       term.log(
-        html`<col-3 layout="1fr 1fr 2fr" onclick=${() => term.paste(`user ${user.id}`, true)}>
-          <t-cp term=${term} content=${user.id} slot="left">${trim(user.id, 16, 'middle')}</t-cp>
-          <span slot="middle">${trim(user.first_name + ' ' + user.last_name, 56, 'end')}</span>
-          <t-cp term=${term} slot="right">${trim(user.email, 64, 'middle')}</t-cp>
-        </col-3>`,
+        html`<t-cols layout="1fr 1fr 2fr" onclick=${() => term.paste(`user ${user.id}`, true)}>
+          <t-cp actionable term=${term} content=${user.id}>${trim(user.id, 16, 'middle')}</t-cp>
+          <span>${trim(user.first_name + ' ' + user.last_name, 56, 'end')}</span>
+          <t-cp term=${term}>${trim(user.email, 64, 'middle')}</t-cp>
+        </t-cols>`,
       )
-      term.log(html`<hr />`)
+      term.hr()
     })
   } else {
     term.log(html`<t-warn>no more users found.</t-warn>`)

@@ -1,9 +1,11 @@
 use axum::{
-  extract::{Extension, Json, Path},
+  extract::{Extension, Json, Path, Query},
   response::IntoResponse,
 };
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+
+use crate::auth::admin::AdminUser;
 
 use super::super::book::{bid::next_auction_time, Bid, Book, Coords};
 use super::super::config::Config;
@@ -53,4 +55,22 @@ pub async fn occupant_bid(
   LiveBidByCoordsForAdmin(bid, _): LiveBidByCoordsForAdmin,
 ) -> Result<impl IntoResponse, BiddingError> {
   Ok(Json(bid))
+}
+
+#[derive(Deserialize)]
+pub struct BidsPagination {
+  pub offset: Option<u32>,
+  pub limit: Option<u32>,
+}
+
+pub async fn all_live_bids(
+  Extension(book): Extension<Book>,
+  Query(BidsPagination { offset, limit }): Query<BidsPagination>,
+  AdminUser(_): AdminUser,
+) -> Result<impl IntoResponse, BiddingError> {
+  book
+    .all_live_bids(offset.unwrap_or(0), limit.unwrap_or(32))
+    .await
+    .map_err(|_| BiddingError::Unknown)
+    .map(Json)
 }

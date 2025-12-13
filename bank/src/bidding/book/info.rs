@@ -34,6 +34,22 @@ impl Book {
     .await
   }
 
+  pub async fn all_live_bids(&self, offset: u32, limit: u32) -> Result<Vec<Bid>, sqlx::Error> {
+    sqlx::query_as!(
+      Bid,
+      "
+        select bids.* from published_tiles
+        join bids on published_tiles.occupant_bid = bids.id
+        order by bids.published_at desc
+        offset $1 limit $2
+      ",
+      i64::from(offset),
+      i64::from(limit),
+    )
+    .fetch_all(&self.pool)
+    .await
+  }
+
   pub async fn should_publish_immediately(&self, bid: &Bid) -> Result<bool, sqlx::Error> {
     let guaranteed_occupancy: Interval =
       Interval::try_from(self.config.guaranteed_occupancy).unwrap();

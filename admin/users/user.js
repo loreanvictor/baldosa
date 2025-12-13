@@ -32,8 +32,8 @@ export const user = async (...args) => {
   const user = await res.json()
 
   if (!silent) {
-    term.log(html`<k-v><span slot="key">id</span><t-cp term=${term}>${user.id}</t-cp></k-v>`)
-    term.log(html`<k-v><span slot="key">email</span>${user.email}</k-v>`)
+    term.log(html`<k-v><span slot="key">id</span><t-cp actionable term=${term}>${user.id}</t-cp></k-v>`)
+    term.log(html`<k-v><span slot="key">email</span><t-cp actionable term=${term}>${user.email}</t-cp></k-v>`)
     term.log(html`<k-v><span slot="key">first name</span>${user.first_name}</k-v>`)
     term.log(html`<k-v><span slot="key">last_name</span>${user.last_name}</k-v>`)
     term.log(

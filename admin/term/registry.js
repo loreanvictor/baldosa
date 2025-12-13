@@ -17,10 +17,10 @@ export const run = async (command, opts) => {
 
   if (!opts?.silent) {
     term.newline()
-    term.log(
-      html`<span>
+    term.append(
+      html`<div>
         <t-prim><b>${account()?.name ?? ''}${'$'}</b></t-prim> ${command}
-      </span>`,
+      </div>`,
     )
     term.newline()
   }

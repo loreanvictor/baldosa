@@ -5,8 +5,7 @@ import { withTerm } from './context.js'
 import { makeHistory } from './history.js'
 import { run, completer } from './registry.js'
 import './input.js'
-import './textual.js'
-import './button.js'
+import './log.js'
 import './echo.js'
 import './clear.js'
 import './tip.js'
@@ -16,20 +15,27 @@ define('admin-terminal', () => {
   const result = ref()
   const aside = ref()
   const input = ref()
-  let _target
+  let _target = 'main'
 
   const toBottom = () => {
     result.current.scrollTo({ top: result.current.scrollHeight, behavior: 'smooth' })
   }
 
-  const target = () => (_target === 'aside' ? aside.current : result.current)
+  const target = () => (_target === 'aside' ? aside.current : _target === 'main' ? result.current : _target)
 
   const term = {
     clear: () => (term.clearMain(), term.clearAside()),
     clearMain: () => (result.current.innerHTML = ''),
     clearAside: () => (aside.current.innerHTML = ''),
-    log: (child) => (target().appendChild(html`<div log><div>${child}</div></div>`), toBottom()),
+    log: (child) => (target().appendChild(html`<t-log>${child}</t-log>`), toBottom()),
     append: (child) => (target().appendChild(child), toBottom()),
+    on: (holder, fn) => {
+      const _t = target()
+      term.target(holder)
+      _t.appendChild(holder)
+      fn()
+      term.target()
+    },
     aside: (child) => {
       aside.current.innerHTML = ''
       aside.current.appendChild(child)
@@ -37,13 +43,18 @@ define('admin-terminal', () => {
     read: (prompt, secret) => input.current.controls.read(prompt, secret),
     paste: (text, replace) => input.current.controls.paste(text, replace),
     newline: () => (target().appendChild(html`<br />`), toBottom()),
+    hr: () => (target().appendChild(html`<hr />`), toBottom()),
     run: (command, opts) => withTerm(term, () => run(command, opts)),
     name: (name) => {
       term.history = makeHistory(name)
       input.current.setAttribute('shellname', name)
       input.current.setProperty('history', term.history)
     },
-    target: (t) => ((_target = t), t === 'aside' && (aside.current.innerHTML = '')),
+    target: (t) => {
+      _target = t ?? 'main'
+      t === 'aside' && (aside.current.innerHTML = '')
+      t instanceof DocumentFragment && (_target = t.firstChild)
+    },
     history: makeHistory(''),
     env: {},
   }
@@ -72,6 +83,10 @@ define('admin-terminal', () => {
         *::selection {
           background: var(--hl);
           color: var(--bg);
+        }
+
+        a {
+          color: var(--fg);
         }
 
         & > div {
@@ -107,6 +122,7 @@ define('admin-terminal', () => {
             flex: 1 1 auto;
             min-height: 0;
             overflow-y: auto;
+            padding-bottom: 2ch;
             border-bottom: 1px solid var(--border);
           }
 
@@ -115,15 +131,16 @@ define('admin-terminal', () => {
           }
         }
       }
-
-      [log] {
-        white-space: normal;
-        word-break: break-all;
-      }
     </style>
     <div>
       <pre ref=${result}></pre>
-      <main-input ref=${input} completer=${completer()} oncmd=${({ detail }) => term.run(detail)}></main-input>
+      <main-input
+        ref=${input}
+        completer=${completer()}
+        ondefocus=${() => result.current.querySelector('t-log:last-of-type')?.focus()}
+        oncmd=${({ detail }) => term.run(detail)}
+      >
+      </main-input>
     </div>
     <aside>
       <div ref=${aside}></div>

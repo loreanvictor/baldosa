@@ -1,9 +1,9 @@
 use chrono::Utc;
 use serde_json::to_value;
 
-use crate::auth::AuthenticatedUser;
-use super::core::Book;
 use super::bid::Bid;
+use super::core::Book;
+use crate::auth::AuthenticatedUser;
 
 impl Book {
   pub async fn mark_as_published(&self, bid: &mut Bid) -> Result<(), sqlx::Error> {
@@ -56,7 +56,12 @@ impl Book {
     }
   }
 
-  pub async fn reject(&self, bid: &mut Bid, user: &AuthenticatedUser, reason: &str) -> Result<(), sqlx::Error> {
+  pub async fn reject(
+    &self,
+    bid: &mut Bid,
+    user: &AuthenticatedUser,
+    reason: &str,
+  ) -> Result<(), sqlx::Error> {
     if bid.rejection.is_some() {
       return Ok(());
     }
@@ -73,7 +78,8 @@ impl Book {
       "update bids set rejection = $1 where id = $2",
       to_value(rejection).unwrap(),
       bid.id
-    ).execute(&mut *tx)
+    )
+    .execute(&mut *tx)
     .await?;
 
     sqlx::query!(
