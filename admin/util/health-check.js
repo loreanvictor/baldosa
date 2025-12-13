@@ -8,10 +8,11 @@ define('health-check', () => {
   const time = ref()
   let url
 
-  const check = async () => {
+  const check = async (delay = true) => {
     if (url) {
+      delay && (await sleep(Math.random() * 4_000))
       holder.current.setAttribute('class', 'undefined')
-      await sleep(Math.random() * 400)
+      await sleep(Math.random() * 500)
       const start = Date.now()
       let ok = false
       try {
@@ -43,36 +44,44 @@ define('health-check', () => {
 
   let interval
   onConnected(() => {
-    interval = setInterval(check, 1400)
+    setTimeout(() => check(false), 500)
+    interval = setInterval(check, 10_000)
   })
 
   onDisconnected(() => clearInterval(interval))
 
   return html`
     <style>
+      @keyframes glow {
+        from { box-shadow: box-shadow: 0 0 8px 1px var(--color); }
+        to { box-shadow: 0 0 16px 3px var(--color); }
+      }
       a {
         color: var(--fg);
         text-decoration: none;
       }
       [circle] {
+        --color: var(--border);
         width: 1ex;
         height: 1ex;
         border-radius: 1ex;
         display: inline-block;
-        background: var(--border);
+        background: var(--color);
         margin-right: 1ex;
         transition:
-          background 0.1s,
-          box-shadow 0.1s;
+          background 0.2s,
+          box-shadow 0.2s;
 
         .ok & {
-          background: var(--success);
-          box-shadow: 0 0 8px 1px var(--success);
+          --color: var(--success);
         }
 
         .error & {
-          background: var(--error);
-          box-shadow: 0 0 8px 1px var(--error);
+          --color: var(--error);
+        }
+
+        .ok &, .error & {
+          animation: glow 3s alternate infinite;
         }
       }
 

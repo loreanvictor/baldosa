@@ -23,6 +23,7 @@ mod passkeys;
 mod register;
 mod storage;
 pub mod user;
+mod users;
 
 pub use error::AuthError;
 pub use user::AuthenticatedUser;
@@ -114,7 +115,8 @@ pub fn router(db: &Pool<Postgres>) -> Router {
     .route("/passkeys/{id}", delete(passkeys::remove))
     .nest("/email", email::router())
     .layer(Extension(Arc::new(webauthn)))
-    .layer(Extension(storage))
     .layer(session)
     .layer(cors)
+    .nest("/users", users::router())
+    .layer(Extension(storage))
 }

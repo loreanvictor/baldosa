@@ -169,6 +169,17 @@ impl AuthStorage {
     }
   }
 
+  pub async fn get_users(&self, offset: u32, limit: u32) -> Result<Vec<StoredUser>, sqlx::Error> {
+    sqlx::query_as!(
+      StoredUser,
+      "select * from users order by created_at desc offset $1 limit $2",
+      i64::from(offset),
+      i64::from(limit)
+    )
+    .fetch_all(&self.pool)
+    .await
+  }
+
   pub async fn verify_user_email(&self, id: Uuid) -> Result<Option<StoredUser>, sqlx::Error> {
     let res = sqlx::query_as!(
       StoredUser,

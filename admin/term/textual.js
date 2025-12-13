@@ -1,4 +1,4 @@
-import { define, onProperty, currentNode } from 'minicomp'
+import { define, onProperty, onAttribute, currentNode } from 'minicomp'
 import { html } from 'rehtm'
 
 import { currentTerm } from './context.js'
@@ -9,8 +9,13 @@ define(
     <style>
       div {
         display: flex;
+        gap: 2ex;
         span {
           width: 32ex;
+        }
+
+        &:hover {
+          background: var(--fade-hl);
         }
       }
     </style>
@@ -98,21 +103,73 @@ define(
 define('t-cp', () => {
   const self = currentNode()
   let term = currentTerm()
+  let content = undefined
 
   onProperty('term', (t) => (term = t))
+  onAttribute('content', (c) => (content = c))
 
   return html`
     <style>
       span {
         cursor: pointer;
+        color: var(--tertiary);
         &:hover {
-          background: var(--fg);
+          background: var(--tertiary);
           color: var(--bg);
         }
       }
     </style>
-    <span onclick=${() => term?.paste(self.textContent)}>
+    <span onclick=${(e) => (e.stopPropagation(), term?.paste(content ?? self.textContent))}>
       <slot></slot>
     </span>
   `
 })
+
+define(
+  'col-2',
+  ({ layout }) => html`
+    <style>
+      :host > div {
+        display: grid;
+        grid-template-columns: ${layout ?? '1fr 1fr'};
+        gap: 2ex;
+        & > div {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        &:hover {
+          background: var(--fade-hl);
+        }
+      }
+    </style>
+    <div style=${`grid-template-columns: ${layout ?? '1fr 1fr'}`}>
+      <div><slot name="left"></slot></div>
+      <div><slot name="right"></slot></div>
+    </div>
+  `,
+)
+
+define(
+  'col-3',
+  ({ layout }) => html`
+    <style>
+      :host > div {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 2ex;
+        & > div {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        &:hover {
+          background: var(--fade-hl);
+        }
+      }
+    </style>
+    <div style=${`grid-template-columns: ${layout ?? '1fr 1fr 1fr'}`}>
+      <div><slot name="left"></slot></div>
+      <div><slot name="middle"></slot></div>
+      <div><slot name="right"></slot></div>
+    </div>
+  `,
+)

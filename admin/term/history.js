@@ -1,5 +1,6 @@
 export const makeHistory = (name) => {
   let history = []
+  let rotation = history
   let cursor = -1
   const key = `${name} shell history`
 
@@ -7,7 +8,7 @@ export const makeHistory = (name) => {
 
   const load = () => {
     const stored = localStorage.getItem(key)
-    stored && ((history = JSON.parse(stored)), reset())
+    stored && ((rotation = history = JSON.parse(stored)), reset())
   }
 
   const save = () => {
@@ -15,12 +16,15 @@ export const makeHistory = (name) => {
   }
 
   const push = (command) => {
-    history.push(command)
-    reset()
-    save()
+    if (command !== history[history.length - 1]) {
+      history.push(command)
+      rotation = history
+      reset()
+      save()
+    }
   }
 
-  const empty = () => history.length === 0
+  const empty = () => rotation.length === 0
 
   const clear = () => {
     history = []
@@ -29,23 +33,36 @@ export const makeHistory = (name) => {
   }
 
   const next = () => {
-    if (cursor === history.length - 1 || cursor === -1) {
+    if (cursor === rotation.length - 1 || cursor === -1) {
       reset()
       return ''
     } else {
       cursor++
-      return history[cursor]
+      return rotation[cursor] ?? ''
     }
   }
 
   const prev = () => {
     if (cursor === -1) {
-      cursor = history.length - 1
+      cursor = rotation.length - 1
     } else if (cursor > 0) {
       cursor--
     }
 
-    return history[cursor]
+    return rotation[cursor] ?? ''
+  }
+
+  const search = (start) => {
+    rotation = history.filter((h) => h.startsWith(start))
+
+    reset()
+    const result = prev()
+    return prev()
+  }
+
+  const endsearch = () => {
+    rotation = history
+    reset()
   }
 
   load()
@@ -58,5 +75,7 @@ export const makeHistory = (name) => {
     save,
     clear,
     empty,
+    search,
+    endsearch,
   }
 }

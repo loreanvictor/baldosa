@@ -1,5 +1,5 @@
 use axum::{
-  extract::{Extension, Json, Query},
+  extract::{Extension, Json, Path, Query},
   response::IntoResponse,
 };
 use serde::Deserialize;
@@ -122,6 +122,18 @@ pub async fn inject(
     Ok(result) => Ok(Json(result)),
     Err(err) => Err(err),
   }
+}
+
+pub async fn user_balance(
+  Extension(ledger): Extension<Ledger>,
+  Path(id): Path<Uuid>,
+  AdminUser(_): AdminUser,
+) -> Result<impl IntoResponse, WalletError> {
+  ledger
+    .find_balance(&Account::of_user(&id))
+    .await
+    .map(Json)
+    .map_err(|_| WalletError::TransactionNotFound)
 }
 
 #[derive(Deserialize)]

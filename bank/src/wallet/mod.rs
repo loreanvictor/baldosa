@@ -36,6 +36,7 @@ pub fn router(ledger: &Ledger) -> Router {
     .route("/rescind", post(api::rescind))
     .route("/offer", post(api::offer))
     // --- ADMIN APIS --- \\
+    .route("/admin/balance/{id}", get(api::user_balance))
     .route("/admin/inject", post(api::inject))
     .route("/admin/partially-accept", post(api::partially_accept))
     // --- LAYERS --- \\

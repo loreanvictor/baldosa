@@ -7,7 +7,10 @@ import { register, currentTerm, TermError } from './term/index.js'
 
 import './term/textual.js'
 import './tiles/index.js'
-import './health-check.js'
+import './users/index.js'
+import './wallet/index.js'
+import './util/health-check.js'
+import './util/exit.js'
 
 const loadenv = async () => {
   const res = await fetch('/.env')
@@ -68,7 +71,9 @@ init.desc = 'initializes the terminal.'
 register('init', init)
 
 const terminal = document.querySelector('admin-terminal')
-terminal.controls.run('init', { silent: true })
+terminal.controls.run('init', { silent: true }).then(() => {
+  terminal.controls.run('tip', { silent: true })
+})
 
 listenToBroadcast('env:set', ({ key, value }) => {
   if (key === 'BANK_URL') {
