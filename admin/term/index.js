@@ -7,6 +7,7 @@ import { run, completer } from './registry.js'
 import './input.js'
 import './textual.js'
 import './button.js'
+import './echo.js'
 import './clear.js'
 import './tip.js'
 import './env.js'
@@ -24,7 +25,9 @@ define('admin-terminal', () => {
   const target = () => (_target === 'aside' ? aside.current : result.current)
 
   const term = {
-    clear: () => ((result.current.innerHTML = ''), (aside.current.innerHTML = '')),
+    clear: () => (term.clearMain(), term.clearAside()),
+    clearMain: () => (result.current.innerHTML = ''),
+    clearAside: () => (aside.current.innerHTML = ''),
     log: (child) => (target().appendChild(html`<div log><div>${child}</div></div>`), toBottom()),
     append: (child) => (target().appendChild(child), toBottom()),
     aside: (child) => {
