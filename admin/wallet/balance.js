@@ -4,7 +4,7 @@ import { html } from 'rehtm'
 import { register, currentTerm, TermError, withTerm } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
 import '../term/textual.js'
-import { user as getUser } from '../users/index.js'
+import '../users/index.js'
 
 import { baseUrl } from './base.js'
 
@@ -19,7 +19,7 @@ const balance = async (...args) => {
       throw new TermError('must provide either user id or email.')
     }
 
-    const _user = await withTerm(term, () => getUser('-e', _email, '--silent'))
+    const _user = await term.run(`user -e ${_email} -s`, { silent: true })
     _id = _user.id
   }
 

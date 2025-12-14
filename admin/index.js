@@ -13,6 +13,7 @@ import './util/health-check.js'
 import './util/exit.js'
 
 const loadenv = async () => {
+  console.log('HELLOW')
   const res = await fetch('/.env')
   if (!res.ok) {
     return {}
@@ -61,9 +62,9 @@ const init = async () => {
   })
 
   if (!term.env['ADMIN_KEY']) {
-    term.log(' ')
+    term.newline()
     term.log(html`<t-warn>IMPORTANT!</t-warn>`)
-    term.log(html`<span>👉 set admin key using <t-cp term=${term}>env -s admin_key</t-cp>.</span>`)
+    term.log(html`<span>👉 set admin key using <t-cp actionable term=${term}>env -s admin_key</t-cp>.</span>`)
   }
 }
 

@@ -3,7 +3,9 @@ import { ref, html } from 'rehtm'
 
 import { withTerm } from './context.js'
 import { makeHistory } from './history.js'
+import { makeNotes } from './cat.js'
 import { run, completer } from './registry.js'
+import { expand } from './env.js'
 import './input.js'
 import './log.js'
 import './echo.js'
@@ -33,8 +35,11 @@ define('admin-terminal', () => {
       const _t = target()
       term.target(holder)
       _t.appendChild(holder)
-      fn()
-      term.target()
+      try {
+        fn()
+      } finally {
+        term.target()
+      }
     },
     aside: (child) => {
       aside.current.innerHTML = ''
@@ -44,7 +49,18 @@ define('admin-terminal', () => {
     paste: (text, replace) => input.current.controls.paste(text, replace),
     newline: () => (target().appendChild(html`<br />`), toBottom()),
     hr: () => (target().appendChild(html`<hr />`), toBottom()),
-    run: (command, opts) => withTerm(term, () => run(command, opts)),
+    run: (command, opts) => {
+      const expanded = withTerm(term, () => expand(command))
+      const [cmd, target] = expanded.split('>').map((_) => _.trim())
+
+      return withTerm(term, () =>
+        run(cmd, {
+          ...opts,
+          target: target ?? opts?.target,
+          input: command,
+        }),
+      )
+    },
     name: (name) => {
       term.history = makeHistory(name)
       input.current.setAttribute('shellname', name)
@@ -54,8 +70,10 @@ define('admin-terminal', () => {
       _target = t ?? 'main'
       t === 'aside' && (aside.current.innerHTML = '')
       t instanceof DocumentFragment && (_target = t.firstChild)
+      typeof t === 'string' && t !== 'main' && t !== 'aside' && (_target = term.notes.note(t, true))
     },
     history: makeHistory(''),
+    notes: makeNotes(),
     env: {},
   }
 
@@ -68,76 +86,76 @@ define('admin-terminal', () => {
       :host {
         display: flex;
         gap: 4ex;
+      }
 
-        hr {
-          border: none;
-          background: var(--border);
-          height: 1.5px;
-        }
+      hr {
+        border: none;
+        background: var(--border);
+        height: 1.5px;
+      }
 
-        pre {
-          margin: 0;
-          padding: 0;
-        }
+      pre {
+        margin: 0;
+        padding: 0;
+      }
 
-        *::selection {
-          background: var(--hl);
-          color: var(--bg);
-        }
+      *::selection {
+        background: var(--hl);
+        color: var(--bg);
+      }
 
-        a {
-          color: var(--fg);
-        }
+      a {
+        color: var(--fg);
+      }
 
-        & > div {
-          min-width: 0;
-          flex: 1 1 auto;
+      #main {
+        min-width: 0;
+        flex: 1 1 auto;
 
-          & > pre {
-            max-height: calc(80vh - 13ch);
-            overflow: auto;
-          }
-        }
-
-        & > aside {
-          width: 30vw;
-          min-width: 20vw;
-          max-width: 50vw;
-          height: calc(80vh - 10ch);
-          flex-shrink: 0;
-          padding-left: 4ex;
-          border-left: 1px solid var(--border);
-          display: flex;
-          flex-direction: column;
-          gap: 2ch;
-          resize: horizontal;
+        & > pre {
+          max-height: calc(80vh - 13ch);
           overflow: auto;
-          direction: rtl;
+        }
+      }
 
-          & > * {
-            direction: ltr;
-          }
+      aside {
+        width: 30vw;
+        min-width: 20vw;
+        max-width: 50vw;
+        height: calc(80vh - 10ch);
+        flex-shrink: 0;
+        padding-left: 4ex;
+        border-left: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 2ch;
+        resize: horizontal;
+        overflow: auto;
+        direction: rtl;
 
-          & > div:first-child {
-            flex: 1 1 auto;
-            min-height: 0;
-            overflow-y: auto;
-            padding-bottom: 2ch;
-            border-bottom: 1px solid var(--border);
-          }
+        & > * {
+          direction: ltr;
+        }
 
-          @media screen and (max-width: 600px) {
-            display: none;
-          }
+        & > div:first-child {
+          flex: 1 1 auto;
+          min-height: 0;
+          overflow-y: auto;
+          padding-bottom: 2ch;
+          border-bottom: 1px solid var(--border);
+        }
+
+        @media screen and (max-width: 600px) {
+          display: none;
         }
       }
     </style>
-    <div>
+    <div id="main">
       <pre ref=${result}></pre>
       <main-input
         ref=${input}
         completer=${completer()}
-        ondefocus=${() => result.current.querySelector('t-log:last-of-type')?.focus()}
+        ondefocus=${() => [...result.current.querySelectorAll('t-log')].at(-1)?.focus()}
         oncmd=${({ detail }) => term.run(detail)}
       >
       </main-input>

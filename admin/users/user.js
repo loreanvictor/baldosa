@@ -9,9 +9,10 @@ import { baseUrl } from './base.js'
 
 export const user = async (...args) => {
   const term = currentTerm()
-  const { _, e, email, i, id, silent } = yargs(args).parse()
+  const { _, e, email, i, id, s, silent } = yargs(args).parse()
   const _id = i ?? id ?? _[0]
   const _email = e ?? email
+  const _silent = s ?? silent
 
   if (!_id && !_email) {
     throw new TermError('must provide either id or email.', 'use `man user` to learn more.')
@@ -31,7 +32,7 @@ export const user = async (...args) => {
 
   const user = await res.json()
 
-  if (!silent) {
+  if (!_silent) {
     term.log(html`<k-v><span slot="key">id</span><t-cp actionable term=${term}>${user.id}</t-cp></k-v>`)
     term.log(html`<k-v><span slot="key">email</span><t-cp actionable term=${term}>${user.email}</t-cp></k-v>`)
     term.log(html`<k-v><span slot="key">first name</span>${user.first_name}</k-v>`)

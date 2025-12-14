@@ -66,3 +66,5 @@ env.man = (term) => {
 }
 
 register('env', env)
+
+export const expand = (input) => input.replace(/\$\{?([A-Z0-9_]+)\}?/gi, (_, key) => currentTerm().env[key] ?? '')

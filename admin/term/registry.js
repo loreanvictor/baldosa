@@ -13,28 +13,27 @@ export const register = (cmd, fn) => {
 
 export const run = async (command, opts) => {
   const term = currentTerm()
-  const [c, target] = command.split('>').map((_) => _.trim())
 
   if (!opts?.silent) {
     term.newline()
     term.append(
       html`<div>
-        <t-prim><b>${account()?.name ?? ''}${'$'}</b></t-prim> ${command}
+        <t-prim><b>${account()?.name ?? ''}${'$'}</b></t-prim> ${opts?.input ?? command}
       </div>`,
     )
     term.newline()
   }
 
-  const [cmd, ...args] = c.split(' ').filter((c) => c !== '')
+  const [cmd, ...args] = command.split(' ').filter((c) => c !== '')
   if (cmd in registry) {
     try {
-      term.target(target)
-      await registry[cmd](...args)
+      term.target(opts.target)
+      return await registry[cmd](...args)
     } catch (err) {
       if (err instanceof TermError) {
         err.display(term)
       } else {
-        console.error(err)
+        throw err
       }
     } finally {
       term.target()

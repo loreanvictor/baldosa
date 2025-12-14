@@ -54,7 +54,11 @@ define('health-check', () => {
     <style>
       @keyframes glow {
         from { box-shadow: box-shadow: 0 0 8px 1px var(--color); }
-        to { box-shadow: 0 0 16px 3px var(--color); }
+        to { box-shadow: 0 0 16px 2px var(--color); }
+      }
+      @keyframes flicker {
+        from { opacity: .65 }
+        to { opacity: 1 }
       }
       a {
         color: var(--fg);
@@ -81,7 +85,7 @@ define('health-check', () => {
         }
 
         .ok &, .error & {
-          animation: glow 3s alternate infinite;
+          animation: glow 3s alternate infinite, flicker 100ms infinite;
         }
       }
 

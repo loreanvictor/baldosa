@@ -10,6 +10,7 @@ const TIPS = [
   'use `env -s` to store secrets without storing them in the history.',
   'press <tab> key to autocomplete commands.',
   'drag the side bar (bottom left corner) to resize it.',
+  'use `$ENV` variables in other commands.',
 ]
 
 const tip = () => {

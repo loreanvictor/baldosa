@@ -13,7 +13,7 @@ define('t-log', () => {
       if (next) {
         e.preventDefault()
         next.focus()
-      } else {
+      } else if (index === items.length - 1) {
         root.querySelector('main-input')?.controls.focus()
       }
     } else if (e.key === 'Enter' || e.key === 'Space') {

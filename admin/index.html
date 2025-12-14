@@ -12,14 +12,13 @@
   <body>
     <main>
       <pre watermark>
-   ╭─╮
-   ╰─╯
-   ╭─╮
-   ╰─┼─╮ ╭─╮
-   ╭─┼─╯ ╰─┼─╮
- ╭─┼─┼─╮ ╭─┼─╯
- ╰─╯ ╰─╯ ╰─╯
-      </pre>
+
+
+ ▝▘
+ ▝▚▖▗▖
+▗▞▚▖▗▞▘</pre
+      >
+      <pre style="opacity: 0.45; margin: 0">baldosa admin v0.1</pre>
       <admin-terminal>
         <div slot="status-bar" style="text-align: right">
           <health-check name="bank" url="https://bank.baldosa.city/health"></health-check>
@@ -42,6 +41,23 @@
         --warn: #efa73e;
         --success: #a7e399;
       }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: white;
+          --fg: #757575;
+          --hl: black;
+          --border: #eee;
+          --fade-hl: #f5f5f5;
+          --primary: #447ed3;
+          --secondary: #9b5de0;
+          --tertiary: #5a0e24;
+          --error: #e53157;
+          --warn: #efa73e;
+          --success: #59ac77;
+        }
+      }
+
       html {
         background: var(--bg);
         color: var(--fg);
@@ -55,7 +71,7 @@
       main {
         width: 80vw;
         margin: 0 auto;
-        margin-top: 8ch;
+        margin-top: 4ch;
       }
 
       [watermark] {
