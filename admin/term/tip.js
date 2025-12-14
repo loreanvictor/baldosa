@@ -11,6 +11,7 @@ const TIPS = [
   'press <tab> key to autocomplete commands.',
   'drag the side bar (bottom left corner) to resize it.',
   'use `$ENV` variables in other commands.',
+  'save result of a command using `> <note-name>`.',
 ]
 
 const tip = () => {
