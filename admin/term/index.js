@@ -1,9 +1,9 @@
-import { define, attachControls, onAttribute } from 'minicomp'
+import { define, on, attachControls, onAttribute } from 'minicomp'
 import { ref, html } from 'rehtm'
 
 import { withTerm } from './context.js'
 import { makeHistory } from './history.js'
-import { makeNotes } from './cat.js'
+import { makeNotes } from './notes.js'
 import { run, completer } from './registry.js'
 import { expand } from './env.js'
 import './input.js'
@@ -80,6 +80,7 @@ define('admin-terminal', () => {
   attachControls(term)
 
   onAttribute('shellname', (name) => term.name(name ?? ''))
+  on('shellpaste', ({ detail }) => term.paste(detail.content, detail.replace))
 
   return html`
     <style>

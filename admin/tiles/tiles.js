@@ -4,7 +4,7 @@ import { html } from 'rehtm'
 import { register, currentTerm } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
 import { trim } from '../util/trim.js'
-import { baseUrl } from './base.js'
+import { baseUrl, imageUrl } from './base.js'
 
 import '../term/textual.js'
 import './preview.js'
@@ -39,10 +39,18 @@ const tiles = async (...args) => {
           layout="1fr 5rem 1fr 1fr"
           onclick=${() => {
             term.aside(html`
-              <tile-preview term=${term} x=${bid.x} y=${bid.y} content=${bid.content}></tile-preview>
+              <tile-preview
+                x=${bid.x}
+                y=${bid.y}
+                title=${bid.content?.title}
+                subtitle=${bid.content?.subtitle}
+                description=${bid.content?.description}
+                url=${bid.content?.url}
+                img=${imageUrl(bid.x, bid.y, term)}
+              ></tile-preview>
               <hr />
-              <k-v><span slot="key">id</span><t-cp term=${term}>${bid.id}</t-cp></k-v>
-              <k-v><span slot="key">bidder</span><t-cp term=${term}>${bid.bidder}</t-cp></k-v>
+              <k-v><span slot="key">id</span><t-cp>${bid.id}</t-cp></k-v>
+              <k-v><span slot="key">bidder</span><t-cp>${bid.bidder}</t-cp></k-v>
               <k-v><span slot="key">amount</span>${bid.amount}</k-v>
               <k-v><span slot="key">published</span>${new Date(bid.published_at).toLocaleString()}</k-v>
               <t-btn-bar>
@@ -51,7 +59,7 @@ const tiles = async (...args) => {
             `)
           }}
         >
-          <t-cp actionable term=${term} content=${bid.id}>${trim(bid.id, 16, 'middle')}</t-cp>
+          <t-cp actionable content=${bid.id}>${trim(bid.id, 16, 'middle')}</t-cp>
           <a href=${`/?tile=${bid.x},${bid.y}`} target="_blank">${bid.x}, ${bid.y}</a>
           <div>${bid.content.title}</div>
           <div>${new Date(bid.published_at).toLocaleString()}</div>

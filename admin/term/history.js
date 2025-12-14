@@ -27,7 +27,7 @@ export const makeHistory = (name) => {
   const empty = () => rotation.length === 0
 
   const clear = () => {
-    history = []
+    rotation = history = []
     reset()
     localStorage.removeItem(key)
   }

@@ -1,7 +1,5 @@
-import { define, on, onProperty, onAttribute, currentNode } from 'minicomp'
+import { define, on, useDispatch, onAttribute, currentNode } from 'minicomp'
 import { html } from 'rehtm'
-
-import { currentTerm } from './context.js'
 
 define(
   'k-v',
@@ -101,13 +99,15 @@ define(
 )
 
 define('t-cp', () => {
+  const copy = useDispatch('shellpaste', { bubbles: true, composed: true })
   const self = currentNode()
-  let term = currentTerm()
   let content = undefined
 
-  onProperty('term', (t) => (term = t))
   onAttribute('content', (c) => (content = c))
-  on('click', (e) => (e.stopPropagation(), term?.paste(content ?? self.textContent)))
+  on('click', (e) => {
+    e.stopPropagation()
+    copy({ content: content ?? self.textContent })
+  })
 
   return html`
     <style>

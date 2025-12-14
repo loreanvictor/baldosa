@@ -1,13 +1,10 @@
-import { define, onProperty, onAttribute } from 'minicomp'
+import { define, onAttribute } from 'minicomp'
 import { html, ref } from 'rehtm'
 
 import '../term/button.js'
-import { imageUrl } from './image-url.js'
 
 define('tile-preview', () => {
-  let term
   let x, y
-  let content
   const pos = ref()
   const img = ref()
   const title = ref()
@@ -16,22 +13,19 @@ define('tile-preview', () => {
   const link = ref()
 
   const load = () => {
-    if (x && y && term && content) {
+    if (x && y) {
       pos.current.textContent = `${x}, ${y}`
       pos.current.href = `/?tile=${x},${y}`
-      img.current.src = imageUrl(x, y, term)
-      title.current.textContent = content.title
-      subtitle.current.textContent = content.subtitle
-      description.current.textContent = content.description
-      link.current.textContent = content.url
-      link.current.href = content.url
     }
   }
 
   onAttribute('x', (p) => ((x = p), load()))
   onAttribute('y', (p) => ((y = p), load()))
-  onProperty('term', (t) => ((term = t), load()))
-  onProperty('content', (c) => ((content = c), load()))
+  onAttribute('title', (v) => (title.current.textContent = v ?? ''))
+  onAttribute('subtitle', (v) => (subtitle.current.textContent = v ?? ''))
+  onAttribute('description', (v) => (description.current.textContent = v ?? ''))
+  onAttribute('url', (v) => v && ((link.current.textContent = v), (link.current.href = v)))
+  onAttribute('img', (v) => v && (img.current.src = v))
 
   return html`
     <style>

@@ -1,14 +1,23 @@
+import yargs from 'yargs'
 import { html } from 'rehtm'
 
 import { register, currentTerm, TermError } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
-import { baseUrl } from './base.js'
+import { baseUrl, imageUrl } from './base.js'
 
 import '../term/textual.js'
 import './preview.js'
 
-const tile = async (x, y) => {
+const tile = async (...args) => {
   const term = currentTerm()
+  const { _, p, preview } = yargs(args).parse()
+
+  const [x, y] = _
+  if (!x || !y) {
+    throw new TermError('invalid coordinates.')
+  }
+
+  const _preview = p || preview
 
   const res = await fetch(
     `${baseUrl()}/${x}:${y}/occupant`,
@@ -23,18 +32,32 @@ const tile = async (x, y) => {
   }
 
   const bid = await res.json()
-  term.aside(html`<tile-preview term=${term} x=${x} y=${y} content=${bid.content}></tile-preview>`)
-  term.log(html`<k-v><span slot="key">id</span><t-cp actionable term=${term}>${bid.id}</t-cp></k-v>`)
-  term.log(html`<k-v><span slot="key">bidder</span><t-cp actionable term=${term}>${bid.bidder}</t-cp></k-v>`)
-  term.log(html`<k-v><span slot="key">amount</span>${bid.amount}</k-v>`)
-  term.log(html`<k-v><span slot="key">tx</span><t-cp actionable term=${term}>${bid.tx}</t-cp></k-v>`)
-  term.log(html`<k-v><span slot="key">created</span>${new Date(bid.created_at).toLocaleString()}</k-v>`)
-  term.log(html`<k-v><span slot="key">published</span>${new Date(bid.published_at).toLocaleString()}</k-v>`)
-  term.log(
-    html`<t-btn-bar>
-      <t-btn onclick=${() => term.paste(`reject ${bid.id}`, true)}> REJECT </t-btn>
-    </t-btn-bar>`,
-  )
+  const prev = html`<tile-preview
+    x=${x}
+    y=${y}
+    title=${bid.content?.title}
+    subtitle=${bid.content?.subtitle}
+    description=${bid.content?.description}
+    url=${bid.content?.url}
+    img=${imageUrl(x, y, term)}
+  ></tile-preview>`
+
+  if (_preview) {
+    term.log(prev)
+  } else {
+    term.aside(prev)
+    term.log(html`<k-v><span slot="key">id</span><t-cp actionable>${bid.id}</t-cp></k-v>`)
+    term.log(html`<k-v><span slot="key">bidder</span><t-cp actionable>${bid.bidder}</t-cp></k-v>`)
+    term.log(html`<k-v><span slot="key">amount</span>${bid.amount}</k-v>`)
+    term.log(html`<k-v><span slot="key">tx</span><t-cp actionable>${bid.tx}</t-cp></k-v>`)
+    term.log(html`<k-v><span slot="key">created</span>${new Date(bid.created_at).toLocaleString()}</k-v>`)
+    term.log(html`<k-v><span slot="key">published</span>${new Date(bid.published_at).toLocaleString()}</k-v>`)
+    term.log(
+      html`<t-btn-bar>
+        <t-btn onclick=${() => term.paste(`reject ${bid.id}`, true)}> REJECT </t-btn>
+      </t-btn-bar>`,
+    )
+  }
 }
 
 tile.desc = 'fetches the bid occupying the tile'

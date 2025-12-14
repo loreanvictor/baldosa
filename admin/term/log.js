@@ -17,7 +17,6 @@ define('t-log', () => {
         root.querySelector('main-input')?.controls.focus()
       }
     } else if (e.key === 'Enter' || e.key === 'Space') {
-      console.log(host)
       host.querySelector('[actionable]')?.click()
     }
   })

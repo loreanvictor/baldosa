@@ -33,9 +33,9 @@ export const users = async (...args) => {
     users.forEach((user) => {
       term.log(
         html`<t-cols layout="1fr 1fr 2fr" onclick=${() => term.paste(`user ${user.id}`, true)}>
-          <t-cp actionable term=${term} content=${user.id}>${trim(user.id, 16, 'middle')}</t-cp>
+          <t-cp actionable content=${user.id}>${trim(user.id, 16, 'middle')}</t-cp>
           <span>${trim(user.first_name + ' ' + user.last_name, 56, 'end')}</span>
-          <t-cp term=${term}>${trim(user.email, 64, 'middle')}</t-cp>
+          <t-cp>${trim(user.email, 64, 'middle')}</t-cp>
         </t-cols>`,
       )
       term.hr()

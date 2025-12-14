@@ -39,8 +39,8 @@ const balance = async (...args) => {
   }
 
   const tx = await res.json()
-  term.log(html`<k-v><span slot="key">id</span><t-cp actionable term=${term}>${tx.id}</t-cp></k-v>`)
-  term.log(html`<k-v><span slot="key">owner</span><t-cp actionable term=${term}>${tx.receiver}</t-cp></k-v>`)
+  term.log(html`<k-v><span slot="key">id</span><t-cp actionable>${tx.id}</t-cp></k-v>`)
+  term.log(html`<k-v><span slot="key">owner</span><t-cp actionable>${tx.receiver}</t-cp></k-v>`)
   term.log(html`<k-v><span slot="key">amount</span>${tx.consumed_value + tx.merged_value}</k-v>`)
   term.log(html`<k-v><span slot="key">last update</span>${new Date(tx.created_at).toLocaleString()}</k-v>`)
 }

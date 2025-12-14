@@ -6,16 +6,16 @@ import { currentTerm } from './context.js'
 const clear = (...flags) => {
   const term = currentTerm()
 
+  if (flags.includes('-h') || flags.includes('--history')) {
+    term.history?.clear()
+  }
+
   if (flags.includes('-m') || flags.includes('--main')) {
     term.clearMain()
   } else if (flags.includes('-s') || flags.includes('--aside')) {
     term.clearAside()
   } else {
     term.clear()
-  }
-
-  if (flags.includes('-h') || flags.includes('--history')) {
-    term.history?.clear()
   }
 }
 
