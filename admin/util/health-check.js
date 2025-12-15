@@ -6,6 +6,7 @@ define('health-check', () => {
   const holder = ref()
   const name = ref()
   const time = ref()
+  const circle = ref()
   let url
 
   const check = async (delay = true) => {
@@ -23,9 +24,11 @@ define('health-check', () => {
 
       if (ok) {
         holder.current.setAttribute('class', 'ok')
+        circle.current.style.setProperty('--flicker-duration', `${(end - start) * 2}ms`)
         time.current.textContent = `(${end - start}ms)`
       } else {
         holder.current.setAttribute('class', 'error')
+        circle.current.style.setProperty('--flicker-duration', '3s')
         time.current.textContent = ''
       }
     }
@@ -66,6 +69,7 @@ define('health-check', () => {
       }
       [circle] {
         --color: var(--border);
+        --flicker-duration: 100ms;
         width: 1ex;
         height: 1ex;
         border-radius: 1ex;
@@ -85,7 +89,7 @@ define('health-check', () => {
         }
 
         .ok &, .error & {
-          animation: glow 3s alternate infinite, flicker 100ms infinite;
+          animation: glow 3s alternate infinite, flicker var(--flicker-duration) alternate infinite;
         }
       }
 
@@ -94,7 +98,7 @@ define('health-check', () => {
       }
     </style>
     <span ref=${holder}>
-      <span circle></span>
+      <span circle ref=${circle}></span>
       <a ref=${name} target="_blank"></a>
       <span time ref=${time}></span>
     </span>

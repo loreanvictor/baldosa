@@ -3,6 +3,7 @@ import { html, ref } from 'rehtm'
 
 import { singleton } from '../../util/singleton.js'
 
+import { user } from '../../account/auth/index.js'
 import '../../design/overlays/modal/component.js'
 import '../../design/buttons/button/components.js'
 import '../../design/display/textual.js'
@@ -13,6 +14,7 @@ import '../../design/inputs/image/component.js'
 
 import { loadDraft, updateDraft } from './draft.js'
 import { showHelp } from './help.js'
+import { suggest as getSuggestion } from './backend.js'
 
 export const modal = singleton('bid-content-modal', () => {
   const submit = useDispatch('submit')
@@ -31,6 +33,7 @@ export const modal = singleton('bid-content-modal', () => {
   const title = ref()
   const subtitle = ref()
   const url = ref()
+  const suggest = ref()
   const description = ref()
 
   const clear = () => {
@@ -75,7 +78,35 @@ export const modal = singleton('bid-content-modal', () => {
       btn.current.removeAttribute('disabled')
     }
 
+    if (user() && url.current?.validity?.valid && url.current?.value !== '') {
+      suggest.current.classList.add('enabled')
+    } else {
+      suggest.current.classList.remove('enabled')
+    }
+
     return valid
+  }
+
+  const suggestContent = async () => {
+    if (user() && url.current?.validity?.valid && url.current?.value !== '') {
+      try {
+        const suggestion = await getSuggestion(url.current.value)
+        if (!image.current.controls.loaded() && suggestion.image) {
+          // TODO: maybe later try switching to a self-hosted
+          //       image proxy? or maybe not. lets see in the future.
+          image.current.controls.loadUrl(`https://images.weserv.nl/?url=${encodeURIComponent(suggestion.image)}`)
+        }
+        if (!title.current.value && suggestion.title) {
+          title.current.controls.set(suggestion.title)
+        }
+        if (!subtitle.current.value && suggestion.description) {
+          subtitle.current.controls.set(suggestion.description)
+        }
+      } catch (err) {
+        console.error(err)
+        suggest.current.classList.add('disabled')
+      }
+    }
   }
 
   const untouch = () => {
@@ -160,6 +191,35 @@ export const modal = singleton('bid-content-modal', () => {
       i-con {
         transition: transform 0.2s ease-in-out;
       }
+
+      .url-input-holder {
+        display: flex;
+        transition: gap 0.15s;
+        &:has(.enabled:not(.disabled)) {
+          gap: 16px;
+        }
+        text-input {
+          flex-grow: 1;
+        }
+        i-con {
+          opacity: 0;
+          width: 0;
+          transform: translateX(36px);
+          cursor: pointer;
+          transition:
+            width 0.15s,
+            opacity 0.15s,
+            transform 0.15s;
+          &.enabled:not(.disabled) {
+            width: 36px;
+            transform: translateX(0);
+            opacity: 0.5;
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
+      }
     </style>
     <glass-modal ref=${modal} onclose=${() => (untouch(), close())}>
       <span slot="title">Bid on Tile</span>
@@ -191,16 +251,19 @@ export const modal = singleton('bid-content-modal', () => {
         >
           <span slot="hint">Displayed on the grid, under title</span>
         </text-input>
-        <text-input
-          label="URL"
-          maxlength="500"
-          type="url"
-          pattern="https://.+"
-          ref=${url}
-          oncheck=${check}
-          style="margin-top: -3ex"
-          oninput=${({ detail }) => input('url', detail)}
-        ></text-input>
+        <div class="url-input-holder">
+          <text-input
+            label="URL"
+            maxlength="500"
+            type="url"
+            pattern="https://.+"
+            ref=${url}
+            oncheck=${check}
+            style="margin-top: -3ex; flex-grow: 1"
+            oninput=${({ detail }) => input('url', detail)}
+          ></text-input>
+          <i-con ref=${suggest} onclick=${() => suggestContent()} src="magic" dark thick slot="icon"></i-con>
+        </div>
         <text-area
           label="Description"
           maxlength="900"

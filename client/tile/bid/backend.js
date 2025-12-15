@@ -3,15 +3,14 @@ import { authenticated } from '../../account/auth/index.js'
 
 import { backendURL as walletBackendURL } from '../../account/wallet/backend.js'
 
-
 export const backendURL = () => `${conf('BANK_URL') ?? 'https://bank.baldosa.city'}/bids`
 
 export const info = async (tile) => {
   const res = await fetch(`${backendURL()}/${tile.x}:${tile.y}`, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
-    }
+      'Content-Type': 'application/json',
+    },
   })
 
   if (!res.ok) {
@@ -22,19 +21,21 @@ export const info = async (tile) => {
   return await res.json()
 }
 
-
 export const pay = async (tile, amount) => {
-  const res = await fetch(`${walletBackendURL()}/offer`, await authenticated({
-    method: 'POST',
-    body: JSON.stringify({
-      amount,
-      receiver_sys: `tile:${tile.x}:${tile.y}`,
-      note: 'Bid for tile',
+  const res = await fetch(
+    `${walletBackendURL()}/offer`,
+    await authenticated({
+      method: 'POST',
+      body: JSON.stringify({
+        amount,
+        receiver_sys: `tile:${tile.x}:${tile.y}`,
+        note: 'Bid for tile',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }))
+  )
 
   if (!res.ok) {
     const msg = await res.text()
@@ -44,15 +45,38 @@ export const pay = async (tile, amount) => {
   return await res.json()
 }
 
+export const suggest = async (url) => {
+  const requrl = new URL(`${backendURL()}/suggest`)
+  requrl.searchParams.set('url', url)
+  const res = await fetch(
+    requrl,
+    await authenticated({
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }),
+  )
+
+  if (!res.ok) {
+    const msg = await res.text()
+    throw new Error(`Error fetching suggestion: ${msg}`)
+  }
+
+  return await res.json()
+}
 
 export const init = async (tile, transaction) => {
-  const res = await fetch(`${backendURL()}/${tile.x}:${tile.y}/init`, await authenticated({
-    method: 'POST',
-    body: JSON.stringify(transaction),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }))
+  const res = await fetch(
+    `${backendURL()}/${tile.x}:${tile.y}/init`,
+    await authenticated({
+      method: 'POST',
+      body: JSON.stringify(transaction),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }),
+  )
 
   if (!res.ok) {
     const msg = await res.text()
@@ -61,7 +85,6 @@ export const init = async (tile, transaction) => {
 
   return await res.json()
 }
-
 
 export const upload = async (url, fields, image, progress) => {
   return new Promise((resolve, reject) => {
@@ -78,12 +101,13 @@ export const upload = async (url, fields, image, progress) => {
       reject(new Error('Network error while uploading file'))
     }
 
-    progress && (xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && progress) {
-        const percentComplete = (event.loaded / event.total) * 100
-        progress(percentComplete)
-      }
-    })
+    progress &&
+      (xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable && progress) {
+          const percentComplete = (event.loaded / event.total) * 100
+          progress(percentComplete)
+        }
+      })
 
     const formData = new FormData()
     for (const [key, value] of Object.entries(fields)) {
@@ -96,22 +120,24 @@ export const upload = async (url, fields, image, progress) => {
   })
 }
 
-
 export const post = async (tile, transaction, content, uploaded) => {
-  const res = await fetch(`${backendURL()}/${tile.x}:${tile.y}`, await authenticated({
-    method: 'POST',
-    body: JSON.stringify({
-      title: content.title,
-      subtitle: content.subtitle,
-      description: content.description,
-      url: content.url,
-      image: uploaded.key,
-      transaction_id: transaction.id,
+  const res = await fetch(
+    `${backendURL()}/${tile.x}:${tile.y}`,
+    await authenticated({
+      method: 'POST',
+      body: JSON.stringify({
+        title: content.title,
+        subtitle: content.subtitle,
+        description: content.description,
+        url: content.url,
+        image: uploaded.key,
+        transaction_id: transaction.id,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }))
+  )
 
   if (!res.ok) {
     const msg = await res.text()

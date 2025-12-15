@@ -1,6 +1,13 @@
 import {
-  define, useDispatch, currentNode, attachControls,
-  on, onRendered, onConnected, onAttribute, ATTRIBUTE_REMOVED,
+  define,
+  useDispatch,
+  currentNode,
+  attachControls,
+  on,
+  onRendered,
+  onConnected,
+  onAttribute,
+  ATTRIBUTE_REMOVED,
 } from 'minicomp'
 import { ref, html } from 'rehtm'
 
@@ -11,7 +18,7 @@ import { constrainOffset, localpos, clamp, touchdist } from './util.js'
 const SIZE = 512
 
 define('image-input', () => {
-  const oncheck= useDispatch('check', { bubbles: true })
+  const oncheck = useDispatch('check', { bubbles: true })
   const oninput = useDispatch('input')
 
   const self = currentNode()
@@ -35,7 +42,7 @@ define('image-input', () => {
     ctx.current = canvas.current.getContext('2d')
   })
 
-  onAttribute('required', r => {
+  onAttribute('required', (r) => {
     if (r !== undefined) {
       if (r === ATTRIBUTE_REMOVED) {
         required = false
@@ -64,7 +71,7 @@ define('image-input', () => {
   const calcmaxscale = () => 1
   const calcinitoffset = () => ({
     x: (SIZE - img.width * minscale) / 2,
-    y: (SIZE - img.height * minscale) / 2
+    y: (SIZE - img.height * minscale) / 2,
   })
 
   const draw = () => {
@@ -78,24 +85,29 @@ define('image-input', () => {
     }
   }
 
-  const load = file => {
+  const loadimg = (src) => {
+    img.onload = () => {
+      loaded = true
+      overlay.current.classList.add('loaded')
+      scale = calcminscale()
+      minscale = scale
+      maxscale = calcmaxscale()
+      offset = calcinitoffset()
+      initial = { offset: { ...offset }, scale }
+
+      oninput({ src: img.src, offset, scale })
+      check()
+      draw()
+    }
+
+    img.crossOrigin = 'anonymous'
+    img.src = src
+  }
+
+  const load = (file) => {
     const reader = new FileReader()
     reader.onload = () => {
-      img.onload = () => {
-        loaded = true
-        overlay.current.classList.add('loaded')
-        scale = calcminscale()
-        minscale = scale
-        maxscale = calcmaxscale()
-        offset = calcinitoffset()
-        initial = { offset: { ...offset }, scale }
-
-        oninput({ src: img.src, offset, scale })
-        check()
-        draw()
-      }
-
-      img.src = reader.result
+      loadimg(reader.result)
     }
 
     reader.readAsDataURL(file)
@@ -121,9 +133,9 @@ define('image-input', () => {
   // ------ loading the image ------
   observe(overlay, 'click', () => !loaded && input.current.click())
   observe(input, 'change', () => input.current.files?.[0] && load(input.current.files[0]))
-  observe(overlay, 'dragover', e => (e.preventDefault(), canvas.current.classList.add('dnd')))
-  observe(overlay, 'dragleave', e => (e.preventDefault(), canvas.current.classList.remove('dnd')))
-  observe(overlay, 'drop', e => {
+  observe(overlay, 'dragover', (e) => (e.preventDefault(), canvas.current.classList.add('dnd')))
+  observe(overlay, 'dragleave', (e) => (e.preventDefault(), canvas.current.classList.remove('dnd')))
+  observe(overlay, 'drop', (e) => {
     e.preventDefault()
     canvas.current.classList.remove('dnd')
     if (e.dataTransfer.files?.[0]) {
@@ -131,11 +143,13 @@ define('image-input', () => {
       input.current.files = e.dataTransfer.files
     }
   })
-  
+
   // ------ exporting the image ------
   const untouch = () => canvas.current.classList.remove('touched')
   attachControls({
-    load: blob => load(blob),
+    load: (blob) => load(blob),
+    loadUrl: (url) => loadimg(url),
+    loaded: () => loaded,
     set: (state) => {
       loaded = state.src !== '' && state.src !== undefined
       img.src = state.src
@@ -158,8 +172,8 @@ define('image-input', () => {
     },
     export: async () => {
       if (loaded) {
-        return new Promise(resolve => {
-          canvas.current.toBlob(blob => {
+        return new Promise((resolve) => {
+          canvas.current.toBlob((blob) => {
             resolve(blob)
           }, 'image/jpeg')
         })
@@ -171,7 +185,7 @@ define('image-input', () => {
       untouch()
       self.validity = {}
       check()
-    }
+    },
   })
 
   // ------ focus management ------
@@ -193,120 +207,155 @@ define('image-input', () => {
   let last = { x: 0, y: 0 }
   let dragging = false
 
-  observe(overlay, 'pointerdown', e => {
-    if (loaded && !pinching) {
-      e.preventDefault()
-      e.stopPropagation()
-      dragging = true
-      last = localpos(e, overlay.current).pos
-      overlay.current.setPointerCapture(e.pointerId)
-    }
-  }, { passive: false })
+  observe(
+    overlay,
+    'pointerdown',
+    (e) => {
+      if (loaded && !pinching) {
+        e.preventDefault()
+        e.stopPropagation()
+        dragging = true
+        last = localpos(e, overlay.current).pos
+        overlay.current.setPointerCapture(e.pointerId)
+      }
+    },
+    { passive: false },
+  )
 
-  observe(overlay, 'pointermove', e => {
-    if (loaded && dragging && !pinching) {
-      e.preventDefault()
-      e.stopPropagation()
-      const { pos } = localpos(e, overlay.current)
-      const dx = pos.x - last.x
-      const dy = pos.y - last.y
-      offset.x += dx
-      offset.y += dy
-      constrainOffset(offset, img.width, img.height, scale, SIZE)
-      oninput({ offset })
-      draw()
-      last = pos
-      markmod()
-    }
-  }, { passive: false })
+  observe(
+    overlay,
+    'pointermove',
+    (e) => {
+      if (loaded && dragging && !pinching) {
+        e.preventDefault()
+        e.stopPropagation()
+        const { pos } = localpos(e, overlay.current)
+        const dx = pos.x - last.x
+        const dy = pos.y - last.y
+        offset.x += dx
+        offset.y += dy
+        constrainOffset(offset, img.width, img.height, scale, SIZE)
+        oninput({ offset })
+        draw()
+        last = pos
+        markmod()
+      }
+    },
+    { passive: false },
+  )
 
-  observe(overlay, 'pointerup', e => {
-    if (loaded && dragging && !pinching) {
-      e.preventDefault()
-      e.stopPropagation()
-      dragging = false
-      overlay.current.releasePointerCapture(e.pointerId)
-    }
-  }, { passive: false })
+  observe(
+    overlay,
+    'pointerup',
+    (e) => {
+      if (loaded && dragging && !pinching) {
+        e.preventDefault()
+        e.stopPropagation()
+        dragging = false
+        overlay.current.releasePointerCapture(e.pointerId)
+      }
+    },
+    { passive: false },
+  )
 
   // ------ zooming the image ------
 
-  observe(overlay, 'wheel', e => {
-    if (loaded) {
-      e.preventDefault()
-      e.stopPropagation()
-      const zoom = e.deltaY < 0 ? 1.03 : 0.97
-      const nscale = clamp(scale * zoom, minscale, maxscale)
-      const pos = localpos(e, overlay.current).pos
-      offset.x = pos.x - ((pos.x - offset.x) / scale) * nscale
-      offset.y = pos.y - ((pos.y - offset.y) / scale) * nscale
-      scale = nscale
-      constrainOffset(offset, img.width, img.height, scale, SIZE)
-      oninput({ offset, scale })
+  observe(
+    overlay,
+    'wheel',
+    (e) => {
+      if (loaded) {
+        e.preventDefault()
+        e.stopPropagation()
+        const zoom = e.deltaY < 0 ? 1.03 : 0.97
+        const nscale = clamp(scale * zoom, minscale, maxscale)
+        const pos = localpos(e, overlay.current).pos
+        offset.x = pos.x - ((pos.x - offset.x) / scale) * nscale
+        offset.y = pos.y - ((pos.y - offset.y) / scale) * nscale
+        scale = nscale
+        constrainOffset(offset, img.width, img.height, scale, SIZE)
+        oninput({ offset, scale })
 
-      draw()
-      markmod()
-    }
-  }, { passive: false })
+        draw()
+        markmod()
+      }
+    },
+    { passive: false },
+  )
 
   let pinching = false
   let lastdist = 0
 
-  observe(overlay, 'touchstart', e => {
-    if (loaded) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-    if (loaded && e.touches.length === 2) {
-      pinching = true
-      lastdist = touchdist(e)
-    }
-  }, { passive: false })
-
-  observe(document, 'touchmove', e => {
-    if (loaded && pinching) {
-      const dist = touchdist(e)
-      const zoom = dist / lastdist
-      const nscale = clamp(scale * zoom, minscale, maxscale)
-      const rect = overlay.current.getBoundingClientRect()
-      const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left
-      const my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
-      const pos = {
-        x: mx * canvas.current.width / rect.width,
-        y: my * canvas.current.height / rect.height
+  observe(
+    overlay,
+    'touchstart',
+    (e) => {
+      if (loaded) {
+        e.preventDefault()
+        e.stopPropagation()
       }
+      if (loaded && e.touches.length === 2) {
+        pinching = true
+        lastdist = touchdist(e)
+      }
+    },
+    { passive: false },
+  )
 
-      offset.x = pos.x - ((pos.x - offset.x) / scale) * nscale
-      offset.y = pos.y - ((pos.y - offset.y) / scale) * nscale
-      scale = nscale
-      constrainOffset(offset, img.width, img.height, scale, SIZE)
-      oninput({ offset, scale })
-      lastdist = dist
+  observe(
+    document,
+    'touchmove',
+    (e) => {
+      if (loaded && pinching) {
+        const dist = touchdist(e)
+        const zoom = dist / lastdist
+        const nscale = clamp(scale * zoom, minscale, maxscale)
+        const rect = overlay.current.getBoundingClientRect()
+        const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left
+        const my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+        const pos = {
+          x: (mx * canvas.current.width) / rect.width,
+          y: (my * canvas.current.height) / rect.height,
+        }
 
-      draw()
-      markmod()
-    }
-  }, { passive: false })
+        offset.x = pos.x - ((pos.x - offset.x) / scale) * nscale
+        offset.y = pos.y - ((pos.y - offset.y) / scale) * nscale
+        scale = nscale
+        constrainOffset(offset, img.width, img.height, scale, SIZE)
+        oninput({ offset, scale })
+        lastdist = dist
 
-  observe(document, 'touchend', e => {
-    if (loaded && pinching) {
-      e.preventDefault()
-      e.stopPropagation()
-      pinching = false
-    }
-  }, { passive: false })
+        draw()
+        markmod()
+      }
+    },
+    { passive: false },
+  )
+
+  observe(
+    document,
+    'touchend',
+    (e) => {
+      if (loaded && pinching) {
+        e.preventDefault()
+        e.stopPropagation()
+        pinching = false
+      }
+    },
+    { passive: false },
+  )
 
   return html`
-    <link rel='stylesheet' href='./client/design/inputs/image/styles.css' />
-    <input ref=${input} type='file' accept='image/*' style='display: none'/>
-    <div style='position: relative'>
+    <link rel="stylesheet" href="./client/design/inputs/image/styles.css" />
+    <input ref=${input} type="file" accept="image/*" style="display: none" />
+    <div style="position: relative">
       <canvas ref=${canvas}></canvas>
-      <div id='overlay' ref=${overlay}>
-        <div id='placeholder'>
-          <slot name='placeholder'></slot>
+      <div id="overlay" ref=${overlay}>
+        <div id="placeholder">
+          <slot name="placeholder"></slot>
         </div>
       </div>
-      <div id='tools' role='group'>
+      <div id="tools" role="group">
         <button onclick=${(e) => (e.stopPropagation(), unload())}><i-con src="trash-can" dark thick></i-con></button>
         <button onclick=${() => reset()}><i-con src="arrow-uturn-left" dark thick></i-con></button>
       </div>

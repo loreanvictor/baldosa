@@ -6,6 +6,7 @@ use axum::{
   Router,
 };
 use book::Book;
+use link_preview::LinkPreviewer;
 use publisher::Publisher;
 use s3::{bucket::Bucket, creds::Credentials};
 use sqlx::{postgres::Postgres, Pool};
@@ -18,6 +19,7 @@ pub mod auctions;
 mod book;
 pub mod config;
 pub mod error;
+mod link_preview;
 mod publisher;
 mod tile;
 mod upload;
@@ -31,6 +33,7 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
   let ledger = ledger.clone();
   let book = Book::new(config.clone(), db.clone());
   let publisher = Publisher::from_env();
+  let link_previewer = LinkPreviewer::from_env();
   let bucket = Bucket::new(
     env::var("S3_SUBMIT_BUCKET")
       .expect("S3 not configured properly: missing S3_SUBMIT_BUCKET")
@@ -45,6 +48,7 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
 
   Router::new()
     .route("/", get(api::pending_bids))
+    .route("/suggest", get(api::suggest))
     .route("/live", get(api::live_bids))
     .route("/history", get(api::all_bids))
     .route("/{coords}", get(api::bidding_info))
@@ -60,5 +64,6 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
     .layer(Extension(publisher))
     .layer(Extension(*bucket))
     .layer(Extension(config))
+    .layer(Extension(link_previewer))
     .layer(cors)
 }
