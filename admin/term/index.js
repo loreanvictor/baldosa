@@ -6,9 +6,11 @@ import { makeHistory } from './history.js'
 import { makeNotes } from './notes.js'
 import { run, completer } from './registry.js'
 import { expand } from './env.js'
+import { serialize } from './serialize.js'
 import './input.js'
 import './log.js'
 import './echo.js'
+import './grep.js'
 import './clear.js'
 import './tip.js'
 import './env.js'
@@ -20,17 +22,30 @@ define('admin-terminal', () => {
   let _target = 'main'
 
   const toBottom = () => {
-    result.current.scrollTo({ top: result.current.scrollHeight, behavior: 'smooth' })
+    requestAnimationFrame(() => result.current.scrollTo({ top: result.current.scrollHeight, behavior: 'smooth' }))
   }
 
   const target = () => (_target === 'aside' ? aside.current : _target === 'main' ? result.current : _target)
+  const resolveInners = async (cmd, opts) => {
+    let input = cmd
+    const re = /\$\(([^()]+)\)/
+    while (true) {
+      const match = input.match(re)
+      if (!match) break
+
+      const result = await term.run(match[1].trim(), { ...opts, silent: true, target: 'null' })
+      input = input.replace(match[0], result)
+    }
+
+    return input
+  }
 
   const term = {
     clear: () => (term.clearMain(), term.clearAside()),
     clearMain: () => (result.current.innerHTML = ''),
     clearAside: () => (aside.current.innerHTML = ''),
-    log: (child) => (target().appendChild(html`<t-log>${child}</t-log>`), toBottom()),
-    append: (child) => (target().appendChild(child), toBottom()),
+    log: (child) => (target()?.appendChild(html`<t-log>${child}</t-log>`), toBottom()),
+    append: (child) => (target()?.appendChild(child), toBottom()),
     on: (holder, fn) => {
       const _t = target()
       term.target(holder)
@@ -47,19 +62,37 @@ define('admin-terminal', () => {
     },
     read: (prompt, secret) => input.current.controls.read(prompt, secret),
     paste: (text, replace) => input.current.controls.paste(text, replace),
-    newline: () => (target().appendChild(html`<br />`), toBottom()),
-    hr: () => (target().appendChild(html`<hr />`), toBottom()),
-    run: (command, opts) => {
+    newline: () => (target()?.appendChild(html`<br />`), toBottom()),
+    hr: () => (target()?.appendChild(html`<hr />`), toBottom()),
+    run: async (command, opts) => {
       const expanded = withTerm(term, () => expand(command))
-      const [cmd, target] = expanded.split('>').map((_) => _.trim())
+      const resolved = await resolveInners(expanded, opts)
+      const [cmd, target] = resolved.split('>').map((_) => _.trim())
 
-      return withTerm(term, () =>
-        run(cmd, {
-          ...opts,
-          target: target ?? opts?.target,
-          input: command,
-        }),
-      )
+      const pipes = cmd.split('|').map((_) => _.trim())
+      let piped = ''
+      let res = undefined
+      let pad
+
+      for (let i = 0; i < pipes.length; i++) {
+        const last = i === pipes.length - 1
+        const c = (pipes[i] + ' ' + piped).trim()
+        const prevpad = pad
+        res = await withTerm(
+          term,
+          () =>
+            run(c, {
+              ...opts,
+              silent: last ? opts?.silent : true,
+              target: last ? (target ?? opts?.target) : (pad ??= document.createElement('div')),
+              input: command,
+            }),
+          { piped: prevpad },
+        )
+        pad && (piped = serialize(pad))
+      }
+
+      return res
     },
     name: (name) => {
       term.history = makeHistory(name)
@@ -69,8 +102,9 @@ define('admin-terminal', () => {
     target: (t) => {
       _target = t ?? 'main'
       t === 'aside' && (aside.current.innerHTML = '')
+      t === 'null' && (_target = null)
       t instanceof DocumentFragment && (_target = t.firstChild)
-      typeof t === 'string' && t !== 'main' && t !== 'aside' && (_target = term.notes.note(t, true))
+      typeof t === 'string' && t !== 'main' && t !== 'aside' && t !== 'null' && (_target = term.notes.note(t, true))
     },
     history: makeHistory(''),
     notes: makeNotes(),

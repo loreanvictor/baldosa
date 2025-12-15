@@ -25,10 +25,10 @@ const inject = async (...args) => {
       throw new TermError('must provide either user id or email.')
     }
 
-    const _user = await term.run(`user -e ${_email} -s`, { silent: true })
-    _id = _user.id
+    _id = await term.run(`user -Ie ${_email} -s`, { silent: true })
   }
 
+  term.log(html`<span>injecting <t-succ>${_amount}coins</t-succ> for user <t-cp actionable>${_id}</t-cp></span>`)
   const note = await term.read('write a note')
   const res = await fetch(
     `${baseUrl(term)}/inject`,

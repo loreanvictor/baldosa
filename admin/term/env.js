@@ -4,6 +4,7 @@ import { broadcast } from '../../client/util/broadcast.js'
 import { register } from './registry.js'
 import { currentTerm } from './context.js'
 import './textual.js'
+import { TermError } from './error.js'
 
 const env = async (...args) => {
   const term = currentTerm()
@@ -11,7 +12,7 @@ const env = async (...args) => {
   if (args[0] === '-s' || args[0] === '--secret') {
     const [_, k, ...v] = args
     secret = true
-    key = k.toUpperCase()
+    key = k?.toUpperCase()
     value = v.join(' ')
   } else {
     const [k, ...v] = args
@@ -44,6 +45,9 @@ const env = async (...args) => {
   } else if (key) {
     const value = term.env[key]
     term.log(safe(key, value ?? ''))
+    return value
+  } else if (secret) {
+    throw new TermError('specify the name of the variable.')
   } else {
     const entries = Object.entries(term.env)
     if (entries.length > 0) {

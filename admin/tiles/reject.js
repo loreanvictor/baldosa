@@ -12,6 +12,7 @@ const reject = async (bid) => {
     throw new TermError('please provide a bid', 'use `man reject` to learn more.')
   }
 
+  term.log(html`<span>rejecting bid <t-cp actionable>${bid}</t-cp></span>`)
   const reason = await term.read('provide a reason')
   const res = await fetch(
     `${baseUrl(term)}/${bid}/reject`,

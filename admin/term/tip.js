@@ -12,6 +12,8 @@ const TIPS = [
   'drag the side bar (bottom left corner) to resize it.',
   'use `$ENV` variables in other commands.',
   'save result of a command using `> <note-name>`.',
+  'chain commands using `cmd1 | cmd2`.',
+  'use commands within commands using `cmd1 $(cmd2)`',
 ]
 
 const tip = () => {

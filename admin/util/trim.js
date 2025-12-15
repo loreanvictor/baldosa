@@ -1,6 +1,6 @@
 export const trim = (str, max, pos = 'end') => {
   if (str.length <= max) return str
-  if (max <= 3) return '.'.repeat(maxLength)
+  if (max <= 3) return '.'.repeat(max)
 
   const ellipsis = '...'
   const avail = max - ellipsis.length

@@ -1,6 +1,8 @@
 import { define, on, useDispatch, onAttribute, currentNode } from 'minicomp'
 import { html } from 'rehtm'
 
+import { serializeWith } from './serialize.js'
+
 define(
   'k-v',
   () => html`
@@ -25,6 +27,13 @@ define(
     </div>
   `,
 )
+
+serializeWith('k-v', (node, serialize) => {
+  const key = node.querySelector('[slot=key]')
+  const values = [...node.childNodes].filter((n) => n !== key)
+
+  return `${serialize(key)} : ${values.map(serialize).join('')}`
+})
 
 define(
   't-err',
@@ -144,3 +153,5 @@ define('t-cols', ({ layout, n }) => {
     <slot></slot>
   `
 })
+
+serializeWith('t-cols', (node, serialize) => [...node.childNodes].map(serialize).join(' | '))

@@ -1,6 +1,8 @@
 import { define, currentNode, on } from 'minicomp'
 import { html } from 'rehtm'
 
+import { serializeWith } from './serialize.js'
+
 define('t-log', () => {
   const host = currentNode()
   host.tabIndex = -1
@@ -48,3 +50,5 @@ define('t-log', () => {
     <slot></slot>
   `
 })
+
+serializeWith('t-log', (node, serialize) => `${[...node.childNodes].map(serialize).join('')}\n`)

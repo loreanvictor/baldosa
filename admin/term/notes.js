@@ -2,6 +2,7 @@ import { html } from 'rehtm'
 
 import { register } from './registry.js'
 import { currentTerm } from './context.js'
+import { replaceWithGhost, replaceWithLive } from './ghost.js'
 import { TermError } from './error.js'
 import './textual.js'
 
@@ -32,21 +33,15 @@ const cat = (name) => {
   const note = term.notes.note(name)
 
   if (note) {
-    if (note.isConnected) {
-      const ghost = note.cloneNode(true)
-      ghost.style.filter = 'grayscale(1)'
-      ghost.style.webkitFilter = 'grayscale(1)'
-      ghost.style.opacity = 0.5
-      note.replaceWith(ghost)
-    }
-
+    note.isConnected && replaceWithGhost(note)
     term.append(note)
+    ;[...note.childNodes].forEach((child) => replaceWithLive(child))
   } else {
     throw new TermError(`note "${name}" not found.`)
   }
 }
 
-cat.desc = 'retrieves a note.'
+cat.desc = 'displays a note.'
 cat.man = (term) => {
   term.log('usage:')
   term.log('cat <note>')
@@ -57,12 +52,17 @@ register('cat', cat)
 
 const ls = () => {
   const term = currentTerm()
+  const list = term.notes.list()
 
-  const holder = html`<div style="display: grid; grid-template-columns: 1fr 1fr 1fr"></div>`
-  term.target(holder)
-  term.notes.list().forEach((key) => term.append(html`<t-cp>${key}</t-cp>`))
-  term.target()
-  term.log(holder)
+  if (list.length > 0) {
+    const holder = html`<div style="display: grid; grid-template-columns: 1fr 1fr 1fr"></div>`
+    term.target(holder)
+    list.forEach((key) => term.append(html`<t-cp>${key}</t-cp>`))
+    term.target()
+    term.log(holder)
+  } else {
+    term.log('no notes yet. use `command > note` to save command results in notes.')
+  }
 }
 
 ls.desc = 'list notes.'

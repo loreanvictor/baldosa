@@ -15,13 +15,11 @@ export const run = async (command, opts) => {
   const term = currentTerm()
 
   if (!opts?.silent) {
-    term.newline()
     term.append(
       html`<div>
         <t-prim><b>${account()?.name ?? ''}${'$'}</b></t-prim> ${opts?.input ?? command}
       </div>`,
     )
-    term.newline()
   }
 
   const [cmd, ...args] = command.split(' ').filter((c) => c !== '')
@@ -40,7 +38,7 @@ export const run = async (command, opts) => {
     }
   } else {
     term.log(html`<t-err>command ${cmd} not found.</t-err>`)
-    term.log(`run 'man' to see all possible commands.`)
+    term.log(html`<span>use \`<t-cp actionable>man</t-cp>\` to see all possible commands.</span>`)
   }
 }
 
@@ -86,7 +84,7 @@ const man = (target) => {
   } else {
     Object.entries(registry).forEach(([cmd, fn]) => {
       term.log(
-        html`<k-v onclick=${() => term.paste(`man ${cmd}`, true)}>
+        html`<k-v actionable onclick=${() => term.paste(`man ${cmd}`, true)}>
           <t-hl slot="key"><b>${cmd}</b></t-hl> ${fn.desc ?? ''}
         </k-v>`,
       )

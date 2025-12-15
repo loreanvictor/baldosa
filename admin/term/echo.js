@@ -2,7 +2,10 @@ import { register } from './registry.js'
 import { currentTerm } from './context.js'
 
 const echo = (...args) => {
-  currentTerm().log(args.join(' '))
+  const text = args.join(' ')
+  currentTerm().log(text)
+
+  return text
 }
 
 echo.desc = 'echoes what it hears.'

@@ -142,7 +142,6 @@ define('main-input', () => {
         position: relative;
         gap: 1ex;
         align-items: baseline;
-        margin-top: 2ch;
         & > [prefix] {
           color: var(--primary);
           font-weight: bold;

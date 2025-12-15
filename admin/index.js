@@ -56,9 +56,9 @@ const init = async () => {
     ...(await loadenv()),
   }
 
-  Object.entries(env).forEach(([key, value]) => {
-    term.run(`env ${key} ${value}`, { silent: true })
-  })
+  for (const [key, value] of Object.entries(env)) {
+    await term.run(`env ${key} ${value}`, { silent: true })
+  }
 
   if (!term.env['ADMIN_KEY']) {
     term.newline()

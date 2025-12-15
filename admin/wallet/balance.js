@@ -19,8 +19,7 @@ const balance = async (...args) => {
       throw new TermError('must provide either user id or email.')
     }
 
-    const _user = await term.run(`user -e ${_email} -s`, { silent: true })
-    _id = _user.id
+    _id = await term.run(`user -Ie ${_email} -s`, { silent: true })
   }
 
   const res = await fetch(
