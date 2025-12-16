@@ -6,8 +6,8 @@ amount = 1
 
 [[blur]]
 size = 48
-amount = 1
+amount = 0.65
 
 [[blur]]
 size = 96
-amount = 1.5
+amount = 0.33
