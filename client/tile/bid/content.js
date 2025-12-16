@@ -195,6 +195,9 @@ export const modal = singleton('bid-content-modal', () => {
 
       .url-input-holder {
         display: flex;
+        width: 100%;
+        padding-right: 2px;
+        overflow: hidden;
         transition: gap 0.15s;
         &:has(suggest-bid-content-btn:not([disabled])) {
           gap: 16px;
