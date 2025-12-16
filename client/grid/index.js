@@ -16,8 +16,8 @@ import { createGridMask } from './mask/index.js'
 define('controlled-grid', () => {
   const WMIN = Math.min(window.innerWidth, window.innerHeight)
   const WMAX = Math.max(window.innerWidth, window.innerHeight)
-  const SMALL_DEVICE = WMAX <= 800
-  const MIN_SCALE = SMALL_DEVICE ? WMIN / 4 : WMIN / 5
+  const SMALL_DEVICE = WMAX <= 960
+  const MIN_SCALE = SMALL_DEVICE ? WMIN / 6 : WMIN / 12
   const MAX_SCALE = 300
   const IMG_CACHE_SIZE = (Math.ceil(WMIN / MIN_SCALE) + 4) * (Math.ceil(WMAX / MIN_SCALE) + 4) * 2
 
