@@ -16,8 +16,7 @@ define('suggest-bid-content-btn', () => {
   onAttribute('url', (u) => u && (url = u))
 
   on('click', async () => {
-    // FIXME: also check auth and proper URL regex, https at least
-    if (!host.hasAttribute('loading') && !host.hasAttribute('disabled') && url !== '') {
+    if (!host.hasAttribute('loading') && !host.hasAttribute('disabled') && url && url.trim() !== '') {
       host.setAttribute('loading', 'true')
       toast.current.controls.open()
 
