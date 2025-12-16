@@ -12,9 +12,10 @@ import '../../design/inputs/text-area/component.js'
 import '../../design/display/icon/component.js'
 import '../../design/inputs/image/component.js'
 
+import './suggest/button.js'
+
 import { loadDraft, updateDraft } from './draft.js'
 import { showHelp } from './help.js'
-import { suggest as getSuggestion } from './backend.js'
 
 export const modal = singleton('bid-content-modal', () => {
   const submit = useDispatch('submit')
@@ -79,32 +80,32 @@ export const modal = singleton('bid-content-modal', () => {
     }
 
     if (user() && url.current?.validity?.valid && url.current?.value !== '') {
-      suggest.current.classList.add('enabled')
+      suggest.current.removeAttribute('disabled')
+      suggest.current.setAttribute('url', url.current.value)
     } else {
-      suggest.current.classList.remove('enabled')
+      suggest.current.setAttribute('disabled')
     }
 
     return valid
   }
 
-  const suggestContent = async () => {
+  const onSuggest = ({ detail: suggestion }) => {
     if (user() && url.current?.validity?.valid && url.current?.value !== '') {
       try {
-        const suggestion = await getSuggestion(url.current.value)
         if (!image.current.controls.loaded() && suggestion.image) {
-          // TODO: maybe later try switching to a self-hosted
-          //       image proxy? or maybe not. lets see in the future.
-          image.current.controls.loadUrl(`https://images.weserv.nl/?url=${encodeURIComponent(suggestion.image)}`)
+          image.current.controls.loadUrl(suggestion.image)
         }
         if (!title.current.value && suggestion.title) {
           title.current.controls.set(suggestion.title)
         }
-        if (!subtitle.current.value && suggestion.description) {
-          subtitle.current.controls.set(suggestion.description)
+        if (!subtitle.current.value && suggestion.subtitle) {
+          subtitle.current.controls.set(suggestion.subtitle)
+        }
+        if (!description.current.value && suggestion.description) {
+          description.current.controls.set(suggestion.description)
         }
       } catch (err) {
         console.error(err)
-        suggest.current.classList.add('disabled')
       }
     }
   }
@@ -195,29 +196,11 @@ export const modal = singleton('bid-content-modal', () => {
       .url-input-holder {
         display: flex;
         transition: gap 0.15s;
-        &:has(.enabled:not(.disabled)) {
+        &:has(suggest-bid-content-btn:not([disabled])) {
           gap: 16px;
         }
         text-input {
           flex-grow: 1;
-        }
-        i-con {
-          opacity: 0;
-          width: 0;
-          transform: translateX(36px);
-          cursor: pointer;
-          transition:
-            width 0.15s,
-            opacity 0.15s,
-            transform 0.15s;
-          &.enabled:not(.disabled) {
-            width: 36px;
-            transform: translateX(0);
-            opacity: 0.5;
-            &:hover {
-              opacity: 1;
-            }
-          }
         }
       }
     </style>
@@ -262,7 +245,7 @@ export const modal = singleton('bid-content-modal', () => {
             style="margin-top: -3ex; flex-grow: 1"
             oninput=${({ detail }) => input('url', detail)}
           ></text-input>
-          <i-con ref=${suggest} onclick=${() => suggestContent()} src="magic" dark thick slot="icon"></i-con>
+          <suggest-bid-content-btn ref=${suggest} onsuggest=${onSuggest}></suggest-bid-content-btn>
         </div>
         <text-area
           label="Description"

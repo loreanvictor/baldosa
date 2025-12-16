@@ -55,6 +55,10 @@ define('health-check', () => {
 
   return html`
     <style>
+      :host {
+        padding-bottom: 8px;
+        display: inline-block;
+      }
       @keyframes glow {
         from { box-shadow: box-shadow: 0 0 8px 1px var(--color); }
         to { box-shadow: 0 0 16px 2px var(--color); }

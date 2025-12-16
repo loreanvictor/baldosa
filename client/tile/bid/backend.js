@@ -45,27 +45,6 @@ export const pay = async (tile, amount) => {
   return await res.json()
 }
 
-export const suggest = async (url) => {
-  const requrl = new URL(`${backendURL()}/suggest`)
-  requrl.searchParams.set('url', url)
-  const res = await fetch(
-    requrl,
-    await authenticated({
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }),
-  )
-
-  if (!res.ok) {
-    const msg = await res.text()
-    throw new Error(`Error fetching suggestion: ${msg}`)
-  }
-
-  return await res.json()
-}
-
 export const init = async (tile, transaction) => {
   const res = await fetch(
     `${backendURL()}/${tile.x}:${tile.y}/init`,
