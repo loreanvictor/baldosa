@@ -27,18 +27,18 @@ export const modal = singleton('account-tiles-modal', () => {
     open: () => modal.current.controls.open(),
   })
 
-  onBroadcast('tile:published', t => list.current.controls.prepend(t))
-  onBroadcast('tile:unpublished', t => list.current.controls.remove(`${t.x}:${t.y}`))
+  onBroadcast('tile:published', (t) => list.current.controls.prepend(t))
+  onBroadcast('tile:unpublished', (t) => list.current.controls.remove(`${t.x}:${t.y}`))
 
   onConnected(async () => list.current.controls.init(await tiles()))
 
-  const goto = bid => {
+  const goto = (bid) => {
     modal.current.controls.close()
     broadcast('tile:goto', bid)
   }
 
-  const preview = bid => broadcast('tile:open', { x: bid.x, y: bid.y })
-  const open = bid => {
+  const preview = (bid) => broadcast('tile:open', { x: bid.x, y: bid.y })
+  const open = (bid) => {
     if (bid.content.url) {
       openlink(bid.content.url)
     } else {
@@ -52,9 +52,15 @@ export const modal = singleton('account-tiles-modal', () => {
         overflow: auto;
         max-height: 85vh;
       }
-      h1 { font-size: 1.2em; }
-      p { font-size: 0.9em; font-weight: 100; }
-      h1, p {
+      h1 {
+        font-size: 1.2em;
+      }
+      p {
+        font-size: 0.9em;
+        font-weight: 100;
+      }
+      h1,
+      p {
         padding: 0;
         margin: 0;
       }
@@ -67,32 +73,34 @@ export const modal = singleton('account-tiles-modal', () => {
       }
     </style>
     <glass-modal ref=${modal} aside>
-      <span slot='title'>Tiles</span>
-      <div class='list'>
+      <span slot="title">Tiles</span>
+      <div class="list">
         <keyed-list
           ref=${list}
-          each=${bid => html`
-            <swipe-card key=${`${bid.x}:${bid.y}`}
+          each=${(bid) => html`
+            <swipe-card
+              key=${`${bid.x}:${bid.y}`}
               onaction=${() => preview(bid)}
               onswiperight=${() => goto(bid)}
-              onswipeleft=${() => open(bid)}>
-              <img src=${imgUrl(bid.x, bid.y)} slot='image' />
-              <h1>${trim(bid.content.title, 32)}</h1>
-              <p>${trim(bid.content.subtitle, 64)}</p>
-              <div slot='actions'>
+              onswipeleft=${() => open(bid)}
+            >
+              <img src=${imgUrl(bid.x, bid.y)} slot="image" />
+              <h1>${trim(bid.content.title ?? '', 32)}</h1>
+              <p>${trim(bid.content.subtitle ?? '', 64)}</p>
+              <div slot="actions">
                 <secondary-button onclick=${() => goto(bid)}>
-                  <i-con src='arrow-right' dark thick slot='icon'></i-con>
+                  <i-con src="arrow-right" dark thick slot="icon"></i-con>
                 </secondary-button>
               </div>
-              <div slot='right'>Go to Tile <i-con src='arrow-right' dark thick></i-con></div>
-              <div slot='left'>Open Link <i-con src='square-arrow' dark thick></i-con></div>
+              <div slot="right">Go to Tile <i-con src="arrow-right" dark thick></i-con></div>
+              <div slot="left">Open Link <i-con src="square-arrow" dark thick></i-con></div>
             </swipe-card>
           `}
         ></keyed-list>
-        <br/>
+        <br />
         <small-hint>
-          Tiles you currently own have content published to are displayed here. This does not include
-          tiles you have previously owned, neither does it include tiles you have pending bids on.
+          Tiles you currently own have content published to are displayed here. This does not include tiles you have
+          previously owned, neither does it include tiles you have pending bids on.
         </small-hint>
       </div>
     </glass-modal>

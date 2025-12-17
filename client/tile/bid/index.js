@@ -48,19 +48,20 @@ const attachListeners = () => {
   bidmodal().addEventListener('submit', async ({ detail }) => {
     const { tile, amount, content, info } = detail
 
-    waitoverlay().controls.open('Issueing Transaction ...')
-    const tx = await payIfNeeded(tile, amount)
-
-    waitoverlay().controls.show('Fetching Upload Information ...')
-    const { upload_url, upload_fields } = await init(tile, tx)
-
-    waitoverlay().controls.show('Uploading Image ...')
-    const uploaded = await upload(upload_url, upload_fields, content.image, (p) =>
-      waitoverlay().controls.show(`Uploading Image ... ${Math.round(p)}%`),
-    )
-
-    waitoverlay().controls.show('Placing Bid ...')
     try {
+      waitoverlay().controls.open('Issueing Transaction ...')
+      const tx = await payIfNeeded(tile, amount)
+
+      waitoverlay().controls.show('Fetching Upload Information ...')
+      const { upload_url, upload_fields } = await init(tile, tx)
+
+      waitoverlay().controls.show('Uploading Image ...')
+      const uploaded = await upload(upload_url, upload_fields, content.image, (p) =>
+        waitoverlay().controls.show(`Uploading Image ... ${Math.round(p)}%`),
+      )
+
+      waitoverlay().controls.show('Placing Bid ...')
+
       const bid = await post(tile, tx, content, uploaded)
 
       waitoverlay().controls.close()

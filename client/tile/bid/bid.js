@@ -26,12 +26,13 @@ export const modal = singleton('bid-modal', () => {
   const coords = ref()
   const lastbid = ref()
   const auctiontime = ref()
+  const confirm = ref()
 
   let tile
   let content
   let info
   let amount = 1
-  let balance = 32
+  let balance
   let min = 1
 
   let isOpen = false
@@ -40,6 +41,12 @@ export const modal = singleton('bid-modal', () => {
     bid.current?.setAttribute('value', amount)
     remaining.current?.setAttribute('value', balance - amount)
     updateBid(tile, amount)
+
+    if (amount === 0) {
+      confirm.current.setAttribute('disabled', '')
+    } else {
+      confirm.current.removeAttribute('disabled')
+    }
   }
 
   const updateAuctionTime = (info) => {
@@ -63,7 +70,7 @@ export const modal = singleton('bid-modal', () => {
 
       balance = _balance.meta.total
       min = info.minimum_bid || 1
-      amount = Math.max(min, await loadBid(tile))
+      amount = Math.min(balance, Math.max(min, await loadBid(tile)))
 
       modal.current?.controls.open()
       coords.current?.setAttribute('value', `${_tile.x}, ${_tile.y}`)
@@ -84,7 +91,7 @@ export const modal = singleton('bid-modal', () => {
   }
 
   const decr = (fast) => {
-    amount = Math.max(min, amount - (fast ? 4 : 1))
+    amount = Math.min(balance, Math.max(min, amount - (fast ? 4 : 1)))
     updateAmount()
   }
 
@@ -144,7 +151,11 @@ export const modal = singleton('bid-modal', () => {
         </secondary-button>
       </div>
       <br />
-      <confirm-button label="Place Bid" onconfirm=${() => submit({ tile, amount, content, info })}></confirm-button>
+      <confirm-button
+        ref=${confirm}
+        label="Place Bid"
+        onconfirm=${() => submit({ tile, amount, content, info })}
+      ></confirm-button>
     </glass-modal>
   `
 })
