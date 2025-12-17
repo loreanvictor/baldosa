@@ -20,17 +20,20 @@ button {
   border-top-right-radius: var(--btn-top-right-rad, 8px);
   border-bottom-left-radius: var(--btn-bot-left-rad, 8px);
   border-bottom-right-radius: var(--btn-bot-right-rad, 8px);
-  font-size: .9rem;
+  font-size: 0.9rem;
   font-weight: bold;
   padding: 4px 8px;
   height: var(--width, 52px);
   min-width: var(--height, 52px);
   cursor: pointer;
-  transition: filter .15s, background .15s, color .15s;
+  transition:
+    filter 0.15s,
+    background 0.15s,
+    color 0.15s;
 
   -webkit-tap-highlight-color: transparent;
 
-  ::slotted([slot="icon"]) {
+  ::slotted([slot='icon']) {
     width: 32px;
     height: 32px;
   }
@@ -48,7 +51,7 @@ button {
   &.danger {
     color: var(--red-fg, red);
 
-    ::slotted([slot="icon"]) {
+    ::slotted([slot='icon']) {
       --color: var(--red-fg, red);
     }
   }
@@ -134,7 +137,7 @@ button {
 
 .btn-group {
   display: flex;
-  gap: .5ch;
+  gap: 0.5ch;
 
   ::slotted(primary-button) {
     flex: 1;
@@ -142,5 +145,25 @@ button {
 
   ::slotted(:last-child) {
     flex: 1;
+  }
+}
+
+:host([hide-disabled]) {
+  .btn-group {
+    gap: 0;
+    ::slotted(:first-child[hide-disabled]) {
+      max-width: 56px;
+      margin-right: 0.5ch;
+      transition:
+        max-width 0.15s,
+        margin-right 0.15s;
+      transition-delay: 0.15s;
+    }
+
+    ::slotted(:first-child[hide-disabled][disabled]) {
+      max-width: 0;
+      margin-right: 0;
+      overflow: hidden;
+    }
   }
 }

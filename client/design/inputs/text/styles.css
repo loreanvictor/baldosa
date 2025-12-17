@@ -15,7 +15,7 @@ input {
   color: white;
   padding: 1ch;
   border-radius: 8px;
-  transition: border-color .3s;
+  transition: border-color 0.3s;
 
   &:focus {
     border-color: var(--blue-fg, blue);
@@ -26,7 +26,8 @@ input {
     border-color: var(--red-fg, red);
   }
 
-  &:autofill, &:-webkit-autofill {
+  &:autofill,
+  &:-webkit-autofill {
     background: #212121;
     box-shadow: 0 0 0 32px #212121 inset;
     color: var(--blue-fg, blue);
@@ -42,9 +43,12 @@ input::placeholder {
 label {
   position: absolute;
   top: calc(3ex + 1ch);
-  opacity: .5;
+  opacity: 0.5;
   left: 1ch;
-  transition: transform .3s, color .3s, opacity .3s;
+  transition:
+    transform 0.3s,
+    color 0.3s,
+    opacity 0.3s;
   transform-origin: left;
   pointer-events: none;
 
@@ -72,9 +76,9 @@ label {
 }
 
 slot[name='hint'] {
-  font-size: .7rem;
+  font-size: 0.7rem;
   color: #bdbdbd88;
-  transition: color .3s;
+  transition: color 0.3s;
 
   input.touched:invalid:not(:focus) ~ &,
   input:invalid:not(:focus):not(:placeholder-shown) ~ & {
@@ -82,10 +86,40 @@ slot[name='hint'] {
   }
 }
 
+:host([hide-hint]) {
+  ::slotted([slot='hint']) {
+    opacity: 0;
+  }
+}
+
 ::slotted([slot='hint']) {
   display: block;
   margin: 1ch 0;
   text-align: right;
+  transition: opacity 0.15s;
 }
 
+[holder] {
+  display: flex;
 
+  [input] {
+    flex-grow: 1;
+  }
+
+  [action] {
+    width: 0;
+    margin-left: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      margin-left 0.15s,
+      width 0.15s,
+      opacity 0.15s;
+
+    &:has([action-enabled]) {
+      width: 36px;
+      margin-left: 1ch;
+      opacity: 1;
+    }
+  }
+}

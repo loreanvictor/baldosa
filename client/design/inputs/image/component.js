@@ -152,6 +152,7 @@ define('image-input', () => {
     loaded: () => loaded,
     set: (state) => {
       loaded = state.src !== '' && state.src !== undefined
+      img.crossOrigin = 'anonymous'
       img.src = state.src
       if (loaded) {
         overlay.current.classList.add('loaded')

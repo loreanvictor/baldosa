@@ -1,8 +1,15 @@
 import {
-  define, currentNode, attachControls,
-  onAttribute, useDispatch, onConnected, ATTRIBUTE_REMOVED } from 'minicomp'
+  define,
+  on,
+  currentNode,
+  attachControls,
+  onAttribute,
+  useDispatch,
+  onConnected,
+  onCleanup,
+  ATTRIBUTE_REMOVED,
+} from 'minicomp'
 import { ref, html } from 'rehtm'
-
 
 define('text-input', () => {
   const oncheck = useDispatch('check', { bubbles: true })
@@ -10,15 +17,22 @@ define('text-input', () => {
   const self = currentNode()
   const label = ref()
   const input = ref()
+  const actionslot = ref()
 
-  onAttribute('name', n => n && (input.current.setAttribute('name', n), input.current.setAttribute('autocomplete', n)))
-  onAttribute('label', l => label.current.textContent = l)
-  onAttribute('required', r => r && r !== ATTRIBUTE_REMOVED ?
-    input.current.setAttribute('required', '') : input.current.removeAttribute('required'))
-  onAttribute('type', t => input.current.setAttribute('type', t ?? 'text'))
-  onAttribute('minlength', m => m && input.current.setAttribute('minlength', m))
-  onAttribute('maxlength', m => m && input.current.setAttribute('maxlength', m))
-  onAttribute('pattern', p => p && input.current.setAttribute('pattern', p))
+  onAttribute(
+    'name',
+    (n) => n && (input.current.setAttribute('name', n), input.current.setAttribute('autocomplete', n)),
+  )
+  onAttribute('label', (l) => (label.current.textContent = l))
+  onAttribute('required', (r) =>
+    r && r !== ATTRIBUTE_REMOVED
+      ? input.current.setAttribute('required', '')
+      : input.current.removeAttribute('required'),
+  )
+  onAttribute('type', (t) => input.current.setAttribute('type', t ?? 'text'))
+  onAttribute('minlength', (m) => m && input.current.setAttribute('minlength', m))
+  onAttribute('maxlength', (m) => m && input.current.setAttribute('maxlength', m))
+  onAttribute('pattern', (p) => p && input.current.setAttribute('pattern', p))
 
   const check = () => {
     self.value = input.current.value
@@ -36,9 +50,27 @@ define('text-input', () => {
   onConnected(check)
   const untouch = () => input.current.classList.remove('touched')
 
+  let observer
+  const onActionSlot = () => {
+    const slotted = actionslot.current.assignedElements({ flatten: true }).at(0)
+    if (slotted) {
+      observer?.disconnect()
+      observer = new MutationObserver(() => {
+        if (!slotted.hasAttribute('disabled')) {
+          actionslot.current.toggleAttribute('action-enabled', true)
+        } else {
+          actionslot.current.removeAttribute('action-enabled')
+        }
+      })
+      observer.observe(slotted, { attributes: true, attributeFilter: ['disabled'] })
+    }
+  }
+
+  onCleanup(() => observer?.disconnect())
+
   attachControls({
     untouch,
-    set: v => (input.current.value = v, check()),
+    set: (v) => ((input.current.value = v), check()),
     clear: () => {
       input.current.value = ''
       untouch()
@@ -46,15 +78,26 @@ define('text-input', () => {
       self.removeAttribute('valid')
       oninput(input.current.value)
       check()
-    }
+    },
   })
 
   return html`
-    <link rel='stylesheet' href='./client/design/inputs/text/styles.css' />
-    <input type='text' placeholder='input' ref=${input}
-      onfocus=${() => input.current.classList.add('touched')}
-      oninput=${handleinput}/>
-    <label ref=${label}></label>
-    <slot name='hint'></slot>
+    <link rel="stylesheet" href="./client/design/inputs/text/styles.css" />
+    <div holder>
+      <div input>
+        <input
+          type="text"
+          placeholder="input"
+          ref=${input}
+          onfocus=${() => input.current.classList.add('touched')}
+          oninput=${handleinput}
+        />
+        <label ref=${label}></label>
+      </div>
+      <div action>
+        <slot name="action" ref=${actionslot} onslotchange=${onActionSlot}></slot>
+      </div>
+    </div>
+    <slot name="hint"></slot>
   `
 })

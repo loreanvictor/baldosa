@@ -3,7 +3,6 @@ import { html, ref } from 'rehtm'
 
 import { singleton } from '../../util/singleton.js'
 
-import { user } from '../../account/auth/index.js'
 import '../../design/overlays/modal/component.js'
 import '../../design/buttons/button/components.js'
 import '../../design/display/textual.js'
@@ -28,6 +27,7 @@ export const modal = singleton('bid-content-modal', () => {
   const btnlabel = ref()
   const btnicon = ref()
   const coords = ref()
+  const clearbtn = ref()
 
   const form = ref()
   const image = ref()
@@ -43,6 +43,21 @@ export const modal = singleton('bid-content-modal', () => {
     url.current?.controls.clear()
     description.current?.controls.clear()
     image.current?.controls.clear()
+    clearbtn.current.setAttribute('disabled', 'true')
+  }
+
+  const updateClearBtn = () => {
+    if (
+      image.current.controls.loaded() ||
+      title.current.value ||
+      subtitle.current.value ||
+      url.current.value ||
+      description.current.value
+    ) {
+      clearbtn.current.removeAttribute('disabled')
+    } else {
+      clearbtn.current.setAttribute('disabled', '')
+    }
   }
 
   attachControls({
@@ -60,6 +75,8 @@ export const modal = singleton('bid-content-modal', () => {
         draft.url && url.current?.controls.set(draft.url)
         draft.description && description.current?.controls.set(draft.description)
       }
+
+      updateClearBtn()
     },
     close: () => modal.current.controls.close(),
     clear,
@@ -79,30 +96,35 @@ export const modal = singleton('bid-content-modal', () => {
       btn.current.removeAttribute('disabled')
     }
 
-    if (user() && url.current?.validity?.valid && url.current?.value !== '') {
+    if (url.current?.validity?.valid && url.current?.value !== '') {
       suggest.current.removeAttribute('disabled')
+      url.current.setAttribute('hide-hint', '')
       suggest.current.setAttribute('url', url.current.value)
     } else {
+      url.current.removeAttribute('hide-hint')
       suggest.current.setAttribute('disabled')
     }
 
     return valid
   }
 
-  const onSuggest = ({ detail: suggestion }) => {
-    if (user() && url.current?.validity?.valid && url.current?.value !== '') {
+  const onSuggest = async ({ detail: suggestion }) => {
+    if (url.current?.validity?.valid && url.current?.value !== '') {
       try {
         if (!image.current.controls.loaded() && suggestion.image) {
           image.current.controls.loadUrl(suggestion.image)
         }
         if (!title.current.value && suggestion.title) {
           title.current.controls.set(suggestion.title)
+          await updateDraft(tile, { title: suggestion.title })
         }
         if (!subtitle.current.value && suggestion.subtitle) {
           subtitle.current.controls.set(suggestion.subtitle)
+          await updateDraft(tile, { subtitle: suggestion.subtitle })
         }
         if (!description.current.value && suggestion.description) {
           description.current.controls.set(suggestion.description)
+          await updateDraft(tile, { description: suggestion.description })
         }
       } catch (err) {
         console.error(err)
@@ -120,6 +142,7 @@ export const modal = singleton('bid-content-modal', () => {
 
   const input = async (src, detail) => {
     await updateDraft(tile, { [src]: detail })
+    updateClearBtn()
   }
 
   const prepAndSubmit = async () => {
@@ -192,20 +215,6 @@ export const modal = singleton('bid-content-modal', () => {
       i-con {
         transition: transform 0.2s ease-in-out;
       }
-
-      .url-input-holder {
-        display: flex;
-        width: 100%;
-        padding-right: 2px;
-        overflow: hidden;
-        transition: gap 0.15s;
-        &:has(suggest-bid-content-btn:not([disabled])) {
-          gap: 16px;
-        }
-        text-input {
-          flex-grow: 1;
-        }
-      }
     </style>
     <glass-modal ref=${modal} onclose=${() => (untouch(), close())}>
       <span slot="title">Bid on Tile</span>
@@ -237,22 +246,24 @@ export const modal = singleton('bid-content-modal', () => {
         >
           <span slot="hint">Displayed on the grid, under title</span>
         </text-input>
-        <div class="url-input-holder">
-          <text-input
-            label="URL"
-            maxlength="500"
-            type="url"
-            pattern="https://.+"
-            ref=${url}
-            oncheck=${check}
-            style="margin-top: -3ex; flex-grow: 1"
-            oninput=${({ detail }) => input('url', detail)}
-          ></text-input>
-          <suggest-bid-content-btn ref=${suggest} onsuggest=${onSuggest}></suggest-bid-content-btn>
-        </div>
+        <text-input
+          label="URL"
+          maxlength="500"
+          type="url"
+          pattern="https://.+"
+          ref=${url}
+          oncheck=${check}
+          style="margin-top: -3ex; flex-grow: 1"
+          oninput=${({ detail }) => input('url', detail)}
+        >
+          <span slot="hint">Sometimes URLs can be used to autofill the rest ...</span>
+          <suggest-bid-content-btn slot="action" ref=${suggest} onsuggest=${onSuggest}></suggest-bid-content-btn>
+        </text-input>
+
         <text-area
           label="Description"
           maxlength="900"
+          style="margin-top: -3ex"
           ref=${description}
           oncheck=${check}
           oninput=${({ detail }) => input('description', detail)}
@@ -260,11 +271,16 @@ export const modal = singleton('bid-content-modal', () => {
           <span slot="hint">Supports markdown</span>
         </text-area>
       </form>
-      <primary-button ref=${btn} onclickdirty=${scrollOrSubmit}>
-        <span style="margin: 0 .5ex" ref=${btnlabel}>Scroll Down</span>
-        <span ref=${coords} style="display: none"></span>
-        <i-con src="arrow-down" light thick slot="icon" ref=${btnicon}></i-con>
-      </primary-button>
+      <btn-group hide-disabled>
+        <secondary-button hide-disabled onclick=${() => clear()} ref=${clearbtn} disabled>
+          <i-con slot="icon" src="trash-can" dark thick></i-con>
+        </secondary-button>
+        <primary-button ref=${btn} onclickdirty=${scrollOrSubmit}>
+          <span style="margin: 0 .5ex" ref=${btnlabel}>Scroll Down</span>
+          <span ref=${coords} style="display: none"></span>
+          <i-con src="arrow-down" light thick slot="icon" ref=${btnicon}></i-con>
+        </primary-button>
+      </btn-group>
     </glass-modal>
   `
 })

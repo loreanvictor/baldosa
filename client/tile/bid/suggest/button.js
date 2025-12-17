@@ -54,10 +54,7 @@ define('suggest-bid-content-btn', () => {
         display: inline-block;
         opacity: 0.5;
 
-        transition:
-          transform 0.15s,
-          width 0.15s,
-          opacity 0.15s;
+        transition: opacity 0.15s;
       }
 
       :host(:hover) {
@@ -65,9 +62,7 @@ define('suggest-bid-content-btn', () => {
       }
 
       :host([disabled]) {
-        transform: translateX(36px);
-        opacity: 0;
-        width: 0;
+        opacity: 0.25;
       }
 
       i-con {
