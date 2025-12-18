@@ -83,21 +83,6 @@ define('suggest-bid-content-btn', () => {
         background: #ffffff11;
         border-radius: 6px;
 
-        span {
-          display: block;
-          width: 100%;
-          height: 100%;
-          mask: url('/client/assets/icons/magic-dark-fill.svg') center / 36px no-repeat;
-          background:
-            radial-gradient(circle at 30% 30%, #99feff, transparent 40%),
-            radial-gradient(circle at 70% 60%, #b983ff, transparent 40%),
-            radial-gradient(circle at 50% 80%, #ffdf6b, transparent 40%),
-            linear-gradient(120deg, #ffdf6b, #fecd1a, #fd3a69);
-          background-size: 200% 200%;
-          animation: wave 10s ease-in-out alternate infinite;
-          transition: transform 0.3s;
-        }
-
         opacity: 1;
         transition:
           opacity 0.15s,
@@ -116,6 +101,22 @@ define('suggest-bid-content-btn', () => {
       :host([loading]) {
         background: #ffffff00;
         animation: flimsy 1s alternate infinite;
+      }
+
+      span {
+        display: block;
+        width: 100%;
+        height: 100%;
+        mask: url('/client/assets/icons/magic-dark-fill.svg') center / 36px no-repeat;
+        -webkit-mask: url('/client/assets/icons/magic-dark-fill.svg') center / 36px no-repeat;
+        background:
+          radial-gradient(circle at 30% 30%, #99feff, transparent 40%),
+          radial-gradient(circle at 70% 60%, #b983ff, transparent 40%),
+          radial-gradient(circle at 50% 80%, #ffdf6b, transparent 40%),
+          linear-gradient(120deg, #ffdf6b, #fecd1a, #fd3a69);
+        background-size: 200% 200%;
+        animation: wave 10s ease-in-out alternate infinite;
+        transition: transform 0.3s;
       }
     </style>
     <span></span>
