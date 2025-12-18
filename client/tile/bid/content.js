@@ -96,7 +96,14 @@ export const modal = singleton('bid-content-modal', () => {
       btn.current.removeAttribute('disabled')
     }
 
-    if (url.current?.validity?.valid && url.current?.value !== '') {
+    if (
+      url.current?.validity?.valid &&
+      url.current?.value !== '' &&
+      (!image.current?.controls.contentSuggested() ||
+        !title.current?.controls.contentSuggested() ||
+        !subtitle.current?.controls.contentSuggested() ||
+        !description.current?.controls.contentSuggested())
+    ) {
       suggest.current.removeAttribute('disabled')
       suggest.current.setAttribute('url', url.current.value)
     } else {

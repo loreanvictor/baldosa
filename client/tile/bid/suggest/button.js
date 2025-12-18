@@ -26,10 +26,8 @@ define('suggest-bid-content-btn', () => {
         console.error(err)
         toast.current.controls.fail()
       } finally {
-        setTimeout(() => {
-          host.setAttribute('disabled', '')
-          host.removeAttribute('loading')
-        }, 10)
+        host.setAttribute('disabled', '')
+        host.removeAttribute('loading')
       }
     }
   })

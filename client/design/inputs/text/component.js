@@ -99,6 +99,7 @@ define('text-input', () => {
     untouch,
     set,
     suggest,
+    contentSuggested: () => input.current.hasAttribute('suggested-content'),
     clear: () => {
       input.current.value = ''
       untouch()

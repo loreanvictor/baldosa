@@ -61,6 +61,7 @@ define('text-area', () => {
     untouch,
     set,
     suggest,
+    contentSuggested: () => area.current.hasAttribute('suggested-content'),
     clear: () => {
       area.current.value = ''
       self.validity = {}

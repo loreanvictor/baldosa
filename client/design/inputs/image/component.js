@@ -207,6 +207,7 @@ define('image-input', () => {
   attachControls({
     set,
     suggest,
+    contentSuggested: () => canvas.current.hasAttribute('suggested-content'),
     load: (blob) => load(blob),
     loaded: () => loaded,
     export: async () => {

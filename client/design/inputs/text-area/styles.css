@@ -37,12 +37,7 @@ textarea {
   }
 
   &[suggested-content] {
-    box-shadow:
-      -0.5px -0.5px 0px 0.5px #99feff44 inset,
-      0.5px -0.5px 0px 0.5px #ffdf6b44 inset,
-      -0.5px 0.5px 0px 0.5px #b983ff44 inset,
-      0.5px 0.5px 0px 0.5px #fd3a6944 inset,
-      0 0 64px #99feff22 inset;
+    box-shadow: 0 0 0px 0.5px #b983ff99 inset;
   }
 }
 

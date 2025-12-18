@@ -23,11 +23,7 @@ canvas {
 
   &[suggested-content] + #overlay {
     border: none;
-    box-shadow:
-      -16px -16px 64px #99feff44 inset,
-      16px -16px 64px #ffdf6b44 inset,
-      -16px 16px 64px #b983ff44 inset,
-      16px 16px 64px #fd3a6944 inset;
+    box-shadow: 0 0 64px #b983ff44 inset;
   }
 }
 
