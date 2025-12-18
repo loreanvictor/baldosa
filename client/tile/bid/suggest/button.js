@@ -1,9 +1,6 @@
 import { define, useDispatch, currentNode, on, onAttribute } from 'minicomp'
 import { html, ref } from 'rehtm'
 
-import '../../../design/overlays/toast/component.js'
-import '../../../design/display/icon/component.js'
-
 import './toast.js'
 import { getSuggestion } from './backend.js'
 
@@ -13,6 +10,7 @@ define('suggest-bid-content-btn', () => {
   const toast = ref()
   let url = ''
 
+  host.setAttribute('title', 'click to potentially get some magical content.')
   onAttribute('url', (u) => u && (url = u))
 
   on('click', async () => {
@@ -26,9 +24,9 @@ define('suggest-bid-content-btn', () => {
         suggest(suggestion)
       } catch (err) {
         console.error(err)
-        host.setAttribute('disabled', '')
         toast.current.controls.fail()
       } finally {
+        host.setAttribute('disabled', '')
         host.removeAttribute('loading')
       }
     }
@@ -38,55 +36,89 @@ define('suggest-bid-content-btn', () => {
     <style>
       @keyframes flimsy {
         from {
-          filter: blur(0px);
-          -webkit-filter: blur(0px);
+          filter: blur(1px) contrast(2);
+          -webkit-filter: blur(1px) contrast(2);
         }
         to {
-          filter: blur(4px);
-          -webkit-filter: blur(4px);
+          filter: blur(2px) contrast(2);
+          -webkit-filter: blur(2px) contrast(2);
+        }
+      }
+
+      @keyframes wave {
+        0% {
+          background-position: 0% 50%;
+          background-size: 200% 200%;
+          transform: scale(1.05);
+        }
+        25% {
+          background-position: 50% 100%;
+          background-size: 75% 120%;
+          transform: translateX(0px) translateY(0.5px);
+        }
+        50% {
+          background-position: 100% 50%;
+          background-size: 200% 300%;
+          transform: scale(0.95) translateX(1px) translateY(-0.5px);
+        }
+        75% {
+          background-position: 50% 0%;
+          background-size: 120% 75%;
+          transform: translateX(0.5px) translateY(-0.5px);
+        }
+        100% {
+          background-position: 0% 50%;
+          background-size: 200% 200%;
+          transform: scale(1.05);
+          transform: translateX(-0.5px) translateY(0px);
         }
       }
 
       :host {
         position: relative;
         cursor: pointer;
-        width: 36px;
+        width: 42px;
+        height: 42px;
         display: inline-block;
-        opacity: 0.5;
+        background: #ffffff11;
+        border-radius: 6px;
 
-        transition: opacity 0.15s;
+        span {
+          display: block;
+          width: 100%;
+          height: 100%;
+          mask: url('/client/assets/icons/magic-dark-fill.svg') center / 36px no-repeat;
+          background:
+            radial-gradient(circle at 30% 30%, #99feff, transparent 40%),
+            radial-gradient(circle at 70% 60%, #b983ff, transparent 40%),
+            radial-gradient(circle at 50% 80%, #ffdf6b, transparent 40%),
+            linear-gradient(120deg, #ffdf6b, #fecd1a, #fd3a69);
+          background-size: 200% 200%;
+          animation: wave 10s ease-in-out alternate infinite;
+          transition: transform 0.3s;
+        }
+
+        opacity: 1;
+        transition:
+          opacity 0.15s,
+          background 0.3s;
       }
 
       :host(:hover) {
-        opacity: 1;
+        background: #ffffff24;
       }
 
       :host([disabled]) {
         opacity: 0.25;
+        filter: saturate(0);
+        -webkit-filter: saturate(0);
       }
-
-      i-con {
-        width: 36px;
-        transition: opacity 0.15s;
-
-        &:last-of-type {
-          position: absolute;
-          opacity: 0;
-          left: 0;
-          top: 0;
-        }
-      }
-
       :host([loading]) {
-        opacity: 1;
-        i-con:last-of-type {
-          opacity: 1;
-          animation: flimsy 1s alternate infinite;
-        }
+        background: #ffffff00;
+        animation: flimsy 1s alternate infinite;
       }
     </style>
-    <i-con src="magic" dark thick></i-con>
-    <i-con src="magic" dark fill></i-con>
+    <span></span>
     <suggest-bid-content-toast ref=${toast}></suggest-bid-content-toast>
   `
 })

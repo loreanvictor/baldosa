@@ -1,5 +1,6 @@
 use futures::{Stream, TryStreamExt};
 use sqlx::postgres::types::PgInterval as Interval;
+use sqlx::types::Uuid;
 
 use super::bid::{Bid, WinningBid};
 use super::coords::Coords;
@@ -34,15 +35,22 @@ impl Book {
     .await
   }
 
-  pub async fn all_live_bids(&self, offset: u32, limit: u32) -> Result<Vec<Bid>, sqlx::Error> {
+  pub async fn all_live_bids(
+    &self,
+    user_id: Option<Uuid>,
+    offset: u32,
+    limit: u32,
+  ) -> Result<Vec<Bid>, sqlx::Error> {
     sqlx::query_as!(
       Bid,
       "
         select bids.* from published_tiles
         join bids on published_tiles.occupant_bid = bids.id
+        where ($1::uuid is null or bids.bidder = $1)
         order by bids.published_at desc
-        offset $1 limit $2
+        offset $2 limit $3
       ",
+      user_id,
       i64::from(offset),
       i64::from(limit),
     )

@@ -12,17 +12,17 @@ import './preview.js'
 const tiles = async (...args) => {
   const term = currentTerm()
 
-  const { p, page, n, count, format, f } = yargs(args).parse()
+  const { p, page, n, count, format, f, u, user } = yargs(args).parse()
   const _n = count ?? n ?? 32
   const _p = page ?? p ?? 0
+  const _user = user ?? u
   const _format = f ?? format ?? 'id:16,pos,title,publish'
 
-  const res = await fetch(
-    `${baseUrl()}/all/live?limit=${_n}&offset=${_n * _p}`,
-    authenticated({
-      method: 'GET',
-    }),
-  )
+  const url = new URL(`${baseUrl()}/all/live`)
+  url.searchParams.set('limit', _n)
+  url.searchParams.set('offsfet', _p * _n)
+  _user && url.searchParams.set('user_id', _user)
+  const res = await fetch(url, authenticated({ method: 'GET' }))
 
   if (!res.ok) {
     const msg = await res.text()
@@ -102,6 +102,7 @@ tiles.man = (term) => {
   term.log('options:')
   term.log(html`<pre>-n, --count         number of items to show.</pre>`)
   term.log(html`<pre>-p, --page          the page of items to show.</pre>`)
+  term.log(html`<pre>-u, --user          filter for tiles of given user (id).</pre>`)
   term.log(html`<pre>-f, --format        how to format each item (see below).</pre>`)
   term.hr()
   term.log('format:')

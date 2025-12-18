@@ -98,10 +98,8 @@ export const modal = singleton('bid-content-modal', () => {
 
     if (url.current?.validity?.valid && url.current?.value !== '') {
       suggest.current.removeAttribute('disabled')
-      url.current.setAttribute('hide-hint', '')
       suggest.current.setAttribute('url', url.current.value)
     } else {
-      url.current.removeAttribute('hide-hint')
       suggest.current.setAttribute('disabled')
     }
 

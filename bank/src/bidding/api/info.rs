@@ -4,6 +4,7 @@ use axum::{
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::types::Uuid;
 
 use crate::auth::admin::AdminUser;
 
@@ -58,18 +59,23 @@ pub async fn occupant_bid(
 }
 
 #[derive(Deserialize)]
-pub struct BidsPagination {
+pub struct BidsQuery {
   pub offset: Option<u32>,
   pub limit: Option<u32>,
+  pub user_id: Option<Uuid>,
 }
 
 pub async fn all_live_bids(
   Extension(book): Extension<Book>,
-  Query(BidsPagination { offset, limit }): Query<BidsPagination>,
+  Query(BidsQuery {
+    offset,
+    limit,
+    user_id,
+  }): Query<BidsQuery>,
   AdminUser(_): AdminUser,
 ) -> Result<impl IntoResponse, BiddingError> {
   book
-    .all_live_bids(offset.unwrap_or(0), limit.unwrap_or(32))
+    .all_live_bids(user_id, offset.unwrap_or(0), limit.unwrap_or(32))
     .await
     .map_err(|_| BiddingError::Unknown)
     .map(Json)

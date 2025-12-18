@@ -5,6 +5,7 @@ import { enrichSpotify } from './sources/spotify.js'
 import { enrichIMDb } from './sources/imdb.js'
 import { enrichNetflix } from './sources/netflix.js'
 import { enrichGoogleMaps } from './sources/googlemaps.js'
+import { split } from './sources/util.js'
 
 export const preview = async (url) => {
   const requrl = new URL(`${backendURL()}/suggest`)
@@ -56,6 +57,12 @@ const _suggestion = async (url) => {
   } else if (prev.url.match(/google\.com\/maps/)) {
     return enrichGoogleMaps(prev)
   } else {
-    return prev
+    const [title, subtitle] = split(prev.title)
+
+    return {
+      ...prev,
+      title,
+      subtitle,
+    }
   }
 }

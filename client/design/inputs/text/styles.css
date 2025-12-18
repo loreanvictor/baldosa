@@ -117,7 +117,7 @@ slot[name='hint'] {
       opacity 0.15s;
 
     &:has([action-enabled]) {
-      width: 36px;
+      width: 44px;
       margin-left: 1ch;
       opacity: 1;
     }

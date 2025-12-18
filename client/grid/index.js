@@ -12,12 +12,13 @@ import './control/pan-indicator.js'
 import './control/zoom-indicator.js'
 
 import { createGridMask } from './mask/index.js'
+import { allowDeepZoom } from './util/allow-deep-zoom.js'
 
 define('controlled-grid', () => {
   const WMIN = Math.min(window.innerWidth, window.innerHeight)
   const WMAX = Math.max(window.innerWidth, window.innerHeight)
   const SMALL_DEVICE = WMAX <= 960
-  const MIN_SCALE = SMALL_DEVICE ? WMIN / 6 : WMIN / 7
+  const MIN_SCALE = SMALL_DEVICE ? (allowDeepZoom() ? WMIN / 6 : WMIN / 4) : allowDeepZoom() ? WMIN / 9 : WMIN / 7
   const MAX_SCALE = 300
   const IMG_CACHE_SIZE = (Math.ceil(WMIN / MIN_SCALE) + 4) * (Math.ceil(WMAX / MIN_SCALE) + 4) * 2
 
