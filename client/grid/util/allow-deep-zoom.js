@@ -15,8 +15,8 @@ export const allowDeepZoom = () => {
 
   // ---- iOS Safari gate (new phones only) ----
   if (isIOS && isSafari) {
-    // iPhone 14+ / recent iPads land here
-    return cores >= 6 && memory >= 6
+    // Hopes and wishes ...
+    return cores >= 4
   }
 
   // ---- Desktop Safari: still no ----
@@ -26,9 +26,11 @@ export const allowDeepZoom = () => {
   if (!isChromium && !isFirefox) return false
 
   let score = 0
-  if (cores >= 8) score++
-  if (memory >= 8) score++
+  if (cores >= 4) score++
+  if (memory >= 4) score++
   if (dpr <= 2) score++
 
   return score >= 2
 }
+
+window.allowDeepZoom = allowDeepZoom

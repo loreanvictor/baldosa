@@ -124,10 +124,14 @@ define('image-input', () => {
   }
 
   const reset = () => {
-    offset = { ...initial.offset }
-    scale = initial.scale
-    draw()
-    oninput({ offset, scale })
+    if (suggestionRollback) {
+      rollbackSuggestion()
+    } else {
+      offset = { ...initial.offset }
+      scale = initial.scale
+      draw()
+      oninput({ offset, scale })
+    }
   }
 
   // ------ loading the image ------
@@ -144,33 +148,67 @@ define('image-input', () => {
     }
   })
 
+  // ------------  CONTENT MODIFICATION / SUGGESTION AND CONTROL --------------
+  const set = (state) => {
+    loaded = state.src !== '' && state.src !== undefined
+    img.crossOrigin = 'anonymous'
+    img.src = state.src
+    if (loaded) {
+      overlay.current.classList.add('loaded')
+      offset = state.offset
+      scale = state.scale
+      img.onload = () => {
+        minscale = calcminscale()
+        maxscale = calcmaxscale()
+        initial = { offset: calcinitoffset(), scale: minscale }
+        draw()
+      }
+    } else {
+      overlay.current.classList.remove('loaded')
+      img.src = ''
+    }
+
+    check()
+  }
+
+  let suggestionRollback
+
+  const suggest = (url) => {
+    suggestionRollback = {
+      offset,
+      scale,
+      src: img.hasAttribute('src') && img.getAttribute('src').trim() !== '' ? img.src : undefined,
+    }
+    loadimg(url)
+    canvas.current.setAttribute('suggested-content', '')
+  }
+
+  const rollbackSuggestion = () => {
+    if (!suggestionRollback.src) {
+      unload()
+    } else {
+      const rollback = { ...suggestionRollback, offset: { ...suggestionRollback.offset } }
+      set(rollback)
+      oninput(rollback)
+    }
+    suggestionRollback = undefined
+    canvas.current.removeAttribute('suggested-content')
+  }
+
+  const clearSuggestion = () => {
+    suggestionRollback = undefined
+    canvas.current.removeAttribute('suggested-content')
+  }
+
+  const acceptSuggestion = clearSuggestion
+
   // ------ exporting the image ------
   const untouch = () => canvas.current.classList.remove('touched')
   attachControls({
+    set,
+    suggest,
     load: (blob) => load(blob),
-    loadUrl: (url) => loadimg(url),
     loaded: () => loaded,
-    set: (state) => {
-      loaded = state.src !== '' && state.src !== undefined
-      img.crossOrigin = 'anonymous'
-      img.src = state.src
-      if (loaded) {
-        overlay.current.classList.add('loaded')
-        offset = state.offset
-        scale = state.scale
-        img.onload = () => {
-          minscale = calcminscale()
-          maxscale = calcmaxscale()
-          initial = { offset: calcinitoffset(), scale: minscale }
-          draw()
-        }
-      } else {
-        overlay.current.classList.remove('loaded')
-        img.src = ''
-      }
-
-      check()
-    },
     export: async () => {
       if (loaded) {
         return new Promise((resolve) => {
@@ -184,13 +222,17 @@ define('image-input', () => {
     clear: () => {
       unload()
       untouch()
+      clearSuggestion()
       self.validity = {}
       check()
     },
   })
 
   // ------ focus management ------
-  const focus = () => (canvas.current.classList.add('focused'), canvas.current.classList.add('touched'))
+  const focus = () => {
+    canvas.current.classList.add('focused')
+    canvas.current.classList.add('touched')
+  }
   const blur = () => canvas.current.classList.remove('focused')
   on('pointerdown', () => focus())
   onClickOutOfMe(() => blur())
@@ -199,6 +241,7 @@ define('image-input', () => {
   let modtimer
   const markmod = () => {
     focus()
+    acceptSuggestion()
     overlay.current.classList.add('mod')
     clearTimeout(modtimer)
     modtimer = setTimeout(() => overlay.current.classList.remove('mod'), 500)

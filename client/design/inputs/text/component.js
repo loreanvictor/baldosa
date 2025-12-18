@@ -11,6 +11,8 @@ import {
 } from 'minicomp'
 import { ref, html } from 'rehtm'
 
+import '../../display/icon/component.js'
+
 define('text-input', () => {
   const oncheck = useDispatch('check', { bubbles: true })
   const oninput = useDispatch('input', { bubbles: true })
@@ -43,6 +45,7 @@ define('text-input', () => {
 
   const handleinput = (event) => {
     event.stopPropagation()
+    acceptSuggestion()
     check()
     oninput(input.current.value)
   }
@@ -68,14 +71,40 @@ define('text-input', () => {
 
   onCleanup(() => observer?.disconnect())
 
+  const set = (v) => ((input.current.value = v), check())
+
+  let suggestionRollback
+  const suggest = (v) => {
+    suggestionRollback = input.current.value ?? ''
+    set(v)
+    input.current.setAttribute('suggested-content', '')
+  }
+
+  const clearSuggestion = () => {
+    suggestionRollback = undefined
+    input.current?.removeAttribute('suggested-content')
+  }
+
+  const acceptSuggestion = clearSuggestion
+
+  const rollbackSuggestion = () => {
+    if (suggestionRollback !== undefined) {
+      set(suggestionRollback)
+      suggestionRollback = undefined
+      input.current.removeAttribute('suggested-content')
+    }
+  }
+
   attachControls({
     untouch,
-    set: (v) => ((input.current.value = v), check()),
+    set,
+    suggest,
     clear: () => {
       input.current.value = ''
       untouch()
       self.validity = {}
       self.removeAttribute('valid')
+      clearSuggestion()
       oninput(input.current.value)
       check()
     },
@@ -93,6 +122,7 @@ define('text-input', () => {
           oninput=${handleinput}
         />
         <label ref=${label}></label>
+        <i-con src="arrow-uturn-left" dark thick onclick=${() => rollbackSuggestion()}></i-con>
       </div>
       <div action>
         <slot name="action" ref=${actionslot} onslotchange=${onActionSlot}></slot>

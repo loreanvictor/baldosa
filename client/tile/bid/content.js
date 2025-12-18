@@ -109,19 +109,19 @@ export const modal = singleton('bid-content-modal', () => {
   const onSuggest = async ({ detail: suggestion }) => {
     if (url.current?.validity?.valid && url.current?.value !== '') {
       try {
-        if (!image.current.controls.loaded() && suggestion.image) {
-          image.current.controls.loadUrl(suggestion.image)
+        if (suggestion.image) {
+          image.current.controls.suggest(suggestion.image)
         }
-        if (!title.current.value && suggestion.title) {
-          title.current.controls.set(suggestion.title)
+        if (suggestion.title) {
+          title.current.controls.suggest(suggestion.title)
           await updateDraft(tile, { title: suggestion.title })
         }
-        if (!subtitle.current.value && suggestion.subtitle) {
-          subtitle.current.controls.set(suggestion.subtitle)
+        if (suggestion.subtitle) {
+          subtitle.current.controls.suggest(suggestion.subtitle)
           await updateDraft(tile, { subtitle: suggestion.subtitle })
         }
-        if (!description.current.value && suggestion.description) {
-          description.current.controls.set(suggestion.description)
+        if (suggestion.description) {
+          description.current.controls.suggest(suggestion.description)
           await updateDraft(tile, { description: suggestion.description })
         }
       } catch (err) {

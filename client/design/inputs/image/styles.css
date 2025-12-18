@@ -11,7 +11,7 @@ canvas {
   background: #313131;
   border: 1px solid transparent;
   display: block;
-  transition: border-color .2s;
+  transition: border-color 0.2s;
 
   :invalid ~ div &.touched:not(.focused, .dnd) {
     border-color: var(--red-fg, red);
@@ -19,6 +19,15 @@ canvas {
 
   &.focused {
     border-color: var(--blue-fg, blue);
+  }
+
+  &[suggested-content] + #overlay {
+    border: none;
+    box-shadow:
+      -16px -16px 64px #99feff44 inset,
+      16px -16px 64px #ffdf6b44 inset,
+      -16px 16px 64px #b983ff44 inset,
+      16px 16px 64px #fd3a6944 inset;
   }
 }
 
@@ -39,21 +48,24 @@ canvas {
     border-color: var(--blue-fg, blue);
   }
 
-  &::before, &::after {
+  &::before,
+  &::after {
     content: ' ';
     position: absolute;
     border: 1px solid white;
     mix-blend-mode: difference;
     pointer-events: none;
-    opacity: .1;
+    opacity: 0.1;
     transition: opacity 3s;
   }
-  &.loaded::before, &.loaded::after {
+  &.loaded::before,
+  &.loaded::after {
     opacity: 0;
   }
-  &.mod::before, &.mod::after {
-    opacity: .2;
-    transition: opacity .2s;
+  &.mod::before,
+  &.mod::after {
+    opacity: 0.2;
+    transition: opacity 0.2s;
   }
   &::before {
     top: 0;
@@ -74,8 +86,10 @@ canvas {
 
   #placeholder {
     position: absolute;
-    left: 25%; right: 25%;
-    top: 25%; bottom: 25%;
+    left: 25%;
+    right: 25%;
+    top: 25%;
+    bottom: 25%;
     text-align: center;
     display: flex;
     align-items: center;
@@ -89,8 +103,8 @@ canvas {
 
 #tools {
   position: absolute;
-  top: .5ch;
-  left: .5ch;
+  top: 0.5ch;
+  left: 0.5ch;
   display: flex;
   flex-direction: column;
   gap: 1ch;
@@ -98,17 +112,17 @@ canvas {
   button {
     width: 48px;
     height: 48px;
-    background: rgba(0, 0, 0, .75);
+    background: rgba(0, 0, 0, 0.75);
     border-radius: 4px;
     outline: none;
     border: none;
     cursor: pointer;
     opacity: 0;
-    transition: opacity .2s;
+    transition: opacity 0.2s;
   }
 
   .loaded ~ & button {
-    opacity: .5;
+    opacity: 0.5;
 
     &:hover {
       opacity: 1;

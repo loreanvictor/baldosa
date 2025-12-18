@@ -16,7 +16,7 @@ textarea {
   color: white;
   padding: 1ch;
   border-radius: 8px;
-  transition: border-color .3s;
+  transition: border-color 0.3s;
 
   &:focus {
     border-color: var(--blue-fg, blue);
@@ -27,12 +27,22 @@ textarea {
     border-color: var(--red-fg, red);
   }
 
-  &:autofill, &:-webkit-autofill {
+  &:autofill,
+  &:-webkit-autofill {
     background: #212121;
     box-shadow: 0 0 0 32px #212121 inset;
     color: var(--blue-fg, blue);
     -webkit-text-fill-color: var(--blue-fg, blue);
     border-color: var(--blue-fg, blue);
+  }
+
+  &[suggested-content] {
+    box-shadow:
+      -0.5px -0.5px 0px 0.5px #99feff44 inset,
+      0.5px -0.5px 0px 0.5px #ffdf6b44 inset,
+      -0.5px 0.5px 0px 0.5px #b983ff44 inset,
+      0.5px 0.5px 0px 0.5px #fd3a6944 inset,
+      0 0 64px #99feff22 inset;
   }
 }
 
@@ -43,9 +53,12 @@ textarea::placeholder {
 label {
   position: absolute;
   top: calc(3ex + 1ch);
-  opacity: .5;
+  opacity: 0.5;
   left: 1ch;
-  transition: transform .3s, color .3s, opacity .3s;
+  transition:
+    transform 0.3s,
+    color 0.3s,
+    opacity 0.3s;
   transform-origin: left;
   pointer-events: none;
 
@@ -72,10 +85,30 @@ label {
   }
 }
 
+i-con {
+  position: absolute;
+  right: 0;
+  top: calc(1rem + 1ch);
+  width: 36px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+
+  textarea[suggested-content] ~ & {
+    opacity: 0.5;
+    pointer-events: initial;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
 slot[name='hint'] {
-  font-size: .7rem;
+  font-size: 0.7rem;
   color: #bdbdbd88;
-  transition: color .3s;
+  transition: color 0.3s;
 
   textarea.touched:invalid:not(:focus) ~ &,
   textarea:invalid:not(:focus):not(:placeholder-shown) ~ & {
@@ -88,4 +121,3 @@ slot[name='hint'] {
   margin: 1ch 0;
   text-align: right;
 }
-

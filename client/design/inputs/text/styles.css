@@ -15,7 +15,9 @@ input {
   color: white;
   padding: 1ch;
   border-radius: 8px;
-  transition: border-color 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 
   &:focus {
     border-color: var(--blue-fg, blue);
@@ -34,6 +36,15 @@ input {
     -webkit-text-fill-color: var(--blue-fg, blue);
     border-color: var(--blue-fg, blue);
   }
+
+  &[suggested-content] {
+    box-shadow:
+      -0.5px -0.5px 0px 0.5px #99feff44 inset,
+      0.5px -0.5px 0px 0.5px #ffdf6b44 inset,
+      -0.5px 0.5px 0px 0.5px #b983ff44 inset,
+      0.5px 0.5px 0px 0.5px #fd3a6944 inset,
+      0 0 64px #99feff11 inset;
+  }
 }
 
 input::placeholder {
@@ -42,7 +53,7 @@ input::placeholder {
 
 label {
   position: absolute;
-  top: calc(3ex + 1ch);
+  top: 1ch;
   opacity: 0.5;
   left: 1ch;
   transition:
@@ -103,7 +114,28 @@ slot[name='hint'] {
   display: flex;
 
   [input] {
+    position: relative;
     flex-grow: 1;
+
+    i-con {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 36px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
+
+      input[suggested-content] ~ & {
+        opacity: 0.5;
+        pointer-events: initial;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
   }
 
   [action] {
