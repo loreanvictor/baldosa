@@ -37,7 +37,18 @@ textarea {
   }
 
   &[suggested-content] {
-    box-shadow: 0 0 0px 0.5px #b983ff99 inset;
+    animation: smartglow 3s alternate infinite;
+  }
+}
+
+@keyframes smartglow {
+  from {
+    box-shadow: 0 0 0 0.5px var(--smart-purple) inset;
+  }
+  to {
+    box-shadow:
+      0 0 0 1px var(--smart-purple) inset,
+      0 0 64px color-mix(in srgb, var(--smart-blue), 90% transparent) inset;
   }
 }
 
@@ -87,12 +98,10 @@ i-con {
   width: 36px;
   cursor: pointer;
   opacity: 0;
-  pointer-events: none;
   transition: opacity 0.15s;
 
-  textarea[suggested-content] ~ & {
+  textarea:focus:not(:placeholder-shown) ~ & {
     opacity: 0.5;
-    pointer-events: initial;
 
     &:hover {
       opacity: 1;

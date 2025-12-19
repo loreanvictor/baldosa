@@ -19,6 +19,7 @@ define('text-input', () => {
   const self = currentNode()
   const label = ref()
   const input = ref()
+  const rollbackbtn = ref()
   const actionslot = ref()
 
   onAttribute(
@@ -77,23 +78,28 @@ define('text-input', () => {
   const suggest = (v) => {
     suggestionRollback = input.current.value ?? ''
     set(v)
+    oninput(v)
     input.current.setAttribute('suggested-content', '')
+    rollbackbtn.current.setAttribute('src', 'arrow-uturn-left')
   }
 
   const clearSuggestion = () => {
     suggestionRollback = undefined
     input.current?.removeAttribute('suggested-content')
+    rollbackbtn.current.setAttribute('src', 'x')
   }
 
   const acceptSuggestion = clearSuggestion
 
+  const contentSuggested = () => suggestionRollback !== undefined
   const rollbackSuggestion = () => {
-    if (suggestionRollback !== undefined) {
+    if (contentSuggested()) {
       set(suggestionRollback)
-      suggestionRollback = undefined
-      input.current.removeAttribute('suggested-content')
+      clearSuggestion()
     }
   }
+
+  const rollback = () => (contentSuggested() ? rollbackSuggestion() : (set(''), oninput('')))
 
   attachControls({
     untouch,
@@ -123,7 +129,7 @@ define('text-input', () => {
           oninput=${handleinput}
         />
         <label ref=${label}></label>
-        <i-con src="arrow-uturn-left" dark thick onclick=${() => rollbackSuggestion()}></i-con>
+        <i-con src="x" ref=${rollbackbtn} dark thick onclick=${() => rollback()}></i-con>
       </div>
       <div action>
         <slot name="action" ref=${actionslot} onslotchange=${onActionSlot}></slot>

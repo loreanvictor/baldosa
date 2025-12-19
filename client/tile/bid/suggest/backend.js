@@ -35,6 +35,17 @@ export const getSuggestion = async (url) => {
     return cache[url]
   }
 
+  return new Promise((res) => {
+    setTimeout(() => {
+      res({
+        title: 'The Things to Come',
+        subtitle: 'weird book',
+        description: 'A werid novel written by a mysterious author.',
+        image: `https://images.weserv.nl/?url=${encodeURIComponent('https://m.media-amazon.com/images/I/91zxbLEQ44L._AC_UF894,1000_QL80_.jpg')}`,
+      })
+    }, 2_000)
+  })
+
   const res = await _suggestion(url)
   cache[url] = res
 

@@ -7,6 +7,7 @@ define('text-area', () => {
   const self = currentNode()
   const label = ref()
   const area = ref()
+  const rollbackbtn = ref()
 
   onAttribute('name', (n) => n && (area.current.setAttribute('name', n), area.current.setAttribute('autocomplete', n)))
   onAttribute('label', (l) => (label.current.textContent = l))
@@ -39,23 +40,28 @@ define('text-area', () => {
   const suggest = (v) => {
     suggestionRollback = area.current.value ?? ''
     set(v)
+    oninput(area.current.value)
     area.current.setAttribute('suggested-content', '')
+    rollbackbtn.current.setAttribute('src', 'arrow-uturn-left')
   }
 
   const clearSuggestion = () => {
     suggestionRollback = undefined
     area.current?.removeAttribute('suggested-content')
+    rollbackbtn.current.setAttribute('src', 'x')
   }
 
   const acceptSuggestion = clearSuggestion
 
+  const contentSuggested = () => suggestionRollback !== undefined
   const rollbackSuggestion = () => {
-    if (suggestionRollback !== undefined) {
+    if (contentSuggested()) {
       set(suggestionRollback)
-      suggestionRollback = undefined
-      area.current.removeAttribute('suggested-content')
+      clearSuggestion()
     }
   }
+
+  const rollback = () => (contentSuggested() ? rollbackSuggestion() : (set(''), oninput(area.current.value)))
 
   attachControls({
     untouch,
@@ -82,7 +88,7 @@ define('text-area', () => {
       oninput=${input}
     ></textarea>
     <label ref=${label}></label>
-    <i-con src="arrow-uturn-left" dark thick onclick=${() => rollbackSuggestion()}></i-con>
+    <i-con ref=${rollbackbtn} src="x" dark thick onclick=${() => rollback()}></i-con>
     <slot name="hint"></slot>
   `
 })

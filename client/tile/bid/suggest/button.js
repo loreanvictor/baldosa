@@ -110,10 +110,10 @@ define('suggest-bid-content-btn', () => {
         mask: url('/client/assets/icons/magic-dark-fill.svg') center / 36px no-repeat;
         -webkit-mask: url('/client/assets/icons/magic-dark-fill.svg') center / 36px no-repeat;
         background:
-          radial-gradient(circle at 30% 30%, #99feff, transparent 40%),
-          radial-gradient(circle at 70% 60%, #b983ff, transparent 40%),
-          radial-gradient(circle at 50% 80%, #ffdf6b, transparent 40%),
-          linear-gradient(120deg, #ffdf6b, #fecd1a, #fd3a69);
+          radial-gradient(circle at 30% 30%, var(--smart-blue), transparent 40%),
+          radial-gradient(circle at 70% 60%, var(--smart-purple), transparent 40%),
+          radial-gradient(circle at 50% 80%, var(--smart-yellow), transparent 40%),
+          linear-gradient(120deg, var(--smart-yellow), var(--smart-orange), var(--smart-red));
         background-size: 200% 200%;
         animation: wave 10s ease-in-out alternate infinite;
         transition: transform 0.3s;

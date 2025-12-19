@@ -121,15 +121,12 @@ export const modal = singleton('bid-content-modal', () => {
         }
         if (suggestion.title) {
           title.current.controls.suggest(suggestion.title)
-          await updateDraft(tile, { title: suggestion.title })
         }
         if (suggestion.subtitle) {
           subtitle.current.controls.suggest(suggestion.subtitle)
-          await updateDraft(tile, { subtitle: suggestion.subtitle })
         }
         if (suggestion.description) {
           description.current.controls.suggest(suggestion.description)
-          await updateDraft(tile, { description: suggestion.description })
         }
       } catch (err) {
         console.error(err)
