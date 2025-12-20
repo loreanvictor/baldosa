@@ -2,7 +2,8 @@ import { html } from 'rehtm'
 import { parse } from 'envfile'
 
 import { listenToBroadcast } from '../client/util/broadcast.js'
-import { init as authInit, account } from './auth/index.js'
+import { configure } from '../client/config.js'
+import { init as authinit, account, loadsecurekey } from './auth/index.js'
 import { register, currentTerm, TermError } from './term/index.js'
 
 import './term/textual.js'
@@ -39,7 +40,7 @@ const init = async () => {
   const term = currentTerm()
 
   term.log('authenticating ...')
-  authInit()
+  await authinit()
   const acc = account()
   if (acc) {
     await term.run(`env USER ${acc.name}`, { silent: true })
@@ -76,10 +77,16 @@ terminal.controls.run('init', { silent: true }).then(() => {
 })
 
 listenToBroadcast('env:set', ({ key, value }) => {
+  configure({ [key]: value })
   if (key === 'BANK_URL') {
     document.querySelector('health-check[name="bank"]').setAttribute('url', `${value}/health`)
+    loadsecurekey()
   }
   if (key === 'PUBLISHER_URL') {
     document.querySelector('health-check[name="publisher"]').setAttribute('url', `${value}/health`)
   }
+})
+
+listenToBroadcast('auth:securekeyloaded', () => {
+  terminal.controls.log('🔑 security key loaded.')
 })

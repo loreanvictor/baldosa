@@ -3,13 +3,14 @@ import createError from 'http-errors'
 import { conf } from '../../config.js'
 import { niceKeyName } from './util.js'
 
-
 export const backendURL = () => `${conf('BANK_URL') ?? 'https://bank.baldosa.city'}/auth`
 
-export const startAuthentication = async () => {
+export const startAuthentication = async (scope) => {
   const { Base64 } = await import('js-base64')
 
-  const res = await fetch(`${backendURL()}/authenticate/start`, {
+  const url = new URL(`${backendURL()}/authenticate/start`)
+  scope && url.searchParams.set('scope', scope)
+  const res = await fetch(url, {
     method: 'POST',
     credentials: 'include',
   })
@@ -21,6 +22,9 @@ export const startAuthentication = async () => {
 
   const authOpts = await res.json()
   authOpts.publicKey.challenge = Base64.toUint8Array(authOpts.publicKey.challenge)
+  if (scope) {
+    authOpts.publicKey.extensions.prf.eval.first = Base64.toUint8Array(authOpts.publicKey.extensions.prf.eval.first)
+  }
   delete authOpts.mediation
 
   return authOpts
@@ -33,7 +37,7 @@ export const finishAuthentication = async (credentials) => {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       credential: {
@@ -48,7 +52,7 @@ export const finishAuthentication = async (credentials) => {
           userHandle: Base64.fromUint8Array(new Uint8Array(credentials.response.userHandle), true),
         },
       },
-    })
+    }),
   })
 
   if (!res.ok) {
@@ -74,13 +78,13 @@ export const startRegistration = async (user) => {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       email: user.email,
       first_name: user.firstname,
       last_name: user.lastname,
-    })
+    }),
   })
 
   if (!res.ok) {
@@ -105,7 +109,7 @@ export const finishRegistration = async (credential) => {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       credential: {
@@ -118,7 +122,7 @@ export const finishRegistration = async (credential) => {
         },
       },
       key_name: await niceKeyName(),
-    })
+    }),
   })
 
   if (!res.ok) {

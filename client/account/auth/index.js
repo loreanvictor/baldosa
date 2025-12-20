@@ -5,6 +5,8 @@ import { modal as registermodal } from './register-modal.js'
 import { modal as guardmodal } from './guard-modal.js'
 import { errmodal } from '../../design/overlays/errmodal.js'
 
+// TODO: extract these into a separate module without so many deps
+
 let _token = undefined
 let _email = undefined
 let _name = undefined

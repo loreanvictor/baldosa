@@ -1,17 +1,30 @@
-use std::sync::Arc;
-
 use axum::{
-  extract::{Extension, Json},
+  extract::{Extension, Json, Query},
   response::IntoResponse,
 };
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
 use log::error;
 use serde::Deserialize;
+use serde_json::json;
+use sha2::{Digest, Sha256};
+use std::sync::Arc;
 use tower_sessions::Session;
 use webauthn_rs::prelude::*;
 
 use super::error::AuthError;
 use super::storage::AuthStorage;
 use super::user::{AuthenticatedUser, VerificationStatus};
+
+#[derive(Deserialize, Debug)]
+pub struct AuthenticateStartBody {
+  pub scope: Option<String>,
+}
+
+fn sha256(data: &[u8]) -> [u8; 32] {
+  let mut hasher = Sha256::new();
+  hasher.update(data);
+  hasher.finalize().into()
+}
 
 ///
 /// Starts a [webauthn](https://webauthn.io) passkey authentication session.
@@ -45,26 +58,47 @@ use super::user::{AuthenticatedUser, VerificationStatus};
 pub async fn start(
   Extension(webauthn): Extension<Arc<Webauthn>>,
   session: Session,
+  Query(AuthenticateStartBody { scope }): Query<AuthenticateStartBody>,
 ) -> Result<impl IntoResponse, AuthError> {
   //
   // 1. Create the challenge (and other options for client authenticator)
   //
-  match webauthn.start_discoverable_authentication() {
-    Ok((credential_options, reg_state)) => {
-      //
-      // 2. Store the challenge in user's session for later verification
-      //    Note that this is only safe because we are using a server-side
-      //    session storage, as otherwise it'd be open to tampering or replay
-      //    attacks.
-      //
-      session.insert("auth_state", reg_state).await?;
+  let (credential_options, reg_state) = webauthn
+    .start_discoverable_authentication()
+    .map_err(|_| AuthError::Unknown)?;
 
-      //
-      // 3. Send the challenge and other autehtnicator options to the client
-      //
-      Ok(Json(credential_options))
-    }
-    Err(_) => Err(AuthError::Unknown),
+  //
+  // 2. Store the challenge in user's session for later verification
+  //    Note that this is only safe because we are using a server-side
+  //    session storage, as otherwise it'd be open to tampering or replay
+  //    attacks.
+  //
+  session.insert("auth_state", reg_state).await?;
+
+  //
+  // 2.5. If a scope is provided, the client wants to fetch a secure secret
+  //      from the credentials and the client-side authenticator, to E2E encrypt
+  //      or decrypt some sensitive data. webauthn_rs doesn't yet support PRF extensions
+  //      so we manually modify the credential options returned by webauthn_rs to
+  //      inject the PRF extension.
+  //
+  if let Some(scope) = scope {
+    let mut opts_json = serde_json::to_value(credential_options).map_err(|_| AuthError::Unknown)?;
+    opts_json["publicKey"]["extensions"]["prf"] = json!({
+        "eval": {
+            "first": URL_SAFE_NO_PAD.encode(sha256(scope.as_bytes()))
+        }
+    });
+
+    //
+    // 3. Send the challenge and mutated autehtnicator options to the client
+    //
+    Ok(Json(opts_json).into_response())
+  } else {
+    //
+    // 3. Send the challenge and other autehtnicator options to the client
+    //
+    Ok(Json(credential_options).into_response())
   }
 }
 
