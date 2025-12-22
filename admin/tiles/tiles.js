@@ -20,7 +20,7 @@ const tiles = async (...args) => {
 
   const url = new URL(`${baseUrl()}/all/live`)
   url.searchParams.set('limit', _n)
-  url.searchParams.set('offsfet', _p * _n)
+  url.searchParams.set('offset', _p * _n)
   _user && url.searchParams.set('user_id', _user)
   const res = await fetch(url, authenticated({ method: 'GET' }))
 
