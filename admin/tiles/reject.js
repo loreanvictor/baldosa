@@ -1,6 +1,6 @@
 import { html } from 'rehtm'
 
-import '../term/textual.js'
+import '../term/components/textual.js'
 import { register, currentTerm, TermError } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
 import { baseUrl } from './base.js'

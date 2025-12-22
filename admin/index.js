@@ -3,15 +3,17 @@ import { parse } from 'envfile'
 
 import { listenToBroadcast } from '../client/util/broadcast.js'
 import { configure } from '../client/config.js'
-import { init as authinit, account, loadsecurekey } from './auth/index.js'
+import { init as authinit, account, loadsecurekey, encryption } from './auth/index.js'
 import { register, currentTerm, TermError } from './term/index.js'
 
-import './term/textual.js'
+import './term/components/textual.js'
 import './tiles/index.js'
 import './users/index.js'
 import './wallet/index.js'
 import './util/health-check.js'
 import './util/exit.js'
+
+import { makeFs } from './util/fs.js'
 
 const loadenv = async () => {
   const res = await fetch('/.env')
@@ -87,6 +89,9 @@ listenToBroadcast('env:set', ({ key, value }) => {
   }
 })
 
-listenToBroadcast('auth:securekeyloaded', () => {
-  terminal.controls.log('🔑 security key loaded.')
+listenToBroadcast('auth:securekeyloaded', async ({ user, key }) => {
+  const fs = await makeFs(`b-admin-fs-${user.firstname ?? ''}-${user.lastname ?? ''}`, encryption(key))
+  terminal.controls.plugfs(fs)
+
+  terminal.controls.log('🔑 encrypted localfs connected.')
 })

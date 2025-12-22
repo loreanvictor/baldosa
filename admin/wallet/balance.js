@@ -3,7 +3,7 @@ import { html } from 'rehtm'
 
 import { register, currentTerm, TermError, withTerm } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
-import '../term/textual.js'
+import '../term/components/textual.js'
 import '../users/index.js'
 
 import { baseUrl } from './base.js'

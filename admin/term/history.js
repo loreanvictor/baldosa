@@ -1,18 +1,33 @@
-export const makeHistory = (name) => {
+export const makeHistory = (home, fspromise) => {
+  const id = Math.random().toString(16).slice(2, 10)
   let history = []
   let rotation = history
   let cursor = -1
-  const key = `${name} shell history`
+  const file = `${home}/.shell_history`
+  let fs
 
   const reset = () => (cursor = -1)
 
   const load = () => {
-    const stored = localStorage.getItem(key)
-    stored && ((rotation = history = JSON.parse(stored)), reset())
+    if (!home) {
+      return
+    }
+
+    fspromise.then(async (_fs) => {
+      fs = _fs
+      try {
+        await fs.mkdir(home)
+        const stored = await fs.read(file)
+        stored && ((rotation = history = stored.split('<br>')), reset())
+      } catch {}
+    })
   }
 
-  const save = () => {
-    localStorage.setItem(key, JSON.stringify(history))
+  const save = async () => {
+    if (fs && !!home) {
+      await fs.mkdir(home)
+      await fs.write(file, history.join('<br>', 'commandline'))
+    }
   }
 
   const push = (command) => {
@@ -26,10 +41,12 @@ export const makeHistory = (name) => {
 
   const empty = () => rotation.length === 0
 
-  const clear = () => {
+  const clear = async () => {
     rotation = history = []
     reset()
-    localStorage.removeItem(key)
+    if (fs && !!home) {
+      await fs.rm(file)
+    }
   }
 
   const next = () => {

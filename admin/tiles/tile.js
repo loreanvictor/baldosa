@@ -5,7 +5,7 @@ import { register, currentTerm, TermError } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
 import { baseUrl, imageUrl } from './base.js'
 
-import '../term/textual.js'
+import '../term/components/textual.js'
 import './preview.js'
 
 const tile = async (...args) => {

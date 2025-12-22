@@ -43,14 +43,14 @@ define('main-input', () => {
     history.endsearch()
   }
 
-  const onkeydown = (e) => {
+  const onkeydown = async (e) => {
     const command = input.current?.value.trim()
     if (e.key === 'Tab' && mode === 'cmd' && completer) {
       e.preventDefault()
       if (e.shiftKey) {
         defocus()
       } else {
-        const suggestion = completer.next(command)
+        const suggestion = await completer.next(input.current?.value)
         suggestion && (input.current.value = suggestion)
       }
     } else if (e.key === 'Enter' && command !== '') {

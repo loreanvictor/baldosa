@@ -1,4 +1,4 @@
-import { startAuthentication, finishAuthentication } from './backend.js'
+import { startAuthentication, finishAuthentication } from '../../client/account/auth/backend.js'
 
 const hkdf = async (ikm, info, length = 32) => {
   const key = await crypto.subtle.importKey('raw', ikm, 'HKDF', false, ['deriveBits'])
@@ -31,11 +31,12 @@ const derivekey = async (cred, scope) => {
 export const scopedkey = async (scope) => {
   const authOpts = await startAuthentication(scope)
   const credential = await navigator.credentials.get(authOpts)
-  await finishAuthentication(credential)
+  const user = await finishAuthentication(credential)
 
   const derived = await derivekey(credential, scope)
+  const key = await crypto.subtle.importKey('raw', derived, 'AES-GCM', false, ['encrypt', 'decrypt'])
 
-  return crypto.subtle.importKey('raw', derived, 'AES-GCM', false, ['encrypt', 'decrypt'])
+  return { user, key }
 }
 
 export const nonce = async () => {
@@ -61,3 +62,9 @@ export const decrypt = async (key, text, nonce) => {
 
   return new TextDecoder().decode(plain)
 }
+
+export const encryption = (key) => ({
+  nonce,
+  encrypt: (text, nonce) => encrypt(key, text, nonce),
+  decrypt: (text, nonce) => decrypt(key, text, nonce),
+})

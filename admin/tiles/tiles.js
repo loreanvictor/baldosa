@@ -1,12 +1,12 @@
 import yargs from 'yargs'
 import { html, ref } from 'rehtm'
 
-import { register, currentTerm } from '../term/index.js'
+import { register, currentTerm, TermError } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
 import { trim } from '../util/trim.js'
 import { baseUrl, imageUrl } from './base.js'
 
-import '../term/textual.js'
+import '../term/components/textual.js'
 import './preview.js'
 
 const tiles = async (...args) => {

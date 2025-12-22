@@ -1,15 +1,13 @@
 import { html } from 'rehtm'
 
 import { account } from '../auth/index.js'
-import { currentTerm } from './context.js'
+import { currentTerm, withTerm } from './context.js'
 import { TermError } from './error.js'
-import './textual.js'
+import './components/textual.js'
 
 const registry = {}
 
-export const register = (cmd, fn) => {
-  registry[cmd] = fn
-}
+export const register = (cmd, fn) => (registry[cmd] = fn)
 
 export const run = async (command, opts) => {
   const term = currentTerm()
@@ -25,8 +23,8 @@ export const run = async (command, opts) => {
   const [cmd, ...args] = command.split(' ').filter((c) => c !== '')
   if (cmd in registry) {
     try {
-      term.target(opts.target)
-      return await registry[cmd](...args)
+      await term.target(opts.target)
+      return await withTerm(term, () => registry[cmd](...args))
     } catch (err) {
       if (err instanceof TermError) {
         err.display(term)
@@ -34,7 +32,7 @@ export const run = async (command, opts) => {
         throw err
       }
     } finally {
-      term.target()
+      await term.target()
     }
   } else {
     term.log(html`<t-err>command ${cmd} not found.</t-err>`)
@@ -42,28 +40,47 @@ export const run = async (command, opts) => {
   }
 }
 
-export const completer = () => {
+const completers = {}
+export const registerCompleter = (cmd, fn) => (completers[cmd] = fn)
+
+export const completer = (term) => {
   let search
 
-  return {
-    next: (input) => {
-      if (!search) {
-        search = Object.keys(registry).filter((k) => k.startsWith(input))
-        if (search.length > 0) {
-          return search[0]
+  const reset = () => (search = undefined)
+  const next = async (input) => {
+    const [cmd, ...rest] = input.split(' ')
+    const arg = rest.join(' ')
+    const incmd = rest.length > 0
+    if (!search) {
+      if (incmd) {
+        if (cmd in completers) {
+          search = await withTerm(term, () => completers[cmd](arg))
         } else {
-          search = undefined
+          search = []
         }
       } else {
-        let index = search.indexOf(input)
-        if (index !== -1) {
-          index = index === search.length - 1 ? 0 : index + 1
-          return search[index]
-        }
+        search = Object.keys(registry).filter((k) => k.startsWith(input))
       }
-    },
-    reset: () => (search = undefined),
+      if (search.length > 0) {
+        const res = search[0]
+        if (search.length === 1) {
+          reset()
+        }
+
+        return incmd ? cmd + ' ' + res : res
+      } else {
+        search = undefined
+      }
+    } else {
+      let index = incmd ? search.indexOf(arg) : search.indexOf(input)
+      if (index !== -1) {
+        index = index === search.length - 1 ? 0 : index + 1
+        return incmd ? cmd + ' ' + search[index] : search[index]
+      }
+    }
   }
+
+  return { next, reset }
 }
 
 const man = (target) => {

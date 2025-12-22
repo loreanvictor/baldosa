@@ -1,7 +1,7 @@
 import { define, currentNode, on } from 'minicomp'
 import { html } from 'rehtm'
 
-import { serializeWith } from './serialize.js'
+import { serializeWith } from '../util/serialize.js'
 
 define('t-log', () => {
   const host = currentNode()

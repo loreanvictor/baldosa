@@ -1,6 +1,6 @@
 import { html } from 'rehtm'
 
-import './textual.js'
+import './components/textual.js'
 
 export class TermError extends Error {
   constructor(message, hint) {

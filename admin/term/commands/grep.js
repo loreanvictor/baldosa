@@ -1,7 +1,7 @@
-import { currentTerm, currentPiped } from './context.js'
-import { register } from './registry.js'
-import { serialize } from './serialize.js'
-import { replaceWithGhost } from './ghost.js'
+import { serialize } from '../util/serialize.js'
+import { replaceWithGhost } from '../util/ghost.js'
+import { currentTerm, currentPiped } from '../context.js'
+import { register } from '../registry.js'
 
 const compile = (input) => {
   try {

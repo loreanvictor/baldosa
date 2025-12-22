@@ -1,10 +1,11 @@
 import { html } from 'rehtm'
 
-import { broadcast } from '../../client/util/broadcast.js'
-import { register } from './registry.js'
-import { currentTerm } from './context.js'
-import './textual.js'
-import { TermError } from './error.js'
+import { broadcast } from '../../../client/util/broadcast.js'
+import { register } from '../registry.js'
+import { currentTerm } from '../context.js'
+import { TermError } from '../error.js'
+
+import '../components/textual.js'
 
 const env = async (...args) => {
   const term = currentTerm()

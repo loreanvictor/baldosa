@@ -1,13 +1,13 @@
 import { html } from 'rehtm'
 
-import { register } from './registry.js'
-import { currentTerm } from './context.js'
+import { register } from '../registry.js'
+import { currentTerm } from '../context.js'
 
-const clear = (...flags) => {
+const clear = async (...flags) => {
   const term = currentTerm()
 
   if (flags.includes('-h') || flags.includes('--history')) {
-    term.history?.clear()
+    await term.history?.clear()
   }
 
   if (flags.includes('-m') || flags.includes('--main')) {

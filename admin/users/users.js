@@ -4,7 +4,7 @@ import { html, ref } from 'rehtm'
 import { register, currentTerm, TermError } from '../term/index.js'
 import { authenticated } from '../auth/index.js'
 import { trim } from '../util/trim.js'
-import '../term/textual.js'
+import '../term/components/textual.js'
 
 import { baseUrl } from './base.js'
 

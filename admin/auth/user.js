@@ -1,5 +1,5 @@
 import { broadcast } from '../../client/util/broadcast.js'
-import { scopedkey } from '../../client/account/auth/secure.js'
+import { scopedkey } from './secure.js'
 
 let _token = undefined
 let _email = undefined
@@ -28,6 +28,10 @@ export const init = async () => {
 }
 
 export const loadsecurekey = async () => {
-  _securekey = await scopedkey('admin_shell')
-  broadcast('auth:securekeyloaded')
+  const { key, user } = await scopedkey('admin_shell')
+  if (user.email !== account()?.email) {
+    throw new Error('wrong key for wrong user.')
+  }
+
+  broadcast('auth:securekeyloaded', { user, key })
 }

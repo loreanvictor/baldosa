@@ -1,8 +1,9 @@
 import { html } from 'rehtm'
 
-import { register } from './registry.js'
-import { currentTerm } from './context.js'
-import './textual.js'
+import { register } from '../registry.js'
+import { currentTerm } from '../context.js'
+
+import '../components/textual.js'
 
 const TIPS = [
   'use <ctrl+r> to reverse i-search shell history.',

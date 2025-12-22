@@ -1,7 +1,7 @@
 import { define, onAttribute } from 'minicomp'
 import { html, ref } from 'rehtm'
 
-import '../term/button.js'
+import '../term/components/button.js'
 
 define('tile-preview', () => {
   let x, y

@@ -1,5 +1,5 @@
-import { register } from './registry.js'
-import { currentTerm } from './context.js'
+import { register } from '../registry.js'
+import { currentTerm } from '../context.js'
 
 const echo = (...args) => {
   const text = args.join(' ')
