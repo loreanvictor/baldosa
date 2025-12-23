@@ -43,12 +43,12 @@ textarea {
 
 @keyframes smartglow {
   from {
-    box-shadow: 0 0 0 0.5px var(--smart-purple) inset;
+    box-shadow: 0 0 0 0.5px var(--smart-inv) inset;
   }
   to {
     box-shadow:
-      0 0 0 1px var(--smart-purple) inset,
-      0 0 64px color-mix(in srgb, var(--smart-blue), 90% transparent) inset;
+      0 0 0 1px var(--smart-inv) inset,
+      0 0 64px color-mix(in srgb, var(--smart-sec), 80% transparent) inset;
   }
 }
 
@@ -99,9 +99,11 @@ i-con {
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s;
+  pointer-events: none;
 
   textarea:focus:not(:placeholder-shown) ~ & {
     opacity: 0.5;
+    pointer-events: auto;
 
     &:hover {
       opacity: 1;

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>bolt-light-fill</title>
+    <g id="bolt-light-fill" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="frame" stroke-opacity="0.01" stroke="#979797" stroke-width="0.1" x="0.05" y="0.05" width="47.9" height="47.9"></rect>
+        <g id="fill" transform="translate(10.5, 3)" fill="#000000">
+            <path d="M19.5,0 L13.5,18 L26.2121361,18 C26.4192428,18 26.5871361,18.1678932 26.5871361,18.375 C26.5871361,18.4611265 26.5574896,18.5446282 26.5031788,18.6114722 L7.5,42 L7.5,42 L13.5,24 L0.787863941,24 C0.580757159,24 0.412863941,23.8321068 0.412863941,23.625 C0.412863941,23.5388735 0.442510428,23.4553718 0.49682119,23.3885278 L19.5,0 L19.5,0 Z" id="Path-37"></path>
+        </g>
+    </g>
+</svg>

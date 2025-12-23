@@ -99,7 +99,16 @@ define('text-input', () => {
     }
   }
 
-  const rollback = () => (contentSuggested() ? rollbackSuggestion() : (set(''), oninput('')))
+  const rollback = () => {
+    if (contentSuggested()) {
+      rollbackSuggestion()
+    } else {
+      set('')
+      oninput('')
+    }
+
+    requestAnimationFrame(() => input.current.focus())
+  }
 
   attachControls({
     untouch,
@@ -129,7 +138,7 @@ define('text-input', () => {
           oninput=${handleinput}
         />
         <label ref=${label}></label>
-        <i-con src="x" ref=${rollbackbtn} dark thick onclick=${() => rollback()}></i-con>
+        <i-con src="x" ref=${rollbackbtn} dark thick onmousedown=${() => rollback()}></i-con>
       </div>
       <div action>
         <slot name="action" ref=${actionslot} onslotchange=${onActionSlot}></slot>

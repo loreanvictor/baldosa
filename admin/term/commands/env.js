@@ -34,8 +34,9 @@ const env = async (...args) => {
       delete term.env[key]
     } else {
       term.env[key] = value
+      secret && (term.secrets ??= []).push(key)
     }
-    term.log(html`<span><t-succ>SET</t-succ> ${key} = ${value ?? ''}</span>`)
+    term.log(html`<span><t-succ>SET</t-succ> ${key} = ${secret ? '*****' : (value ?? '')}</span>`)
     broadcast('env:set', { key, value: term.env[key] })
   } else if (key && secret) {
     const value = await term.read('enter secret value', true)

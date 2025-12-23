@@ -23,7 +23,7 @@ canvas {
 
   &[suggested-content] + #overlay {
     border: none;
-    box-shadow: 0 0 64px var(--smart-purple) inset;
+    box-shadow: 0 0 64px color-mix(in srgb, var(--smart-inv), transparent) inset;
   }
 }
 

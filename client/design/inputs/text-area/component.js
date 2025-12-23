@@ -61,7 +61,16 @@ define('text-area', () => {
     }
   }
 
-  const rollback = () => (contentSuggested() ? rollbackSuggestion() : (set(''), oninput(area.current.value)))
+  const rollback = () => {
+    if (contentSuggested()) {
+      rollbackSuggestion()
+    } else {
+      set('')
+      oninput(area.current.value)
+    }
+
+    requestAnimationFrame(() => area.current.focus())
+  }
 
   attachControls({
     untouch,
@@ -88,7 +97,7 @@ define('text-area', () => {
       oninput=${input}
     ></textarea>
     <label ref=${label}></label>
-    <i-con ref=${rollbackbtn} src="x" dark thick onclick=${() => rollback()}></i-con>
+    <i-con ref=${rollbackbtn} src="x" dark thick onmousedown=${() => rollback()}></i-con>
     <slot name="hint"></slot>
   `
 })
