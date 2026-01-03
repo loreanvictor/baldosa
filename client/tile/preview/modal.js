@@ -11,7 +11,8 @@ import '../../design/buttons/copy-button.js'
 import '../../design/display/icon/component.js'
 import '../../design/display/mark-down/component.js'
 import '../../bookmark/button.js'
-import { isOwned } from '../../account/tiles/index.js'
+import { info } from '../bid/backend.js'
+// import { isOwned } from '../../account/tiles/index.js'
 
 import { tilelink } from '../util/tile-link.js'
 import '../bid/button.js'
@@ -69,7 +70,7 @@ define('tile-preview', () => {
 
       modal.current.controls.open()
 
-      isOwned(t.x, t.y).then((owned) => {
+      info(t).then(({ own_bid: owned }) => {
         unpublish.current.style.display = owned ? '' : 'none'
         unpublish.current.setProperty('tile', t)
         report.current.style.display = owned ? 'none' : ''

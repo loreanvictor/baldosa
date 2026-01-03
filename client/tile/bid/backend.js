@@ -1,17 +1,20 @@
 import { conf } from '../../config.js'
-import { authenticated } from '../../account/auth/index.js'
+import { authenticated, authenticatedIfPossible } from '../../account/auth/index.js'
 
 import { backendURL as walletBackendURL } from '../../account/wallet/backend.js'
 
 export const backendURL = () => `${conf('BANK_URL') ?? 'https://bank.baldosa.city'}/bids`
 
 export const info = async (tile) => {
-  const res = await fetch(`${backendURL()}/${tile.x}:${tile.y}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  const res = await fetch(
+    `${backendURL()}/${tile.x}:${tile.y}`,
+    authenticatedIfPossible({
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }),
+  )
 
   if (!res.ok) {
     const msg = await res.text()

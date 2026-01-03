@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::types::Uuid;
 
-use crate::auth::admin::AdminUser;
+use crate::auth::{admin::AdminUser, AuthenticatedUser};
 
 use super::super::book::{bid::next_auction_time, Bid, Book, Coords};
 use super::super::config::Config;
@@ -19,6 +19,7 @@ pub struct BiddingInfo {
   pub last_bid: Option<Bid>,
   pub next_auction: Option<DateTime<Utc>>,
   pub minimum_bid: u32,
+  pub own_bid: bool,
 }
 
 ///
@@ -32,6 +33,7 @@ pub async fn bidding_info(
   Extension(book): Extension<Book>,
   Extension(config): Extension<Config>,
   Path(coords): Path<Coords>,
+  user: Option<AuthenticatedUser>,
 ) -> Result<impl IntoResponse, BiddingError> {
   validate_coords(coords, &config)?;
   let Ok(occupant) = book.get_occupant_bid(&coords).await else {
@@ -42,6 +44,10 @@ pub async fn bidding_info(
   //        the column should be separated and used as such.
 
   Ok(Json(BiddingInfo {
+    own_bid: match (user, &occupant) {
+      (Some(user), Some(bid)) => user.id == bid.bidder,
+      _ => false,
+    },
     next_auction: next_auction_time(occupant.as_ref(), &config),
     last_bid: occupant,
     minimum_bid: config.minimum_bid,

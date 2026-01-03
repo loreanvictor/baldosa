@@ -1,7 +1,7 @@
 use std::env;
 
 use axum::{
-  extract::FromRequestParts,
+  extract::{FromRequestParts, OptionalFromRequestParts},
   http::request::Parts,
   response::{IntoResponse, Response},
 };
@@ -174,6 +174,45 @@ where
         verification: token_data.claims.verification,
         token: token.to_string(),
       }),
+      Err(err) => {
+        error!("Invalid token: {:?}, {:?}", &token, err);
+        Err(AuthError::InvalidCredentials.into_response())
+      }
+    }
+  }
+}
+
+impl<S> OptionalFromRequestParts<S> for AuthenticatedUser
+where
+  S: Send + Sync,
+{
+  type Rejection = Response;
+
+  async fn from_request_parts(
+    parts: &mut Parts,
+    _state: &S,
+  ) -> Result<Option<Self>, Self::Rejection> {
+    let headers = parts.headers.clone();
+    let Some(token) = headers
+      .get("Authorization")
+      .and_then(|value| value.to_str().ok())
+      .and_then(|value| value.strip_prefix("Bearer "))
+    else {
+      return Ok(None);
+    };
+
+    let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let key = DecodingKey::from_secret(secret.as_ref());
+
+    match decode::<UserClaim>(token, &key, &Validation::default()) {
+      Ok(token_data) => Ok(Some(AuthenticatedUser {
+        id: token_data.claims.id,
+        email: token_data.claims.email,
+        first_name: token_data.claims.first_name,
+        last_name: token_data.claims.last_name,
+        verification: token_data.claims.verification,
+        token: token.to_string(),
+      })),
       Err(err) => {
         error!("Invalid token: {:?}, {:?}", &token, err);
         Err(AuthError::InvalidCredentials.into_response())
