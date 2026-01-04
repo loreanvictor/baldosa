@@ -7,6 +7,7 @@ use axum::{
   Extension, Router,
 };
 use log::info;
+use tower_http::cors::{Any, CorsLayer};
 
 mod auth;
 mod cartography;
@@ -25,13 +26,17 @@ use image::io::DefaultImageInterface as IO;
 async fn main() {
   env::init().ok();
 
+  let cors = CorsLayer::new()
+    .allow_methods(Any)
+    .allow_headers(Any)
+    .allow_origin(Any);
+
   let config = config::init().await;
   let s3client = s3::init().await;
   let db = db::init().await;
 
   let (io, rebuild_io) = image::io::init(s3client.clone());
   let map = cartography::init(db, s3client);
-
   info!("starting server");
 
   let app = Router::new()
@@ -47,7 +52,8 @@ async fn main() {
           post(rebuild_handler::<IO>).layer(Extension(rebuild_io)),
         )
         .layer(Extension(config)),
-    ));
+    ))
+    .layer(cors);
 
   let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
   let port = std::env::var("PORT")
