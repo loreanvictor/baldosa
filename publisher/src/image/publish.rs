@@ -45,37 +45,26 @@ where
 /// with the given coordinates. Also attaches the given metadata (`title`, `subtitle` and `link`)
 /// to all produced images (subject to support by the given `io` implementation).
 ///
-pub async fn publish<P: Pixel + Send + Sync + 'static>(
+pub async fn publish<P: Pixel + Send + Sync + 'static, IO>(
   source: &str,
   x: i32,
   y: i32,
-  title: &Option<String>,
-  subtitle: &Option<String>,
-  description: &Option<String>,
-  link: &Option<String>,
-  details: &Option<serde_json::Value>,
-  io: Arc<dyn ImageInterface<Pixel = P>>,
-  config: Arc<Config>,
+  meta: Option<Metadata>,
+  io: IO,
+  config: &Config,
 ) -> Result<PublishResult<P>, ImageError>
 where
   P::Subpixel: Send + Sync + Serialize,
+  IO: ImageInterface<Pixel = P> + 'static,
 {
   // Load and crop the image once
-  let image = io.load(source).await?;
+  let (image, src_meta) = io.load(source).await?;
   let square = Arc::new(crop_to_square(&image));
 
   // Shared state for results
   let published_shared = Arc::new(Mutex::new(HashMap::<u32, String>::new()));
   let color_shared = Arc::new(Mutex::new(None::<Rgb<P::Subpixel>>));
-
-  // Share metadata across tasks without cloning per task
-  let meta = Arc::new(Metadata {
-    title: title.clone(),
-    subtitle: subtitle.clone(),
-    description: description.clone(),
-    link: link.clone(),
-    details: details.clone(),
-  });
+  let meta = Arc::new(meta.unwrap_or(src_meta.unwrap_or_default()));
 
   let mut handles = Vec::new();
 
@@ -85,7 +74,6 @@ where
     let target = format!("tile-{}-{}-{}", x, y, size);
     let blur_amount = config.blur.get(size).cloned().unwrap_or(0.0);
     let size = *size;
-    let io = Arc::clone(&io);
     let meta = Arc::clone(&meta);
     let published = Arc::clone(&published_shared);
     let color_shared = Arc::clone(&color_shared);
@@ -105,6 +93,7 @@ where
       (blurred, target, meta, color)
     });
 
+    let io = io.clone();
     handles.push(spawn(async move {
       let (image, target, meta, color) = handle.await.unwrap();
       if let Some(color) = color {
@@ -119,7 +108,6 @@ where
 
   // Handle the original square image asynchronously
   let target = format!("tile-{}-{}", x, y);
-  let io = Arc::clone(&io);
   let meta = Arc::clone(&meta);
   let published = Arc::clone(&published_shared);
   let original_handle = spawn(async move {

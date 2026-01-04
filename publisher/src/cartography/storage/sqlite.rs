@@ -13,6 +13,7 @@ use super::{Coords, Point, Storage};
 /// chunked bitmasks of the tile map, with each published tile corresponding to a single
 /// point on the map.
 ///
+#[derive(Clone)]
 pub struct SqliteMapStorage {
   pool: Pool<Sqlite>,
 }

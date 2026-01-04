@@ -12,6 +12,7 @@ use super::error::ImageIoError;
 use super::interface::ImageInterface;
 use super::meta::Metadata;
 
+#[derive(Clone)]
 pub struct FsJpegInterface {
   source_dir: String,
   target_dir: String,
@@ -35,7 +36,7 @@ impl FsJpegInterface {
 impl ImageInterface for FsJpegInterface {
   type Pixel = Rgb<u8>;
 
-  async fn load(&self, source: &str) -> Result<RgbImage, ImageIoError> {
+  async fn load(&self, source: &str) -> Result<(RgbImage, Option<Metadata>), ImageIoError> {
     let path = Path::new(&self.source_dir).join(source);
     let file = read(path).await.map_err(|err| match err.kind() {
       std::io::ErrorKind::NotFound => ImageIoError::NotFound,
@@ -44,7 +45,7 @@ impl ImageInterface for FsJpegInterface {
     let img = load_from_memory(&file).map_err(|err| ImageIoError::ReadError(Box::new(err)))?;
     let rgb = img.into_rgb8();
 
-    Ok(rgb)
+    Ok((rgb, None))
   }
 
   async fn save(

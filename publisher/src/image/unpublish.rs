@@ -23,14 +23,15 @@ pub struct UnPublishResult {
 /// Unpublish the tile at the given coordinates,
 /// removing all associated images.
 ///
-pub async fn unpublish<P: Pixel + Send + Sync + 'static>(
+pub async fn unpublish<P: Pixel + Send + Sync + 'static, IO>(
   x: i32,
   y: i32,
-  io: Arc<dyn ImageInterface<Pixel = P>>,
-  config: Arc<Config>,
+  io: IO,
+  config: &Config,
 ) -> Result<UnPublishResult, ImageIoError>
 where
   P::Subpixel: Send + Sync,
+  IO: ImageInterface<Pixel = P> + 'static,
 {
   let unpublished_shared = Arc::new(Mutex::new(HashMap::<u32, String>::new()));
 
@@ -40,9 +41,8 @@ where
     .map(|size| {
       let target = format!("tile-{}-{}-{}", x, y, size);
       let unpublished = Arc::clone(&unpublished_shared);
-      let io = Arc::clone(&io);
       let size = *size;
-
+      let io = io.clone();
       spawn(async move {
         let deleted = io.delete(&target).await.unwrap();
         let mut unpublished = unpublished.lock().await;
@@ -52,7 +52,6 @@ where
     .collect();
 
   let unpublished = Arc::clone(&unpublished_shared);
-  let io = Arc::clone(&io);
 
   tasks.push(spawn(async move {
     let target = format!("tile-{}-{}", x, y);

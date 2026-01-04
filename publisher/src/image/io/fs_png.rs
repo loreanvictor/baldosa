@@ -12,6 +12,7 @@ use super::error::ImageIoError;
 use super::interface::ImageInterface;
 use super::meta::Metadata;
 
+#[derive(Clone)]
 pub struct FsPngInterface {
   source_dir: String,
   target_dir: String,
@@ -34,7 +35,7 @@ impl FsPngInterface {
 #[async_trait]
 impl ImageInterface for FsPngInterface {
   type Pixel = Rgba<u8>;
-  async fn load(&self, source: &str) -> Result<RgbaImage, ImageIoError> {
+  async fn load(&self, source: &str) -> Result<(RgbaImage, Option<Metadata>), ImageIoError> {
     let path = Path::new(&self.source_dir).join(source);
     let file = read(path).await.map_err(|err| match err.kind() {
       std::io::ErrorKind::NotFound => ImageIoError::NotFound,
@@ -43,7 +44,7 @@ impl ImageInterface for FsPngInterface {
     let img = load_from_memory(&file).map_err(|err| ImageIoError::ReadError(Box::new(err)))?;
     let rgba = img.into_rgba8();
 
-    Ok(rgba)
+    Ok((rgba, None))
   }
 
   async fn save(

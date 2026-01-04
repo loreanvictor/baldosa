@@ -185,4 +185,89 @@ impl Metadata {
 
     Ok((!map.is_empty()).then_some(map))
   }
+
+  pub fn from_hashmap(map: &HashMap<String, String>) -> Result<Metadata, MetadataValidationErrors> {
+    let title = map.get("title").cloned();
+    let subtitle = map.get("subtitle").cloned();
+    let link = map.get("link").filter(|s| !s.is_empty()).cloned();
+
+    let description = match map.get("description") {
+      Some(encoded) => {
+        let decoded_bytes =
+          BASE64_STANDARD
+            .decode(encoded)
+            .map_err(|_| MetadataValidationErrors {
+              title: None,
+              subtitle: None,
+              link: None,
+              description: Some(MetadataErrorKind::InvalidUrl),
+              details: None,
+            })?;
+        Some(
+          String::from_utf8(decoded_bytes).map_err(|_| MetadataValidationErrors {
+            title: None,
+            subtitle: None,
+            link: None,
+            description: Some(MetadataErrorKind::InvalidUrl),
+            details: None,
+          })?,
+        )
+      }
+      None => None,
+    };
+
+    let details = match map.get("details") {
+      Some(encoded) => {
+        let decoded_bytes =
+          BASE64_STANDARD
+            .decode(encoded)
+            .map_err(|_| MetadataValidationErrors {
+              title: None,
+              subtitle: None,
+              link: None,
+              description: None,
+              details: Some(MetadataErrorKind::InvalidUrl),
+            })?;
+        let json_str = String::from_utf8(decoded_bytes).map_err(|_| MetadataValidationErrors {
+          title: None,
+          subtitle: None,
+          link: None,
+          description: None,
+          details: Some(MetadataErrorKind::InvalidUrl),
+        })?;
+        Some(
+          serde_json::from_str(&json_str).map_err(|_| MetadataValidationErrors {
+            title: None,
+            subtitle: None,
+            link: None,
+            description: None,
+            details: Some(MetadataErrorKind::InvalidUrl),
+          })?,
+        )
+      }
+      None => None,
+    };
+
+    let metadata = Metadata {
+      title,
+      subtitle,
+      link,
+      description,
+      details,
+    };
+
+    Ok(metadata)
+  }
+}
+
+impl Default for Metadata {
+  fn default() -> Self {
+    Metadata {
+      title: None,
+      subtitle: None,
+      link: None,
+      description: None,
+      details: None,
+    }
+  }
 }

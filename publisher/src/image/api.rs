@@ -13,7 +13,10 @@ use serde::{Deserialize, Serialize};
 use super::super::cartography::Storage as MapStorage;
 use super::super::config::Config;
 use super::{
-  error::ImageError, io::interface::ImageInterface, publish::publish, unpublish::unpublish,
+  error::ImageError,
+  io::{interface::ImageInterface, meta::Metadata},
+  publish::publish,
+  unpublish::unpublish,
   util::parse_coords_from_path,
 };
 
@@ -67,8 +70,8 @@ pub struct PublishBody {
 /// ```
 ///
 pub async fn publish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageInterface>::Pixel>>(
-  Extension(config): Extension<Arc<Config>>,
-  Extension(io): Extension<Arc<IO>>,
+  Extension(config): Extension<Config>,
+  Extension(io): Extension<IO>,
   Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
   Json(body): Json<PublishBody>,
@@ -85,13 +88,15 @@ where
         &body.source,
         x,
         y,
-        &body.title,
-        &body.subtitle,
-        &body.description,
-        &body.link,
-        &body.details,
+        Some(Metadata {
+          title: body.title.clone(),
+          subtitle: body.subtitle.clone(),
+          description: body.description.clone(),
+          link: body.link.clone(),
+          details: body.details.clone(),
+        }),
         io,
-        config,
+        &config,
       )
       .await
       .map_err(|err| {
@@ -135,8 +140,8 @@ where
 /// }
 /// ```
 pub async fn unpublish_handler<IO: ImageInterface, Map: MapStorage<<IO as ImageInterface>::Pixel>>(
-  Extension(config): Extension<Arc<Config>>,
-  Extension(io): Extension<Arc<IO>>,
+  Extension(config): Extension<Config>,
+  Extension(io): Extension<IO>,
   Extension(map): Extension<Arc<Map>>,
   Path(coords): Path<String>,
 ) -> Result<impl IntoResponse, ImageError>
@@ -148,7 +153,7 @@ where
   match parse_coords_from_path(coords.as_str()) {
     Some((Ok(x), Ok(y))) => {
       info!("Unpublishing ({}, {})", x, y);
-      let result = unpublish(x, y, io, config)
+      let result = unpublish(x, y, io, &config)
         .await
         .map_err(|err| ImageError::IoError(err))?;
       info!("UnPublished ({}, {})", x, y);
@@ -160,4 +165,31 @@ where
     }
     _ => Err(ImageError::InvalidCoordinates),
   }
+}
+
+pub async fn rebuild_handler<IO: ImageInterface>(
+  Extension(config): Extension<Config>,
+  Extension(io): Extension<IO>,
+  Path(coords): Path<String>,
+) -> Result<impl IntoResponse, ImageError>
+where
+  IO: 'static,
+  <IO as ImageInterface>::Pixel: 'static,
+  <<IO as ImageInterface>::Pixel as Pixel>::Subpixel: Serialize + Send + Sync + 'static,
+{
+  let (x, y) = match parse_coords_from_path(coords.as_str()) {
+    Some((Ok(x), Ok(y))) => (x, y),
+    _ => return Err(ImageError::InvalidCoordinates),
+  };
+
+  info!("Rebuilding ({}, {})", x, y);
+  publish(&format!("tile-{}-{}.jpg", x, y), x, y, None, io, &config)
+    .await
+    .map_err(|err| {
+      error!("Failed to rebuild tile-{}-{}.jpg, {:#}", x, y, err);
+      err
+    })?;
+  info!("Rebuilt ({}, {})", x, y);
+
+  Ok(())
 }

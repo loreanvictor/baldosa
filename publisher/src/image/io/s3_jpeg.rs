@@ -7,6 +7,7 @@ use url::Url;
 
 use super::{error::ImageIoError, interface::ImageInterface, meta::Metadata};
 
+#[derive(Clone)]
 pub struct S3JpegInterface {
   client: S3Client,
   source_bucket: String,
@@ -39,7 +40,7 @@ impl S3JpegInterface {
 #[async_trait]
 impl ImageInterface for S3JpegInterface {
   type Pixel = Rgb<u8>;
-  async fn load(&self, source: &str) -> Result<RgbImage, ImageIoError> {
+  async fn load(&self, source: &str) -> Result<(RgbImage, Option<Metadata>), ImageIoError> {
     let response = self
       .client
       .get_object()
@@ -55,6 +56,12 @@ impl ImageInterface for S3JpegInterface {
         }
       })?;
 
+    let meta = if let Some(meta_map) = &response.metadata() {
+      Some(Metadata::from_hashmap(&meta_map).map_err(|err| ImageIoError::InvalidMetadata(err))?)
+    } else {
+      None
+    };
+
     let body = response
       .body
       .collect()
@@ -69,12 +76,14 @@ impl ImageInterface for S3JpegInterface {
     if decodable.format().is_none() {
       return Err(ImageIoError::InvalidFormat);
     }
-    Ok(
+
+    Ok((
       decodable
         .decode()
         .map_err(|err| ImageIoError::ReadError(Box::new(err)))?
         .into_rgb8(),
-    )
+      meta,
+    ))
   }
 
   async fn save(

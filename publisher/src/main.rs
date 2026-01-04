@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use axum::{
-  routing::{delete, put},
+  routing::{delete, post, put},
   Extension, Router,
 };
 use log::info;
@@ -18,7 +18,7 @@ mod image;
 mod s3;
 
 use cartography::DefaultMapStorage as Map;
-use image::api::{publish_handler, unpublish_handler};
+use image::api::{publish_handler, rebuild_handler, unpublish_handler};
 use image::io::DefaultImageInterface as IO;
 
 #[tokio::main]
@@ -29,7 +29,7 @@ async fn main() {
   let s3client = s3::init().await;
   let db = db::init().await;
 
-  let io = image::io::init(s3client.clone());
+  let (io, rebuild_io) = image::io::init(s3client.clone());
   let map = cartography::init(db, s3client);
 
   info!("starting server");
@@ -40,9 +40,13 @@ async fn main() {
       Router::new()
         .route("/{coords}", put(publish_handler::<IO, Map>))
         .route("/{coords}", delete(unpublish_handler::<IO, Map>))
-        .layer(Extension(Arc::new(config)))
-        .layer(Extension(Arc::new(io)))
-        .layer(Extension(Arc::new(map))),
+        .layer(Extension(io))
+        .layer(Extension(Arc::new(map))) // FIXME: this Arc is ugly and not needed
+        .route(
+          "/{coords}/rebuild",
+          post(rebuild_handler::<IO>).layer(Extension(rebuild_io)),
+        )
+        .layer(Extension(config)),
     ));
 
   let host = std::env::var("HOST").unwrap_or("127.0.0.1".to_string());

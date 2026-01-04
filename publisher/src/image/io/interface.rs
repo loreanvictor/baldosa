@@ -8,7 +8,7 @@ use super::meta::Metadata;
 /// An interface for loading and saving images.
 ///
 #[async_trait]
-pub trait ImageInterface: Sync + Send {
+pub trait ImageInterface: Sync + Send + Clone {
   ///
   /// The pixel type used by the image. Different interfaces may work with
   /// different pixel types, for example RGB8, RGBA8, etc.
@@ -23,7 +23,13 @@ pub trait ImageInterface: Sync + Send {
   async fn load(
     &self,
     source: &str,
-  ) -> Result<ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>, ImageIoError>;
+  ) -> Result<
+    (
+      ImageBuffer<Self::Pixel, Vec<<Self::Pixel as Pixel>::Subpixel>>,
+      Option<Metadata>,
+    ),
+    ImageIoError,
+  >;
 
   ///
   /// Save an image to the given target.

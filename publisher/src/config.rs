@@ -4,6 +4,7 @@ use std::env;
 use serde::Deserialize;
 use tokio::fs;
 
+#[derive(Debug, Clone)]
 pub struct Config {
   pub sizes: Vec<u32>,
   pub blur: HashMap<u32, f32>,
