@@ -1,9 +1,9 @@
 :host {
   --progress: 1;
   --size: 44px;
-  --color: #ffffff24;
+  --color: var(--blue-fg);
   --half-size: calc(var(--size) / 2);
-  --stroke-width: 4px;
+  --stroke-width: 2px;
   --radius: calc(var(--size) / 2 - var(--stroke-width));
   --circumference: calc(var(--radius) * 2 * pi);
   --dash: calc(var(--progress) * var(--circumference));
@@ -22,7 +22,7 @@ svg {
     fill: none;
     stroke-linecap: round;
     stroke-dasharray: var(--dash) calc(var(--circumference) - var(--dash));
-    transition: stroke-dasharray .2s linear 0s;
+    transition: stroke-dasharray 0.2s linear 0s;
     stroke: var(--color);
   }
 }

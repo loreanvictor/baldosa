@@ -118,10 +118,10 @@ define('secondary-button', ({ row = false, danger = false, type = 'button', pres
     <link rel="stylesheet" href="./client/design/buttons/button/styles.css" />
     <style>
       button {
-        --button-shade-dark: #393939;
-        --button-shade-light: #3f3f3f;
+        --button-shade-dark: #ffffff20;
+        --button-shade-light: #ffffff32;
         --button-text-color: #fff6e0;
-        --button-border-color: #3e3e3e;
+        --button-border-color: #ffffff11;
 
         -webkit-touch-callout: none;
         user-select: none;

@@ -76,7 +76,7 @@ button {
     --btn-txt: #fff;
     --btn-bg: transparent;
     --btn-border-top: transparent;
-    --btn-border-bot: #42424288;
+    --btn-border-bot: #ffffff1c;
     --btn-border-left: transparent;
     --btn-border-right: transparent;
     --btn-top-left-rad: 0;
@@ -109,7 +109,7 @@ button {
 }
 
 :host(action-list[island]) .action-list {
-  background: #11111144;
+  background: #11111122;
   display: block;
   border-radius: 8px;
   overflow: hidden;

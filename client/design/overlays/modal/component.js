@@ -68,7 +68,7 @@ define('glass-modal', ({ noheader }) => {
 
   const onswipestart = ({ detail }) => {
     const rect = dialog.current.getBoundingClientRect()
-    if (detail.start.y > rect.top + rect.height / 4 && detail.start.y > window.innerHeight / 2) {
+    if (detail.start.y > rect.top + rect.height / 4 && detail.start.y > window.innerHeight / 3) {
       detail.disqualify()
     }
   }

@@ -58,8 +58,8 @@ define('pan-indicator', ({ camera }) => {
 
         @media screen and (max-width: 600px) {
           bottom: auto;
-          top: 0;
-          border-top-left-radius: 0;
+          top: 12px;
+          border-top-left-radius: 12px;
           border-bottom-left-radius: 12px;
         }
       }

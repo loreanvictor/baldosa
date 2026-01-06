@@ -13,10 +13,13 @@
   border-radius: 8px;
   background: #31313133;
   cursor: pointer;
-  transition: background .2s, transform .2s, opacity .2s;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    opacity 0.2s;
 
   &:hover {
-    background: #363636;
+    background: #75757532;
   }
 
   .image {
@@ -24,11 +27,11 @@
     height: 64px;
     flex-shrink: 0;
 
-    ::slotted([slot="image"]) {
+    ::slotted([slot='image']) {
       width: 100%;
       border-radius: 3px;
 
-      &[src=""] {
+      &[src=''] {
         opacity: 0;
       }
     }
@@ -38,7 +41,7 @@
     flex-grow: 1;
   }
 
-  ::slotted([slot="actions"]) {
+  ::slotted([slot='actions']) {
     display: flex;
     --btn-bg: transparent;
     --btn-border-top: transparent;
@@ -48,7 +51,8 @@
   }
 }
 
-.left, .right {
+.left,
+.right {
   position: absolute;
   opacity: 0;
   padding: 2ch;
@@ -59,9 +63,9 @@
   display: flex;
   align-items: center;
   border-radius: 8px;
-  font-size: .9rem;
+  font-size: 0.9rem;
   font-weight: bold;
-  transition: opacity .2s;
+  transition: opacity 0.2s;
 
   &.left {
     background: var(--left-background, #212121);

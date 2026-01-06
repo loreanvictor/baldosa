@@ -1,12 +1,12 @@
 dialog {
   animation: grow-in 0.3s;
   width: 512px;
-  background: linear-gradient(180deg, #31313166, #2e2e2e66);
+  background: linear-gradient(180deg, #ffffff22, #ffffff11);
   border-radius: 16px;
   padding: 2ch;
   backdrop-filter: blur(32px) contrast(1.2) brightness(1.5);
   -webkit-backdrop-filter: blur(32px) contrast(1.2) brightness(1.5);
-  box-shadow: 0 0 2px 1px #ffffff22;
+  box-shadow: 0 0 0 1px #ffffff32;
   color: white;
   border: none;
   outline: none;

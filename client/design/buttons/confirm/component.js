@@ -67,6 +67,18 @@ define('confirm-button', () => {
     holdinterval = setInterval(() => {
       waited += 20
       self.style.setProperty('--percentage', `${(waited / wait) * 100}%`)
+
+      if (waited >= wait * 0.8) {
+        clearInterval(holdinterval)
+        self.removeAttribute('engaged')
+        confirm()
+
+        if (!locked) {
+          setTimeout(() => self.style.setProperty('--percentage', ''), 200)
+        }
+
+        waited = 0
+      }
     }, 20)
   })
 
@@ -74,18 +86,7 @@ define('confirm-button', () => {
     if (touchdevice()) return
     clearInterval(holdinterval)
     self.removeAttribute('engaged')
-
-    if (waited >= wait * 0.8) {
-      confirm()
-      clearInterval(holdinterval)
-
-      if (!locked) {
-        setTimeout(() => self.style.setProperty('--percentage', ''), 200)
-      }
-    } else {
-      self.style.setProperty('--percentage', '')
-    }
-
+    self.style.setProperty('--percentage', '')
     waited = 0
   })
 
