@@ -21,6 +21,7 @@ pub mod config;
 pub mod error;
 mod link_preview;
 mod publisher;
+mod reactions;
 mod tile;
 mod upload;
 
@@ -59,6 +60,7 @@ pub fn router(config: config::Config, ledger: &Ledger, db: &Pool<Postgres>) -> R
     .route("/{id}/rescind", delete(api::rescind_bid)) // --> rescind bid by id, if unpublished
     .route("/{id}/reject", delete(api::reject)) // --> admin rejects a bid by id, unpublish if need be
     .route("/all/live", get(api::all_live_bids)) // --> recently published bids
+    .nest("/{coords}/reactions", reactions::router(db))
     .layer(Extension(ledger))
     .layer(Extension(book))
     .layer(Extension(publisher))

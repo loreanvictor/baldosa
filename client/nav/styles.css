@@ -21,6 +21,7 @@ glass-pane {
   --btn-border-right: transparent;
 
   display: flex;
+  align-items: center;
   border-radius: 32px;
   padding: 0 0.5ch;
   gap: 0.5ch;
@@ -43,5 +44,13 @@ glass-pane {
         height: 28px;
       }
     }
+  }
+
+  hr {
+    border: none;
+    background: white;
+    opacity: 0.15;
+    width: 1px;
+    height: 1.5em;
   }
 }

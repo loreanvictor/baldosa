@@ -109,7 +109,7 @@ export const authenticated = async (opts) => {
   return {
     ...opts,
     headers: {
-      ...opts.headers,
+      ...opts?.headers,
       Authorization: `Bearer ${_token}`,
     },
   }
@@ -120,7 +120,7 @@ export const authenticatedIfPossible = (opts) => {
     return {
       ...opts,
       headers: {
-        ...opts.headers,
+        ...opts?.headers,
         Authorization: `Bearer ${_token}`,
       },
     }

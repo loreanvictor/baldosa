@@ -12,12 +12,12 @@ import '../../design/display/icon/component.js'
 import '../../design/display/mark-down/component.js'
 import '../../bookmark/button.js'
 import { info } from '../bid/backend.js'
-// import { isOwned } from '../../account/tiles/index.js'
 
 import { tilelink } from '../util/tile-link.js'
 import '../bid/button.js'
 
 import './unpublish.js'
+import '../reactions/components.js'
 
 define('tile-preview', () => {
   const mask = ref()
@@ -41,6 +41,7 @@ define('tile-preview', () => {
   const bid = ref()
   const report = ref()
   const unpublish = ref()
+  const like = ref()
 
   onAttribute('base-url', (url) => (baseURL.current = url))
   onProperty('mask', (m) => (mask.current = m))
@@ -67,6 +68,9 @@ define('tile-preview', () => {
       pos.current.textContent = `tile position: ${t.x}, ${t.y}`
       prim.current.setAttribute('when', t?.meta?.link)
       bid.current.style.display = t?.meta?.details?.bid === false ? 'none' : ''
+      like.current.setProperty('tile', t)
+
+      article.current.classList.toggle('no-title', !t.meta?.title)
 
       modal.current.controls.open()
 
@@ -86,6 +90,7 @@ define('tile-preview', () => {
     <glass-modal ref=${modal}>
       <article ref=${article}>
         <img ref=${img} />
+        <like-button ref=${like}></like-button>
         <h1 ref=${title}></h1>
         <show-only ref=${deets}>
           <span ref=${subtitle}></span>

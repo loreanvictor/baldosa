@@ -13,6 +13,15 @@ article > img {
   }
 }
 
+article > like-button {
+  float: right;
+  margin-top: -6ch;
+}
+
+article.no-title > like-button {
+  margin-right: 2ch;
+}
+
 h1 {
   margin-bottom: 0;
 }
@@ -27,6 +36,7 @@ article {
   margin-top: -8.75ch;
   margin-bottom: 2ch;
   padding: 2ch;
+  position: relative;
 
   @media screen and (max-width: 600px) {
     margin-top: -7ch;
