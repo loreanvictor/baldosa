@@ -1,13 +1,20 @@
-:host(:not([reacted])) {
-  i-con#unset {
-    opacity: 1;
-  }
+i-con#unset {
+  opacity: 1;
+}
+
+i-con#reacted {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 :host([reacted]) {
   i-con#reacted {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  i-con#unset {
+    opacity: 0;
   }
 }
 
@@ -39,7 +46,7 @@ glass-pane {
   padding-left: 12px;
   cursor: pointer;
   border-radius: 32px;
-  background: linear-gradient(180deg, #42424242, #42424232);
+  background: linear-gradient(180deg, #00000048, #00000052);
 
   div {
     position: relative;
@@ -51,15 +58,10 @@ glass-pane {
       position: absolute;
       top: 0;
       left: 0;
-      opacity: 0;
       transition:
         opacity 0.3s,
         transform 0.3s;
       transform-origin: center;
-
-      &#reacted {
-        transform: translateY(6px);
-      }
     }
   }
 
