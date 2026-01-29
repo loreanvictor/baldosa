@@ -106,8 +106,8 @@ dialog {
 
     header > close-pin {
       position: absolute;
-      right: 2ch;
-      top: 2ch;
+      right: 0;
+      top: 0;
     }
 
     &.closing {
