@@ -33,7 +33,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin: 2ch auto;
+  /*margin: 2ch auto;*/
   outline: none;
   width: calc(var(--btn-size) * 3 + 32px);
 
@@ -49,7 +49,7 @@
     border-radius: calc(var(--btn-size) / 2);
     height: var(--btn-size);
     width: var(--btn-size);
-    font-size: 1.6rem;
+    font-size: 2rem;
     cursor: pointer;
     transition: background 0.15s;
     box-shadow:
@@ -57,7 +57,7 @@
       0 2px 8px 0 #00000022;
 
     &[sym] {
-      font-size: 2rem;
+      font-size: 2.5rem;
     }
 
     &[cmd] {
@@ -75,7 +75,7 @@
       text-shadow:
         0 1px 2px #7d7253,
         0 0 8px #00000032;
-      font-size: 1.3rem;
+      font-size: 1.6rem;
       box-shadow:
         inset 0 -1px 0 1px #ddd3b7,
         inset 0 1px 0 1px #ffffff;
@@ -88,5 +88,34 @@
     &:empty {
       opacity: 0;
     }
+  }
+}
+
+#keypad-wrapper {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  margin: 2ch 0;
+}
+
+.dots {
+  height: 100%;
+  opacity: 0.4;
+  background: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 2px, transparent 0);
+  background-size: 12px 12px;
+  background-position: center;
+
+  &[left] {
+    margin: 32px 32px 32px 16px;
+    mask-image: linear-gradient(to left, transparent, black 40%);
+  }
+
+  &[right] {
+    margin: 32px 16px 32px 32px;
+    mask-image: linear-gradient(to right, transparent, black 40%);
   }
 }

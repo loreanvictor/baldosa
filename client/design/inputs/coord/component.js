@@ -3,8 +3,9 @@ import { ref, html } from 'rehtm'
 
 import { fromNSEW } from '../../../util/nsew.js'
 import { observe } from '../../../util/observe.js'
+import { isCoordinate, isDirection, isNumber, isLastPartNumber, toggleDirectionOfLastPart } from './util.js'
 
-const SPECIAL_KEYS = { ERASE: 'DEL', RESET: 'CLR' }
+const SPECIAL_KEYS = { ERASE: 'DEL', RESET: 'CLR', NORTH_SOUTH: '↕', WEST_EAST: '↔' }
 
 define('coord-input', () => {
   const self = currentNode()
@@ -12,7 +13,8 @@ define('coord-input', () => {
   const onComplete = useDispatch('complete')
 
   const value$ = ref()
-  const switch$ = ref()
+  const nsswitch$ = ref()
+  const weswitch$ = ref()
 
   let placeholder
   let value
@@ -24,22 +26,6 @@ define('coord-input', () => {
     if (value) {
       const parts = value.split(',').map((p) => p.toUpperCase().trim())
       const last = parts[parts.length - 1]
-
-      if (last.endsWith('N')) {
-        switch$.current.textContent = 'S'
-      } else if (last.endsWith('S')) {
-        switch$.current.textContent = 'N'
-      } else if (last.endsWith('W')) {
-        switch$.current.textContent = 'E'
-      } else if (last.endsWith('E')) {
-        switch$.current.textContent = 'W'
-      } else {
-        if (parts.some((p) => p.endsWith('N') || p.endsWith('S'))) {
-          switch$.current.textContent = 'W'
-        } else {
-          switch$.current.textContent = 'N'
-        }
-      }
     }
   }
 
@@ -65,7 +51,7 @@ define('coord-input', () => {
   const add = (key) => {
     if (key === SPECIAL_KEYS.ERASE) {
       if (value) {
-        value = value.slice(0, -1)
+        value = value.trim().slice(0, -1)
         if (value === '') {
           value = undefined
         }
@@ -73,30 +59,19 @@ define('coord-input', () => {
     } else if (key === SPECIAL_KEYS.RESET) {
       value = undefined
     } else if (key === ',') {
-      if (value && (value.endsWith('N') || value.endsWith('S') || value.endsWith('E') || value.endsWith('W'))) {
+      if (isCoordinate(value)) {
         value += ', '
       }
-    } else if (/^[NSEW]$/i.test(key)) {
-      if (value) {
-        const parts = value.split(',').map((p) => p.toUpperCase().trim())
-        const last = parts[parts.length - 1]
-        if (last.endsWith('N')) {
-          value = value.slice(0, -1) + 'S'
-        } else if (last.endsWith('S')) {
-          value = value.slice(0, -1) + 'N'
-        } else if (last.endsWith('W')) {
-          value = value.slice(0, -1) + 'E'
-        } else if (last.endsWith('E')) {
-          value = value.slice(0, -1) + 'W'
-        } else if (/^[0-9]$/.test(last[last.length - 1])) {
-          value += key.toUpperCase()
-        }
-      }
-    } else if (/^[0-9]$/.test(key)) {
+    } else if (key === SPECIAL_KEYS.NORTH_SOUTH) {
+      value = toggleDirectionOfLastPart(value, 'N') ?? value
+    } else if (key === SPECIAL_KEYS.WEST_EAST) {
+      value = toggleDirectionOfLastPart(value, 'W') ?? value
+    } else if (isDirection(key)) {
+      value = toggleDirectionOfLastPart(value, key) ?? value
+    } else if (isNumber(key)) {
       value = value ?? ''
-      const last = value[value.length - 1]
-      if (last === undefined || /^[0-9]$/.test(last) || value.endsWith(', ')) {
-        value = value + key
+      if (isLastPartNumber(value)) {
+        value += key
       }
     }
 
@@ -158,26 +133,30 @@ define('coord-input', () => {
       complete()
     } else if (event.key === 'Backspace') {
       add(SPECIAL_KEYS.ERASE)
-    } else if (event.key.match(/[0-9]/) || event.key === ',') {
+    } else if (isNumber(event.key) || isDirection(event.key) || event.key === ',') {
       add(event.key)
-    } else if (/^[NSEW]$/i.test(event.key)) {
-      add(event.key.toUpperCase())
     }
   })
 
   return html`
     <link rel="stylesheet" href="./client/design/inputs/coord/styles.css" />
     <div id="input"><span ref=${value$}>0</span></div>
-    <div id="keypad" onpointerdown=${click} onpointerup=${unclick}>
-      <button>1</button><button>2</button><button>3</button> <button>4</button><button>5</button><button>6</button>
-      <button>7</button><button>8</button><button>9</button> <button ref=${switch$}>N</button><button>0</button
-      ><button sym>,</button>
+    <div id="keypad-wrapper">
+      <div class="dots" left></div>
+      <div id="keypad" onpointerdown=${click} onpointerup=${unclick}>
+        <button>1</button><button>2</button><button>3</button> <button>4</button><button>5</button><button>6</button>
+        <button>7</button><button>8</button><button>9</button>
+        <button ref=${nsswitch$}>${SPECIAL_KEYS.NORTH_SOUTH}</button>
+        <button>0</button>
+        <button ref=${weswitch$}>${SPECIAL_KEYS.WEST_EAST}</button>
 
-      <button cmd>${SPECIAL_KEYS.ERASE}</button>
-      <button primary>
-        <slot name="complete-button">GO</slot>
-      </button>
-      <button cmd>${SPECIAL_KEYS.RESET}</button>
+        <button cmd>${SPECIAL_KEYS.ERASE}</button>
+        <button primary>
+          <slot name="complete-button">GO</slot>
+        </button>
+        <button sym>,</button>
+      </div>
+      <div class="dots" right></div>
     </div>
   `
 })
