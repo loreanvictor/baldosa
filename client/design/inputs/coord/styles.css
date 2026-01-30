@@ -110,12 +110,10 @@
   background-position: center;
 
   &[left] {
-    margin: 32px 32px 32px 16px;
-    mask-image: linear-gradient(to left, transparent, black 40%);
+    margin: 96px 32px 96px 8px;
   }
 
   &[right] {
-    margin: 32px 16px 32px 32px;
-    mask-image: linear-gradient(to right, transparent, black 40%);
+    margin: 96px 8px 96px 32px;
   }
 }

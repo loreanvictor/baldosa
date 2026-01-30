@@ -5,7 +5,7 @@ import { fromNSEW } from '../../../util/nsew.js'
 import { observe } from '../../../util/observe.js'
 import { isCoordinate, isDirection, isNumber, isLastPartNumber, toggleDirectionOfLastPart } from './util.js'
 
-const SPECIAL_KEYS = { ERASE: 'DEL', RESET: 'CLR', NORTH_SOUTH: '↕', WEST_EAST: '↔' }
+const SPECIAL_KEYS = { ERASE: 'DEL', RESET: 'CLR', NORTH_SOUTH: 'N S', WEST_EAST: 'W E' }
 
 define('coord-input', () => {
   const self = currentNode()
@@ -146,9 +146,11 @@ define('coord-input', () => {
       <div id="keypad" onpointerdown=${click} onpointerup=${unclick}>
         <button>1</button><button>2</button><button>3</button> <button>4</button><button>5</button><button>6</button>
         <button>7</button><button>8</button><button>9</button>
-        <button ref=${nsswitch$}>${SPECIAL_KEYS.NORTH_SOUTH}</button>
+        <button ref=${nsswitch$} cmd style="padding: 0 calc((var(--btn-size) - 1em) / 2)">
+          ${SPECIAL_KEYS.NORTH_SOUTH}
+        </button>
         <button>0</button>
-        <button ref=${weswitch$}>${SPECIAL_KEYS.WEST_EAST}</button>
+        <button ref=${weswitch$} cmd>${SPECIAL_KEYS.WEST_EAST}</button>
 
         <button cmd>${SPECIAL_KEYS.ERASE}</button>
         <button primary>
