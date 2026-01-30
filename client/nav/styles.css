@@ -48,8 +48,9 @@ glass-pane {
 
   hr {
     border: none;
-    background: white;
-    opacity: 0.15;
+    border-right: 1px solid white;
+    border-left: 1px solid black;
+    opacity: 0.1;
     width: 1px;
     height: 1.5em;
   }

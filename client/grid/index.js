@@ -13,6 +13,7 @@ import './control/zoom-indicator.js'
 
 import { createGridMask } from './mask/index.js'
 import { allowDeepZoom } from './util/allow-deep-zoom.js'
+import { savePosition, saveZoom, loadPositionAndZoom } from './util/storage.js'
 
 define('controlled-grid', () => {
   const WMIN = Math.min(window.innerWidth, window.innerHeight)
@@ -51,11 +52,13 @@ define('controlled-grid', () => {
     camera.current.setAttribute('camx', 0.5)
     camera.current.setAttribute('camy', 0.5)
     camera.current.setAttribute('zoom', scale)
+    camera.current.setAttribute('defaultzoom', scale)
     camera.current.setAttribute('minzoom', MIN_SCALE)
     camera.current.setAttribute('maxzoom', MAX_SCALE)
     camera.current.addEventListener('pan', ({ detail }) => {
       grid.current.setAttribute('camx', detail.camera.x)
       grid.current.setAttribute('camy', detail.camera.y)
+      savePosition(detail.camera.x - 0.5, detail.camera.y - 0.5)
 
       grid.current.setAttribute(
         'panv',
@@ -65,6 +68,7 @@ define('controlled-grid', () => {
     camera.current.addEventListener('zoom', ({ detail }) => {
       scale = detail.zoom
       grid.current.setAttribute('zoom', detail.zoom)
+      saveZoom(detail.zoom)
     })
 
     panind.current.addEventListener('pan', ({ detail }) => {
@@ -89,10 +93,15 @@ define('controlled-grid', () => {
     })
 
     const goto = new URL(window.location).searchParams.get('tile')
+    const saved = loadPositionAndZoom()
     if (goto) {
       const [x, y] = goto.split(',')
       camera.current.setAttribute('camx', (parseInt(x) ?? 0) + 0.5)
       camera.current.setAttribute('camy', (parseInt(y) ?? 0) + 0.5)
+    } else if (saved) {
+      camera.current.setAttribute('camx', (saved.x ?? 0) + 0.5)
+      camera.current.setAttribute('camy', (saved.y ?? 0) + 0.5)
+      camera.current.setAttribute('zoom', saved.zoom ?? scale)
     }
 
     broadcast('grid:connected')

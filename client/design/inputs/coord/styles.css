@@ -3,6 +3,7 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
+  --btn-size: calc(min(100vw, 512px) / 6);
 }
 
 #input {
@@ -18,8 +19,8 @@
 
   span {
     color: white;
-    margin: 0 .25ch;
-    transition: color .3s;
+    margin: 0 0.25ch;
+    transition: color 0.3s;
 
     &.placeholder {
       color: #424242;
@@ -31,28 +32,40 @@
 #keypad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  margin: 2ch 0;
+  gap: 16px;
+  margin: 2ch auto;
   outline: none;
+  width: calc(var(--btn-size) * 3 + 32px);
 
   button {
-    background: #31313144;
+    background: linear-gradient(180deg, #ffffff11, #ffffff31);
     border: none;
-    color: #ffffff;
+    color: #757575;
+    text-shadow:
+      0 -0.5px 0px white,
+      0 1px 2px #00000064;
     padding: 8px;
     outline: none;
-    border-radius: 5px;
-    height: calc(min(100vw, 512px)  / 6);
-    font-size: 1.1rem;
+    border-radius: var(--btn-size);
+    height: var(--btn-size);
+    width: var(--btn-size);
+    font-size: 1.6rem;
     cursor: pointer;
-    transition: background .15s;
+    transition: background 0.15s;
+    box-shadow:
+      0 0 0 1px #ffffff32,
+      0 2px 8px 0 #00000022;
 
     &[sym] {
-      font-size: 2rem;
+      font-size: 2.5rem;
+    }
+
+    &[cmd] {
+      font-size: 1rem;
     }
 
     &:hover {
-      background: #31313166;
+      background: linear-gradient(180deg, #ffffff21, #ffffff31);
     }
 
     &:empty {

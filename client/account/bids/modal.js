@@ -13,7 +13,6 @@ import '../../design/display/textual.js'
 import './card.js'
 import { pendingAndHistory } from './backend.js'
 
-
 export const modal = singleton('account-bids-modal', () => {
   const modal = ref()
   const tabs = ref()
@@ -31,16 +30,16 @@ export const modal = singleton('account-bids-modal', () => {
 
     pendingList.current.controls.init(_pending)
     historyList.current.controls.init(_history)
-    rejectedList.current.controls.init(_history.filter(bid => !!bid.rejection))
+    rejectedList.current.controls.init(_history.filter((bid) => !!bid.rejection))
   }
 
-  onBroadcast('bid:submitted', bid => {
+  onBroadcast('bid:submitted', (bid) => {
     historyList.current.controls.prepend(bid)
     !bid.published_at && pendingList.current.controls.prepend(bid)
     bid.rejection && rejectedList.current.controls.prepend(bid)
   })
 
-  onBroadcast('bid:rescinded', bid => {
+  onBroadcast('bid:rescinded', (bid) => {
     historyList.current.controls.remove(bid.id)
     pendingList.current.controls.remove(bid.id)
     rejectedList.current.controls.remove(bid.id)
@@ -59,12 +58,13 @@ export const modal = singleton('account-bids-modal', () => {
         position: absolute;
         top: 1.5ch;
         right: 8ex;
+        z-index: 1;
       }
 
       tabbed-content {
         section {
-            max-height: 85vh;
-            overflow: auto;
+          max-height: 85vh;
+          overflow: auto;
         }
       }
 
@@ -88,51 +88,49 @@ export const modal = singleton('account-bids-modal', () => {
       }
     </style>
     <glass-modal ref=${modal} aside>
-      <span slot='title'>Bids</span>
-      <div class='switcher-holder'>
+      <span slot="title">Bids</span>
+      <div class="switcher-holder">
         <switcher-button>
-          <button selected onclick=${() => tabs.current.controls.select(pendingTab.current)}>
-            Pending
-          </button>
-          <hr/>
-          <button onclick=${() => tabs.current.controls.select(historyTab.current)}>
-            History
-          </button>
-          <hr/>
-          <button onclick=${() => tabs.current.controls.select(rejectedTab.current)}>
-            Rejected
-          </button>
+          <button selected onclick=${() => tabs.current.controls.select(pendingTab.current)}>Pending</button>
+          <hr />
+          <button onclick=${() => tabs.current.controls.select(historyTab.current)}>History</button>
+          <hr />
+          <button onclick=${() => tabs.current.controls.select(rejectedTab.current)}>Rejected</button>
         </switcher-button>
       </div>
       <tabbed-content ref=${tabs}>
         <section ref=${pendingTab} selected>
-          <keyed-list ref=${pendingList}
-            each=${bid => html`<account-bid-card key=${bid.id} bid=${bid}></account-bid-card>`}>
+          <keyed-list
+            ref=${pendingList}
+            each=${(bid) => html`<account-bid-card key=${bid.id} bid=${bid}></account-bid-card>`}
+          >
           </keyed-list>
           <small-hint>
-            Your pending bids appear here. Pending bids are awaiting the next auction of their corresponding
-            tile, and will be published if they win. If not, they will remain pending for the following auctions
-            on the same tile.
+            Your pending bids appear here. Pending bids are awaiting the next auction of their corresponding tile, and
+            will be published if they win. If not, they will remain pending for the following auctions on the same tile.
           </small-hint>
         </section>
         <section ref=${historyTab}>
-          <keyed-list ref=${historyList}
-            each=${bid => html`<account-bid-card key=${bid.id} bid=${bid}></account-bid-card>`}>
+          <keyed-list
+            ref=${historyList}
+            each=${(bid) => html`<account-bid-card key=${bid.id} bid=${bid}></account-bid-card>`}
+          >
           </keyed-list>
           <small-hint>
-            All your bids appear here, including the ones who are live, past published bids,
-            pending bids, and rejected bids. To see the tiles you currently have bids published
-            to, check out the "Tiles" section.
+            All your bids appear here, including the ones who are live, past published bids, pending bids, and rejected
+            bids. To see the tiles you currently have bids published to, check out the "Tiles" section.
           </small-hint>
         </section>
         <section ref=${rejectedTab}>
-          <keyed-list ref=${rejectedList}
-            each=${bid => html`<account-bid-card key=${bid.id} bid=${bid}></account-bid-card>`}>
+          <keyed-list
+            ref=${rejectedList}
+            each=${(bid) => html`<account-bid-card key=${bid.id} bid=${bid}></account-bid-card>`}
+          >
           </keyed-list>
           <small-hint>
-            All your bids that are rejected appear here. Rejected bids violate our terms of service and rules
-            for content in Baldosa, hence why they are rejected. A bid might get rejected after it is published,
-            in which case the coins used for publishing it won't be refunded.
+            All your bids that are rejected appear here. Rejected bids violate our terms of service and rules for
+            content in Baldosa, hence why they are rejected. A bid might get rejected after it is published, in which
+            case the coins used for publishing it won't be refunded.
           </small-hint>
         </section>
       </tabbed-content>

@@ -11,7 +11,7 @@ const MAXPOS = 100_000
 
 define(
   'camera-control',
-  ({ target, friction = 0.035, camx = 0, camy = 0, zoom = 200, maxzoom = 300, minzoom = 100 }) => {
+  ({ target, friction = 0.035, camx = 0, camy = 0, zoom = 200, maxzoom = 300, minzoom = 100, defaultzoom = 200 }) => {
     const onPan = useDispatch('pan')
     const onZoom = useDispatch('zoom')
 
@@ -32,6 +32,7 @@ define(
     )
     onAttribute('maxzoom', (value) => (maxzoom = value ? parseFloat(value) : maxzoom))
     onAttribute('minzoom', (value) => (minzoom = value ? parseFloat(value) : minzoom))
+    onAttribute('defaultzoom', (value) => (defaultzoom = value ? parseFloat(value) : defaultzoom))
 
     const drag = ref()
     const pinch = ref()
@@ -79,12 +80,12 @@ define(
       tapreset: () => {
         let steps = 20
         const step = () => {
-          const diff = (zoom - _zoom) / 5
+          const diff = (defaultzoom - _zoom) / 5
           _zoom += diff
           if (--steps > 0) {
             requestAnimationFrame(step)
           } else {
-            _zoom = zoom
+            _zoom = defaultzoom
           }
           onZoom({ zoom: _zoom, velocity: diff, min: minzoom, max: maxzoom })
         }
