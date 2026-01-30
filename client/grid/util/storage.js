@@ -11,6 +11,12 @@ const current = {
   zoom: 1,
 }
 
+export const initStorage = (initial) => {
+  current.x = initial.x || 0
+  current.y = initial.y || 0
+  current.zoom = initial.zoom || 1
+}
+
 const save = () => {
   lastSave = Date.now()
   clearTimeout(saveTimeout)

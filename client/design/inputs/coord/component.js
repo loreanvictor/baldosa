@@ -92,19 +92,24 @@ define('coord-input', () => {
   let eraseinterval
 
   const click = (event) => {
-    if (event.target.closest('button')) {
-      const key = event.target.textContent
-      add(key)
+    const btn$ = event.target.closest('button')
+    if (btn$) {
+      if (btn$.hasAttribute('primary')) {
+        onComplete(self.value)
+      } else {
+        const key = event.target.textContent
+        add(key)
 
-      if (key === SPECIAL_KEYS.ERASE) {
-        clearTimeout(erasetimeout)
-        clearInterval(eraseinterval)
+        if (key === SPECIAL_KEYS.ERASE) {
+          clearTimeout(erasetimeout)
+          clearInterval(eraseinterval)
 
-        erasetimeout = setTimeout(() => {
-          eraseinterval = setInterval(() => {
-            add(SPECIAL_KEYS.ERASE)
-          }, 80)
-        }, 250)
+          erasetimeout = setTimeout(() => {
+            eraseinterval = setInterval(() => {
+              add(SPECIAL_KEYS.ERASE)
+            }, 80)
+          }, 250)
+        }
       }
     }
   }
@@ -143,8 +148,9 @@ define('coord-input', () => {
       ><button sym>,</button>
 
       <button cmd>${SPECIAL_KEYS.ERASE}</button>
-      <button></button>
-      <button></button>
+      <button primary>
+        <slot name="complete-button">GO</slot>
+      </button>
     </div>
   `
 })

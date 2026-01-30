@@ -13,7 +13,7 @@ import './control/zoom-indicator.js'
 
 import { createGridMask } from './mask/index.js'
 import { allowDeepZoom } from './util/allow-deep-zoom.js'
-import { savePosition, saveZoom, loadPositionAndZoom } from './util/storage.js'
+import { initStorage, savePosition, saveZoom, loadPositionAndZoom } from './util/storage.js'
 
 define('controlled-grid', () => {
   const WMIN = Math.min(window.innerWidth, window.innerHeight)
@@ -91,6 +91,8 @@ define('controlled-grid', () => {
         empty.current.setProperty('tile', detail)
       }
     })
+
+    initStorage({ x: 0, y: 0, zoom: scale })
 
     const goto = new URL(window.location).searchParams.get('tile')
     const saved = loadPositionAndZoom()

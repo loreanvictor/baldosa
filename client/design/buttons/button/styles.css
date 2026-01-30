@@ -16,15 +16,15 @@ button {
   border-bottom-color: var(--btn-border-bot, var(--button-border-color));
   border-left-color: var(--btn-border-left, var(--button-border-color));
   border-right-color: var(--btn-border-right, var(--button-border-color));
-  border-top-left-radius: var(--btn-top-left-rad, 8px);
-  border-top-right-radius: var(--btn-top-right-rad, 8px);
-  border-bottom-left-radius: var(--btn-bot-left-rad, 8px);
-  border-bottom-right-radius: var(--btn-bot-right-rad, 8px);
+  border-top-left-radius: var(--btn-top-left-rad, var(--border-radius, 8px));
+  border-top-right-radius: var(--btn-top-right-rad, var(--border-radius, 8px));
+  border-bottom-left-radius: var(--btn-bot-left-rad, var(--border-radius, 8px));
+  border-bottom-right-radius: var(--btn-bot-right-rad, var(--border-radius, 8px));
   font-size: 0.9rem;
   font-weight: bold;
   padding: 4px 8px;
-  height: var(--width, 52px);
-  min-width: var(--height, 52px);
+  height: var(--height, 52px);
+  min-width: var(--width, 52px);
   cursor: pointer;
   transition:
     filter 0.15s,
