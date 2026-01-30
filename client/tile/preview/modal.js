@@ -13,6 +13,7 @@ import '../../design/display/mark-down/component.js'
 import '../../bookmark/button.js'
 import { info } from '../bid/backend.js'
 
+import { toNSEW } from '../../util/nsew.js'
 import { tilelink } from '../util/tile-link.js'
 import '../bid/button.js'
 
@@ -65,7 +66,7 @@ define('tile-preview', () => {
       deets.current.setAttribute('when', t.meta?.subtitle || t.meta?.description)
       subtitle.current.textContent = t.meta?.subtitle ?? ''
       description.current.setAttribute('content', t.meta?.description ?? '')
-      pos.current.textContent = `tile position: ${t.x}, ${t.y}`
+      pos.current.textContent = `tile position: ${toNSEW(t.x, t.y)}`
       prim.current.setAttribute('when', t?.meta?.link)
       bid.current.style.display = t?.meta?.details?.bid === false ? 'none' : ''
       like.current.setProperty('tile', t)

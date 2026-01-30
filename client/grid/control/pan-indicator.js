@@ -7,28 +7,37 @@ import '../../design/inputs/coord/component.js'
 import '../../design/buttons/button/components.js'
 import '../../design/display/icon/component.js'
 import { observe } from '../../util/observe.js'
+import { isTyping } from '../../util/typing.js'
+import { toNSEW } from '../../util/nsew.js'
 
 define('pan-indicator', ({ camera }) => {
   const onPan = useDispatch('pan')
-  const x$ = ref()
-  const y$ = ref()
-
+  const pos$ = ref()
   const modal$ = ref()
   const coord$ = ref()
 
-  const set = (span$, value) => {
-    if (value !== undefined && !isNaN(value)) {
-      span$.current.textContent = Math.floor(value)
-    }
-  }
+  let x, y
+
+  const update = () => (pos$.current.textContent = toNSEW(x, y, false, 'any'))
 
   observe(camera, 'pan', ({ detail }) => {
-    set(x$, detail.camera.x)
-    set(y$, detail.camera.y)
+    x = Math.floor(detail.camera.x)
+    y = Math.floor(detail.camera.y)
+    update()
   })
 
-  onAttribute('x', (value) => set(x$, parseInt(value)))
-  onAttribute('y', (value) => set(y$, parseInt(value)))
+  observe(window, 'keydown', (event) => {
+    if (event.key === '/' && !isTyping()) {
+      event.preventDefault()
+      modal$.current.controls.open()
+      coord$.current.setAttribute('placeholder', `${toNSEW(x, y)}`)
+      coord$.current.controls.reset()
+      coord$.current.focus()
+    }
+  })
+
+  onAttribute('x', (value) => ((x = parseInt(value)), update()))
+  onAttribute('y', (value) => ((y = parseInt(value)), update()))
 
   const go = () => {
     const target = coord$.current.value
@@ -76,13 +85,13 @@ define('pan-indicator', ({ camera }) => {
     </style>
     <glass-pane
       onclick=${() => {
-        coord$.current.setAttribute('placeholder', `${x$.current.textContent},${y$.current.textContent}`)
+        coord$.current.setAttribute('placeholder', `${toNSEW(x, y)}`)
         modal$.current.controls.open()
         coord$.current.controls.reset()
         coord$.current.focus()
       }}
     >
-      <span ref=${x$}>0</span> , <span ref=${y$}>0</span>
+      <span ref=${pos$}>0</span>
     </glass-pane>
     <glass-modal ref=${modal$}>
       <coord-input ref=${coord$} oncomplete=${go} completebtn></coord-input>

@@ -1,3 +1,4 @@
+import { toNSEW } from '../../util/nsew.js'
 import { fillSquareWithImage } from './image/util.js'
 
 const SPACING = 0.025
@@ -39,7 +40,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
   ctx.textBaseline = 'middle'
   ctx.fillStyle = '#616161'
   ctx.fillText(
-    `${tile.x},${tile.y}`,
+    `${toNSEW(tile.x, tile.y)}`,
     rx + size - (SPACING + RADIUS) * camera.zoom,
     ry + size - (SPACING + RADIUS) * camera.zoom,
   )

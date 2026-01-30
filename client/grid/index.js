@@ -5,6 +5,7 @@ import { onBroadcast, broadcast } from '../util/broadcast.js'
 
 import '../tile/preview/modal.js'
 import '../tile/preview/empty.js'
+import { fromNSEWOrCartesian } from '../util/nsew.js'
 
 import './render/index.js'
 import './control/camera-control.js'
@@ -97,9 +98,9 @@ define('controlled-grid', () => {
     const goto = new URL(window.location).searchParams.get('tile')
     const saved = loadPositionAndZoom()
     if (goto) {
-      const [x, y] = goto.split(',')
-      camera.current.setAttribute('camx', (parseInt(x) ?? 0) + 0.5)
-      camera.current.setAttribute('camy', (parseInt(y) ?? 0) + 0.5)
+      const { x, y } = fromNSEWOrCartesian(goto)
+      camera.current.setAttribute('camx', x + 0.5)
+      camera.current.setAttribute('camy', y + 0.5)
     } else if (saved) {
       camera.current.setAttribute('camx', (saved.x ?? 0) + 0.5)
       camera.current.setAttribute('camy', (saved.y ?? 0) + 0.5)
