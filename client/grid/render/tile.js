@@ -69,20 +69,26 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
           ctx.fillRect(rx, ry, size, size)
         }
 
+        const camZoomFactor = camera.zoom / (camera.defaultzoom ?? 200)
+        const camZoomFactorM = Math.min(camZoomFactor, 1)
+        const textAlpha =
+          Math.min(1, 0.5 + 0.5 / Math.max(1, camera.v * 64)) * (camZoomFactorM * camZoomFactorM * camZoomFactorM)
         if (img.meta.title) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.5 + 0.5 / Math.max(1, camera.v * 64))})`
-          ctx.font = `bold ${camera.zoom / 12}px "Open Sans"`
+          ctx.fillStyle = `rgba(255, 255, 255, ${textAlpha})`
+          ctx.font = `${camZoomFactor * Math.sqrt(camZoomFactorM) * 12}px "Open Sans"`
           ctx.textAlign = 'left'
           ctx.fillText(
             img.meta.title,
-            rx + SPACING * 2 * camera.zoom,
-            img.meta.subtitle ? ry + size - (SPACING * 4 + 0.1) * camera.zoom : ry + size - SPACING * 2 * camera.zoom,
+            rx + SPACING * 1.5 * camera.zoom,
+            img.meta.subtitle
+              ? ry + size - (SPACING * 2 + 0.075) * camera.zoom
+              : ry + size - SPACING * 1.75 * camera.zoom,
           )
         }
 
         if (img.meta.subtitle) {
-          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.5 + 0.5 / Math.max(1, camera.v * 64))})`
-          ctx.font = `${camera.zoom / 16}px "Open Sans"`
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.5 * textAlpha * camZoomFactorM * camZoomFactorM})`
+          ctx.font = `bold ${camZoomFactor * 10}px "Open Sans"`
           ctx.textAlign = 'left'
 
           const MAX_TEXT_LENGTH = 28
@@ -91,7 +97,7 @@ export function drawTile(ctx, tile, bounds, camera, mouse, gallery, mask) {
               ? img.meta.subtitle.slice(0, MAX_TEXT_LENGTH - 3) + '…'
               : img.meta.subtitle
 
-          ctx.fillText(truncated, rx + SPACING * 2 * camera.zoom, ry + size - SPACING * 4 * camera.zoom)
+          ctx.fillText(truncated, rx + SPACING * 1.5 * camera.zoom, ry + size - SPACING * 2 * camera.zoom)
         }
       }
     }

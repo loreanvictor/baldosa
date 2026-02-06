@@ -47,6 +47,7 @@ define('controlled-grid', () => {
 
     grid.current.setAttribute('src', baseURL)
     grid.current.setAttribute('zoom', scale)
+    grid.current.setAttribute('defaultzoom', scale)
     grid.current.setAttribute('image-cache-size', IMG_CACHE_SIZE)
     grid.current.setProperty('mask', mask.current)
 

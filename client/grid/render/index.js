@@ -34,7 +34,7 @@ define('infinite-grid', () => {
   const canvas = ref()
   const ctx = ref()
 
-  const camera = { x: 0.5, y: 0.5, v: 0, zoom: 200 }
+  const camera = { x: 0.5, y: 0.5, v: 0, zoom: 200, defaultzoom: 200 }
   let width, height
 
   let _last_hovered_tile
@@ -101,6 +101,7 @@ define('infinite-grid', () => {
   onAttribute('camx', (x) => ((camera.x = valid(parseFloat(x), camera.x)), draw()))
   onAttribute('camy', (y) => ((camera.y = valid(parseFloat(y), camera.y)), draw()))
   onAttribute('zoom', (zoom) => ((camera.zoom = valid(parseFloat(zoom), camera.zoom)), draw()))
+  onAttribute('defaultzoom', (zoom) => ((camera.defaultzoom = valid(parseFloat(zoom), camera.defaultzoom)), draw()))
 
   let speedytimer
   let toofast = false
