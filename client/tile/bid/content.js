@@ -10,6 +10,7 @@ import '../../design/inputs/text/component.js'
 import '../../design/inputs/text-area/component.js'
 import '../../design/display/icon/component.js'
 import '../../design/inputs/image/component.js'
+import { toNSEW } from '../../util/nsew.js'
 
 import './suggest/button.js'
 
@@ -63,7 +64,7 @@ export const modal = singleton('bid-content-modal', () => {
   attachControls({
     open: async (_tile) => {
       tile = _tile
-      coords.current.textContent = `Tile ${tile.x}, ${tile.y}`
+      coords.current.textContent = `Tile ${toNSEW(tile.x, tile.y)}`
       modal.current.controls.open()
 
       const draft = await loadDraft(tile)

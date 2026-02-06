@@ -9,6 +9,8 @@ import '../../design/layout/key-val/components.js'
 import '../../design/buttons/confirm/component.js'
 import '../../design/display/icon/component.js'
 
+import { toNSEW } from '../../util/nsew.js'
+
 import { loadBid, updateBid } from './draft.js'
 
 // FIXME: there is a bug where after submitting one bid, the form
@@ -73,7 +75,7 @@ export const modal = singleton('bid-modal', () => {
       amount = Math.min(balance, Math.max(min, await loadBid(tile)))
 
       modal.current?.controls.open()
-      coords.current?.setAttribute('value', `${_tile.x}, ${_tile.y}`)
+      coords.current?.setAttribute('value', `${toNSEW(_tile.x, _tile.y)}`)
       lastbid.current?.setAttribute('value', info.last_bid?.amount || '-')
 
       updateAuctionTime(info)
