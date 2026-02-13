@@ -5,6 +5,7 @@ import { singleton } from '../../util/singleton.js'
 import { dateish } from '../../util/format.js'
 import { openlink } from '../../util/open-link.js'
 import { onBroadcast } from '../../util/broadcast.js'
+import { toNSEW } from '../../util/nsew.js'
 
 import '../../design/overlays/modal/component.js'
 import '../../design/layout/key-val/components.js'
@@ -16,7 +17,6 @@ import '../../design/display/eta.js'
 import '../../design/buttons/button/components.js'
 
 import { modal as rescind } from './rescind.js'
-
 
 export const modal = singleton('account-bids-details-modal', () => {
   let bid
@@ -32,14 +32,14 @@ export const modal = singleton('account-bids-details-modal', () => {
   const url = ref()
   const rescindbtn = ref()
 
-  onBroadcast('bid:rescinded', b => {
+  onBroadcast('bid:rescinded', (b) => {
     if (b.id === bid.id) {
       modal.current.controls.close()
     }
   })
 
   attachControls({
-    open: _bid => {
+    open: (_bid) => {
       bid = _bid
 
       const pending = !bid.published_at && !bid.rejection
@@ -71,7 +71,7 @@ export const modal = singleton('account-bids-details-modal', () => {
 
       modal.current?.controls.open()
       amount.current?.setAttribute('value', bid.amount)
-      coords.current?.setAttribute('value', `${bid.x}, ${bid.y}`)
+      coords.current?.setAttribute('value', toNSEW(bid.x, bid.y))
       submitted.current?.setAttribute('value', dateish(bid.created_at))
 
       title.current.textContent = bid.content.title ?? ''
@@ -79,13 +79,14 @@ export const modal = singleton('account-bids-details-modal', () => {
       description.current.setAttribute('content', bid.content.description ?? '')
 
       url.current.style.display = bid.content.url ? '' : 'none'
-    }
+    },
   })
 
   return html`
     <style>
       quoted-content {
-        h2, p {
+        h2,
+        p {
           margin: 0;
           padding: 0;
         }
@@ -102,23 +103,19 @@ export const modal = singleton('account-bids-details-modal', () => {
       }
     </style>
     <glass-modal ref=${modal}>
-      <span slot='title'>Bid Details</span>
+      <span slot="title">Bid Details</span>
       <status-plaque ref=${status}>
-        <i-con slot='icon' src='bid' dark fill></i-con>
+        <i-con slot="icon" src="bid" dark fill></i-con>
         <span></span>
       </status-plaque>
 
       <key-vals>
         <key-val ref=${amount}>
           Amount
-          <i-con src='coin' dark fill slot='icon'></i-con>
+          <i-con src="coin" dark fill slot="icon"></i-con>
         </key-val>
-        <key-val ref=${coords}>
-          Tile
-        </key-val>
-        <key-val ref=${submitted}>
-          Submitted
-        </key-val>
+        <key-val ref=${coords}> Tile </key-val>
+        <key-val ref=${submitted}> Submitted </key-val>
       </key-vals>
       <quoted-content>
         <h2 ref=${title}></h2>
@@ -126,11 +123,12 @@ export const modal = singleton('account-bids-details-modal', () => {
         <mark-down ref=${description}></mark-down>
         <secondary-button onclick=${() => openlink(bid.content.url)} ref=${url}>
           Open
-          <i-con src='square-arrow' dark thick slot='icon'></i-con>
+          <i-con src="square-arrow" dark thick slot="icon"></i-con>
         </secondary-button>
       </quoted-content>
-      <secondary-button ref=${rescindbtn} danger class='rescind-btn'
-        onclick=${() => rescind().controls.open(bid)}>Rescind Bid</secondary-button>
+      <secondary-button ref=${rescindbtn} danger class="rescind-btn" onclick=${() => rescind().controls.open(bid)}
+        >Rescind Bid</secondary-button
+      >
     </glass-modal>
   `
 })

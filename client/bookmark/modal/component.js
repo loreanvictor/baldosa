@@ -134,7 +134,7 @@ export const modal = singleton('bookmark-modal', () => {
         <copy-button ref=${tlink} toast="Tile link copied to clipboard!">
           <secondary-button row>
             <toggle-icon slot="icon">
-              <i-con src="pin" dark thick></i-con>
+              <i-con src="compass" dark thick></i-con>
               <i-con src="check" dark thick slot="alt"></i-con>
             </toggle-icon>
             Copy Tile Link
